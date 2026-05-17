@@ -8,7 +8,10 @@ created: 2026-05-17
 
 Append-only record of all ingests, refreshes, and significant changes. Newest entries at top.
 
----
+## 2026-05-17 | ingest | wiki.defence-force.org | Defence Force DokuWiki — Oric hub (hardware, tools, emulators, projects)
+
+- Created: wiki/sources/wiki.defence-force.org.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/web/README.md, inbox.md
 
 ## 2026-05-17 | ingest | blog.defence-force.org | Dbug's personal blog — Oric game dev, Oriclopedia, Adeline Software, floppy emulation
 

@@ -2,7 +2,7 @@
 type: source
 source_url: https://library.defence-force.org/
 tags: [oric-library, document-preservation, oric-magazines, oric-books, 6502-reference, retro-archive, pdf-archive, defence-force]
-related: [defence-force.org, forum.defence-force.org, oric.free.fr, osdk.org, blog.defence-force.org]
+related: [defence-force.org, forum.defence-force.org, oric.free.fr, osdk.org, blog.defence-force.org, wiki.defence-force.org]
 product: defence-force
 detail_level: standard
 created: 2026-05-17

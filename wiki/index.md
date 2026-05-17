@@ -20,5 +20,6 @@ created: 2026-05-17
 | [[osdk.org]] | web | standard | 2026-05-17 | |
 | [[library.defence-force.org]] | web | standard | 2026-05-17 | |
 | [[blog.defence-force.org]] | web | standard | 2026-05-17 | |
+| [[wiki.defence-force.org]] | web | standard | 2026-05-17 | |
 
-_8 sources ingested._
+_9 sources ingested._

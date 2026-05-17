@@ -7,7 +7,15 @@ raw_files:
   - ../../raw/web/defence-force.org.md
   - ../../raw/github/Oric-Software-Development-Kit-Oric-Software.md
 tags: [osdk, oric-cross-development, 6502-toolchain, lcc-compiler, xa-assembler, floppybuilder, oric-games, defence-force]
-related: [oric.free.fr, forum.defence-force.org, osdk.org, library.defence-force.org, blog.defence-force.org]
+related:
+  [
+    oric.free.fr,
+    forum.defence-force.org,
+    osdk.org,
+    library.defence-force.org,
+    blog.defence-force.org,
+    wiki.defence-force.org,
+  ]
 product: defence-force
 detail_level: standard
 created: 2026-05-17

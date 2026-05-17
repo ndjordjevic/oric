@@ -12,3 +12,4 @@ Immutable web page/site captures. Written by the fetch step; never edited manual
 | raw/web/osdk.org.md | osdk.org | 10 | 2026-05-17 | |
 | raw/web/library.defence-force.org.md | library.defence-force.org | 7 | 2026-05-17 | |
 | raw/web/blog.defence-force.org.md | blog.defence-force.org | 6 | 2026-05-17 | |
+| raw/web/wiki.defence-force.org.md | wiki.defence-force.org | 6 | 2026-05-17 | |

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "wiki/overview.md",
+                "file": "wiki/sources/wiki.defence-force.org.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "overview"
+              "title": "wiki.defence-force.org"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "wiki/overview.md",
+                "file": "wiki/sources/wiki.defence-force.org.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for overview"
+              "title": "Backlinks for wiki.defence-force.org"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "wiki/overview.md",
+                "file": "wiki/sources/wiki.defence-force.org.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from overview"
+              "title": "Outgoing links from wiki.defence-force.org"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "wiki/overview.md",
+                "file": "wiki/sources/wiki.defence-force.org.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of overview"
+              "title": "Outline of wiki.defence-force.org"
             }
           }
         ]
@@ -185,6 +185,9 @@
   },
   "active": "6bd1fc82e918811a",
   "lastOpenFiles": [
+    "wiki/overview.md",
+    "wiki/sources/wiki.defence-force.org.md",
+    "raw/web/wiki.defence-force.org.md",
     "wiki/sources/blog.defence-force.org.md",
     "raw/web/blog.defence-force.org.md",
     "wiki/sources/defence-force.org.md.tmp.24327.fbeb7f18a24e",
@@ -196,7 +199,6 @@
     "raw/github/Oric-Software-Development-Kit-osdk.md",
     "wiki/sources/forum.defence-force.org.md",
     "raw/web/forum.defence-force.org.md",
-    "wiki/overview.md",
     "wiki/index.md",
     "wiki/sources/oric.free.fr.md",
     "wiki/log.md.tmp.7536.d44a8faadc2e",

@@ -2,7 +2,7 @@
 type: source
 source_url: https://blog.defence-force.org/
 tags: [oric-blog, defence-force, game-dev, retro-computing, encounter-game, adeline-software, oriclopedia, floppy-emulation, 6502-assembly, oric-history]
-related: [defence-force.org, forum.defence-force.org, osdk.org, library.defence-force.org]
+related: [defence-force.org, forum.defence-force.org, osdk.org, library.defence-force.org, wiki.defence-force.org]
 product: blog-defence-force
 detail_level: standard
 created: 2026-05-17
