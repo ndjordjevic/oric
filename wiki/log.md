@@ -8,6 +8,11 @@ created: 2026-05-17
 
 Append-only record of all ingests, refreshes, and significant changes. Newest entries at top.
 
+## 2026-05-17 | ingest | JennyDigital-OriClone-1 | Eagle CAD Oric-1 clone — predecessor of Metaphoric, dual-ROM, two-PCB design
+
+- Created: wiki/sources/JennyDigital-OriClone-1.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/github/README.md, inbox.md
+
 ## 2026-05-17 | ingest | 48katmos.freeuk.com | Muso's Oric fan site — hardware specs, ROMs, circuit diagrams, software lists, Rhetoric magazine
 
 - Created: wiki/sources/48katmos.freeuk.com.md

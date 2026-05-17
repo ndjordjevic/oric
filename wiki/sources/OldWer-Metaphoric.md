@@ -2,7 +2,7 @@
 type: source
 source_url: https://github.com/OldWer/Metaphoric
 tags: [oric-clone, kicad-pcb, hardware-replica, ay-3-8912, composite-video, scart-rgb, joystick-ports, eprom-rom]
-related: [Board-Folk-Oric-Remix, oric.free.fr]
+related: [Board-Folk-Oric-Remix, oric.free.fr, JennyDigital-OriClone-1]
 product: metaphoric
 detail_level: standard
 created: 2026-05-17
