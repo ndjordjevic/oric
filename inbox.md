@@ -34,4 +34,5 @@ Drop URLs below under `## Pending`. Run `/pin-llm-wiki run <url>` to ingest a si
 - [x] https://library.defence-force.org/ <!-- ingested 2026-05-17 -->
 - [x] https://blog.defence-force.org/ <!-- ingested 2026-05-17 -->
 - [x] http://www.48katmos.freeuk.com/ <!-- ingested 2026-05-17 -->
-- [x] https://github.com/JennyDigital/OriClone-1 <!-- ingested 2026-05-17 -->
+- [x] https://github.com/sodiumlb/loci-firmware <!-- ingested 2026-05-17 -->
+- [x] https://www.raxiss.com/article/id/38-LOCI <!-- ingested 2026-05-17 -->

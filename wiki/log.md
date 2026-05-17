@@ -8,6 +8,16 @@ created: 2026-05-17
 
 Append-only record of all ingests, refreshes, and significant changes. Newest entries at top.
 
+## 2026-05-17 | ingest | sodiumlb-loci-firmware | LOCI firmware source — RP2040/MIA storage emulator for Oric-1/Atmos
+
+- Created: wiki/sources/sodiumlb-loci-firmware.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/github/README.md, inbox.md
+
+## 2026-05-17 | ingest | raxiss.com | LOCI product page — Oric BUS Expansion peripheral for floppy/ROM/USB emulation
+
+- Created: wiki/sources/raxiss.com.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/web/README.md, inbox.md
+
 ## 2026-05-17 | ingest | JennyDigital-OriClone-1 | Eagle CAD Oric-1 clone — predecessor of Metaphoric, dual-ROM, two-PCB design
 
 - Created: wiki/sources/JennyDigital-OriClone-1.md

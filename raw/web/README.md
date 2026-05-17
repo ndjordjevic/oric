@@ -14,3 +14,4 @@ Immutable web page/site captures. Written by the fetch step; never edited manual
 | raw/web/blog.defence-force.org.md | blog.defence-force.org | 6 | 2026-05-17 | |
 | raw/web/wiki.defence-force.org.md | wiki.defence-force.org | 6 | 2026-05-17 | |
 | raw/web/48katmos.freeuk.com.md | 48katmos.freeuk.com | 10 | 2026-05-17 | |
+| raw/web/raxiss.com.md | raxiss.com | 3 | 2026-05-17 | |
