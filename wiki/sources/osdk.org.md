@@ -7,7 +7,7 @@ raw_files:
   - ../../raw/web/osdk.org.md
   - ../../raw/github/Oric-Software-Development-Kit-osdk.md
 tags: [osdk, oric-cross-development, 6502-assembler, c-compiler, xa-assembler, rcc16, floppybuilder, sdk-documentation]
-related: [defence-force.org, forum.defence-force.org, oric.free.fr]
+related: [defence-force.org, forum.defence-force.org, oric.free.fr, library.defence-force.org]
 product: osdk
 detail_level: standard
 created: 2026-05-17

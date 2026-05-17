@@ -10,6 +10,11 @@ Append-only record of all ingests, refreshes, and significant changes. Newest en
 
 ---
 
+## 2026-05-17 | ingest | library.defence-force.org | Oric Library — 818-entry digital archive of books, magazines, and manuals
+
+- Created: wiki/sources/library.defence-force.org.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/web/README.md, inbox.md
+
 ## 2026-05-17 | ingest | osdk.org | dedicated OSDK documentation site (compiler, assembler, linker, utilities reference)
 
 - Created: wiki/sources/osdk.org.md

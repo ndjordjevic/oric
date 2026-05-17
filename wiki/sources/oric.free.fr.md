@@ -2,7 +2,7 @@
 type: source
 source_url: http://oric.free.fr/
 tags: [oric-reference-site, oric-history, hardware-programming, ula, 6502, sedoric, emulators, telestrat]
-related: [OldWer-Metaphoric, Board-Folk-Oric-Remix, defence-force.org, forum.defence-force.org]
+related: [OldWer-Metaphoric, Board-Folk-Oric-Remix, defence-force.org, forum.defence-force.org, library.defence-force.org]
 product: oric.free.fr
 detail_level: standard
 created: 2026-05-17
