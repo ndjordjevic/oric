@@ -11,7 +11,11 @@
       "Bash(rtk wc *)",
       "Bash(python3 -c \"import re;h=open\\('df-login.html',encoding='utf-8',errors='replace'\\).read\\(\\);print\\(re.search\\(r'name=\\\\\"creation_time\\\\\"\\\\s+value=\\\\\"\\([^\\\\\"]*\\)\\\\\"',h\\).group\\(1\\)\\)\")",
       "Bash(python3 -c \"import re;h=open\\('df-login.html',encoding='utf-8',errors='replace'\\).read\\(\\);print\\(re.search\\(r'name=\\\\\"form_token\\\\\"\\\\s+value=\\\\\"\\([^\\\\\"]*\\)\\\\\"',h\\).group\\(1\\)\\)\")",
-      "Bash(python3 -c \"import re;h=open\\('df-login.html',encoding='utf-8',errors='replace'\\).read\\(\\);print\\(re.search\\(r'name=\\\\\"sid\\\\\"\\\\s+value=\\\\\"\\([^\\\\\"]*\\)\\\\\"',h\\).group\\(1\\)\\)\")"
+      "Bash(python3 -c \"import re;h=open\\('df-login.html',encoding='utf-8',errors='replace'\\).read\\(\\);print\\(re.search\\(r'name=\\\\\"sid\\\\\"\\\\s+value=\\\\\"\\([^\\\\\"]*\\)\\\\\"',h\\).group\\(1\\)\\)\")",
+      "Bash(rtk read *)",
+      "WebFetch(domain:osdk.org)",
+      "Bash(python3 -c \"import sys,json,base64; d=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(d['content']\\).decode\\('utf-8','replace'\\)\\)\")",
+      "Bash(rtk ls *)"
     ]
   }
 }

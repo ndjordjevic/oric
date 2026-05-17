@@ -2,7 +2,7 @@
 type: source
 source_url: https://forum.defence-force.org/index.php
 tags: [oric-community, phpbb-forum, oric-support, hardware-hacks, osdk-support, 6502-discussion, oric-troubleshooting]
-related: [defence-force.org, oric.free.fr]
+related: [defence-force.org, oric.free.fr, osdk.org]
 product: defence-force
 detail_level: standard
 created: 2026-05-17

@@ -9,3 +9,4 @@ Immutable GitHub repo captures. Written by the fetch step; never edited manually
 | raw/github/OldWer-Metaphoric.md | OldWer/Metaphoric | 5 | main | (none) | 2026-05-17 | |
 | raw/github/Board-Folk-Oric-Remix.md | Board-Folk/Oric-Remix | 3 | main | (none) | 2026-05-17 | |
 | raw/github/Oric-Software-Development-Kit-Oric-Software.md | Oric-Software-Development-Kit/Oric-Software | 9 | master | (none) | 2026-05-17 | companion of defence-force.org |
+| raw/github/Oric-Software-Development-Kit-osdk.md | Oric-Software-Development-Kit/osdk | 9 | master | (none) | 2026-05-17 | companion of osdk.org |
