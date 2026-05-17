@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "pin-llm-wiki": {
+      "source": "ndjordjevic/pin-llm-wiki",
+      "sourceType": "github",
+      "skillPath": "skills/pin-llm-wiki/SKILL.md",
+      "computedHash": "467f518892ad15bd0293bddcef4c566cf43f1374773e1b8d3fd02e09b10bc219"
+    }
+  }
+}
