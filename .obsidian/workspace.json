@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "wiki/log.md",
+                "file": "wiki/index.md",
                 "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "log"
+              "title": "index"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "wiki/log.md",
+                "file": "wiki/index.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for log"
+              "title": "Backlinks for index"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "wiki/log.md",
+                "file": "wiki/index.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from log"
+              "title": "Outgoing links from index"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "wiki/log.md",
+                "file": "wiki/index.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of log"
+              "title": "Outline of index"
             }
           }
         ]
@@ -185,6 +185,12 @@
   },
   "active": "6bd1fc82e918811a",
   "lastOpenFiles": [
+    "build-journey/01.5-metaphoric-vs-oric-remix.md",
+    "build-journey/05-metaphoric-vs-oric-remix.md",
+    "build-journey/10-decision-bom-order.md",
+    "wiki/index.md",
+    "wiki/overview.md",
+    "wiki/log.md",
     "inbox.md.tmp.61409.7b70f9d55b0f",
     "wiki/sources/sodiumlb-ocula-docs.md",
     "wiki/sources/sodiumlb-ocula-pivic-firmware.md",
@@ -208,11 +214,6 @@
     "build-journey/tools/LOGIC_PROBE_LP1.md",
     "build-journey/tools/RASPBERRY_PI_DEBUG_PROBE.md",
     "build-journey/tools/LCR_ST1.md",
-    "build-journey/tools/DIGITAL_MICROSCOPE.md",
-    "build-journey/tools/USB_POWER_METER.md",
-    "build-journey/tools/digital-logic-simulators.md",
-    "build-journey/tools/LOGIC_PROBE_610B.md",
-    "build-journey/tools/MULTIMETER_DMT99.md",
     "build-journey/tools",
     "build-journey",
     "wiki/sources/defence-force.org.md.tmp.24327.fbeb7f18a24e",

@@ -10,10 +10,36 @@ Before answering **any question** about Oric retro computer, you MUST:
 
 1. Read `wiki/index.md` to identify relevant pages.
 2. Follow `[[wikilinks]]` to drill into relevant source pages.
-3. Cite wiki page names in your answer.
-4. If the answer is not in the wiki, say so clearly, then fetch current information online instead of relying on training data alone.
+3. For hardware, technical, or sound questions, also consult the **Defence Force forum digest** (see below).
+4. Cite wiki page names in your answer.
+5. If the answer is not in the wiki or digest, say so clearly, then fetch current information online instead of relying on training data alone.
 
 This wiki is the authoritative local source for this domain. Start with the wiki, use it whenever it covers the question, and go online for gaps or newer information rather than filling them from training data alone.
+
+---
+
+## Defence Force forum digest
+
+A structured knowledge base of forum threads from `forum.defence-force.org`, maintained as a separate project.
+
+**Location:** `/Users/nenaddjordjevic/LLMProjects/oric-forum-digest/digests/`
+
+Each subforum is a directory. List the directories to discover available subforums. Each directory has an **`index.md`** listing all topics with digest links. Individual digest files are named `<topic-id>-<slug>.md` and follow a consistent structure: _Question/goal_, _Outcome_, _Key facts_.
+
+**When to consult the digest:**
+
+- Hardware troubleshooting, repair, or component compatibility questions.
+- Clone board questions (Metaphoric, OriClone-1, Oric Remix, Replic'Oric, etc.).
+- Storage peripherals (Microdisc, Cumulus, LOCI, Erebus, Cumana, etc.).
+- Video output, ULA replacement, or signal questions.
+- AY sound chip programming or hardware audio questions.
+- Sourcing or identifying period-correct components.
+
+**How to use:**
+
+1. Check the relevant subforum `index.md` to find matching topic(s).
+2. Read the topic digest file(s) for facts and community consensus.
+3. Cite the digest file path and topic ID in your answer (e.g., `hardware-hacks/1149-oric-atmos-from-scratch.md`).
 
 > **Wiki management:** Use `/pin-llm-wiki` (`init`, `run`, `lint`, `queue`, `remove`) to ingest sources and manage this wiki. The skill runs in Claude Code, Cursor, and GitHub Copilot — full workflow instructions live in the skill files.
 

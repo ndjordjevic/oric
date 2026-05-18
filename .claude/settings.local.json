@@ -19,7 +19,9 @@
       "WebFetch(domain:library.defence-force.org)",
       "Bash(rtk grep *)",
       "WebFetch(domain:www.aliexpress.com)",
-      "Bash(python3 -c \"import sys,re; t=sys.stdin.read\\(\\); print\\(re.sub\\('<[^>]+>',' ',t\\)\\)\")"
+      "Bash(python3 -c \"import sys,re; t=sys.stdin.read\\(\\); print\\(re.sub\\('<[^>]+>',' ',t\\)\\)\")",
+      "Bash(mv /Users/nenaddjordjevic/retro-computers/oric/oric-wiki/build-journey/01-decision-bom-order.md /Users/nenaddjordjevic/retro-computers/oric/oric-wiki/build-journey/10-decision-bom-order.md)",
+      "Bash(mv /Users/nenaddjordjevic/retro-computers/oric/oric-wiki/build-journey/01.5-metaphoric-vs-oric-remix.md /Users/nenaddjordjevic/retro-computers/oric/oric-wiki/build-journey/05-metaphoric-vs-oric-remix.md)"
     ]
   }
 }
