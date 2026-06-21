@@ -55,7 +55,7 @@ tools/                  ← Python tape/snapshot tools (stdlib only) + oric-buil
 - The **`rtl/`** folder is the actual core. Free-form except `pll`.
 - Mental model: `hps_io` hands files/config in → `emu` wires them to the `rtl/` machine → machine produces video/audio/SDRAM traffic → `sys/` formats output. **Your study target is `rtl/` + the `emu` wiring in `Oric.sv`.**
 
-Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-devel/Main_MiSTer/wiki/emu---Top-Level-of-a-MiSTer-core) · [overview of emu module (docs)](https://mister-devel.github.io/MkDocs_MiSTer/developer/emu/) · [Template_MiSTer](https://github.com/MiSTer-devel/Template_MiSTer)
+Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-devel/Wiki_MiSTer/wiki/emu---Top-Level-of-a-MiSTer-core) · [overview of emu module (docs)](https://mister-devel.github.io/MkDocs_MiSTer/developer/emu/) · [Template_MiSTer](https://github.com/MiSTer-devel/Template_MiSTer)
 
 ---
 
@@ -63,15 +63,15 @@ Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-d
 
 The stated goal is **reading and analyzing** code. The whole reading + simulation stack runs **natively on macOS**. Quartus does **not** run on macOS and is **not** needed to read code — defer it.
 
-### 0a. Native MVP (do this first — one session)
-- [ ] Install the open-source HDL stack:
+### 0a. Native MVP ✅ (2026-06-21)
+- [x] Install the open-source HDL stack:
       `brew install ghdl icarus-verilog verilator gtkwave python3`
       (GHDL = VHDL sim; Icarus/Verilator = Verilog/SV sim; GTKWave = waveform viewer)
-- [ ] VS Code + **TerosHDL** extension (bundles linting, simulation, and doc-gen for both VHDL and Verilog) — or standalone HDL LSP extensions (`VHDL LS`, `SystemVerilog`).
-- [ ] Clone the core locally as a **gitignored sibling** so it stays a separate repo:
+- [x] VS Code + **TerosHDL** extension (bundles linting, simulation, and doc-gen for both VHDL and Verilog) — or standalone HDL LSP extensions (`VHDL LS`, `SystemVerilog`).
+- [x] Clone the core locally as a **gitignored sibling** so it stays a separate repo:
       `git clone https://github.com/MiSTer-devel/Oric_MiSTer.git core/` inside this project folder, then add `projects/**/core/` to the repo `.gitignore`.
-- [ ] Smoke-test the toolchain: run a repo Python tool (`python3 core/tools/tape-inspect.py --help`) and confirm GHDL/Verilator/gtkwave launch.
-- **Deliverable:** `00-dev-env.md` — what was installed, versions, how to launch each tool, and the gitignore decision.
+- [x] Smoke-test the toolchain: run a repo Python tool (`python3 core/tools/tape-inspect.py --help`) and confirm GHDL/Verilator/gtkwave launch.
+- **Deliverable:** `00-dev-env.md` ✅ — what was installed, versions, how to launch each tool, and the gitignore decision.
 
 ### 0b. Quartus (DEFERRED — only when you want the RTL Viewer or to build a `.rbf`)
 - Quartus Prime Lite is Linux/Windows-only. Two routes:

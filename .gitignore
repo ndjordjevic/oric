@@ -10,3 +10,6 @@ raw/github/*-clone/
 # Editors
 .vscode/
 .idea/
+
+# MiSTer core clones (separate repos, gitignored siblings)
+projects/**/core/
