@@ -2,7 +2,7 @@
 type: source
 source_url: https://github.com/sodiumlb/ocula-hardware
 tags: [ocula, oric-hardware, ula-replacement, hcs10017, pcb, easyeda, mux-bridge, dvi, open-hardware]
-related: [sodiumlb-ocula-pivic-firmware, sodiumlb-ocula-docs, OldWer-Metaphoric, oric.signal11.org.uk, raxiss.com]
+related: [sodiumlb-ocula-pivic-firmware, sodiumlb-ocula-docs, OldWer-Metaphoric, oric.signal11.org.uk, raxiss.com, MiSTer-devel-Oric_MiSTer]
 product: ocula-hardware
 detail_level: standard
 created: 2026-05-17

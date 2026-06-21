@@ -8,6 +8,11 @@ created: 2026-05-17
 
 Append-only record of all ingests, refreshes, and significant changes. Newest entries at top.
 
+## 2026-06-21 | ingest | MiSTer-devel-Oric_MiSTer | Official MiSTer FPGA core for Oric-1, Atmos, and Pravetz 8D
+
+- Created: wiki/sources/MiSTer-devel-Oric_MiSTer.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/github/README.md, inbox.md
+
 ## 2026-05-17 | ingest | sodiumlb-ocula-docs | OCULA user documentation — install, mux-bridges, RAM modes, configuration
 
 - Created: wiki/sources/sodiumlb-ocula-docs.md

@@ -31,4 +31,6 @@ created: 2026-05-17
 | [[sodiumlb-ocula-pivic-firmware]] | github | standard | 2026-05-17 | OCULA/PIVIC firmware (shared OCULA + VIC-20 codebase) |
 | [[sodiumlb-ocula-docs]] | github | standard | 2026-05-17 | OCULA user documentation — install, mux-bridges, modes |
 
-_18 sources ingested._
+| [[MiSTer-devel-Oric_MiSTer]] | github | standard | 2026-06-21 | |
+
+_19 sources ingested._

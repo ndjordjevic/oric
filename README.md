@@ -1,86 +1,36 @@
-# Oric retro computer wiki
+# Oric learning
 
-A personal knowledge base for **Oric retro computer**, maintained with [pin-llm-wiki](https://github.com/ndjordjevic/pin-llm-wiki).
+A personal mono-repo for learning about the Oric retro computer — original hardware, open-hardware clones, FPGA cores, storage peripherals, and hands-on build projects.
 
-## What's in here
-
-Every source is fetched, summarized, and cross-referenced so you and any AI agent can query it without re-reading the originals.
+## What's here
 
 ```
-wiki/index.md       ← start here; full source list
-wiki/overview.md    ← rolling cross-source overview
-wiki/sources/       ← one page per ingested source
-raw/                ← immutable source captures; do not edit
-inbox.md            ← drop new URLs under ## Pending
-AGENTS.md           ← canonical instructions for agents in this wiki
-.pin-llm-wiki.yml   ← config: domain, detail level, source types, lint cadence
+wiki/           ← LLM knowledge base of ingested sources (start at wiki/index.md)
+projects/       ← hands-on learning projects, one per subdirectory
+build-journey/  ← notes and decisions from the Metaphoric clone build
+RESOURCES.md    ← curated link catalog (hardware, software, community)
+inbox.md        ← drop new URLs here for wiki ingestion
+AGENTS.md       ← instructions for AI agents working in this repo
 ```
 
-## Other repos
+## Wiki
 
-If you ask questions from **another repo** but want agents to use this wiki, add that instruction there—in `CLAUDE.md` or `AGENTS.md`—to consult this wiki's `wiki/index.md` (and follow `[[wikilinks]]`) for **Oric retro computer**.
+The `wiki/` folder is a Karpathy-style LLM wiki maintained with [pin-llm-wiki](https://github.com/ndjordjevic/pin-llm-wiki). Every source is fetched and summarized into a citable, wikilinked page so you or any AI agent can query it without re-reading the originals. Start at `wiki/index.md`; `wiki/overview.md` is the cross-source synthesis.
 
-## Adding sources
+Manage it with the `/pin-llm-wiki` skill:
 
-**Ingest immediately** (auto-queues if missing, then fetches + writes the wiki page):
 ```
-/pin-llm-wiki run https://github.com/org/repo
-```
-
-**Queue for later** (adds to inbox, no fetch — good for mid-task suggestions):
-```
-/pin-llm-wiki queue https://example.com
+/pin-llm-wiki ingest <url>     # fetch + write a wiki page now
+/pin-llm-wiki queue <url>      # add to inbox.md for later
+/pin-llm-wiki lint             # health checks
+/pin-llm-wiki remove <slug>    # soft-delete a source
 ```
 
-**Batch-process everything pending** in `inbox.md`:
-```
-/pin-llm-wiki run              # process all pending items
-/pin-llm-wiki run <url>        # process only this one URL from Pending
-```
+To refresh a source, add `<!-- refresh -->` to its `## Completed` line in `inbox.md` and run `/pin-llm-wiki ingest`.
 
-**GitHub non-root pages are treated as single-page web sources.** A URL like `https://github.com/org/repo/tree/main/path` is ingested as the exact page only, with no docs discovery and no companion-repo discovery.
+## Related repos
 
-**Deep multi-product mode.** A web source ingested at `<!-- detail:deep -->` whose docs/site advertise ≥2 distinct products (each with its own docs subsection or distinct GitHub repo) writes one umbrella page plus one sub-page per product, all citing the same raw file. Example: `https://www.langchain.com/` → `wiki/sources/langchain.com.md` (umbrella) + per-product subs like `wiki/sources/langchain.com-langgraph.md`.
-
-## Inline inbox tags
-
-Append these HTML comments to any URL line in `inbox.md`:
-
-| Tag | Effect |
+| Repo | What's there |
 |---|---|
-| `<!-- detail:brief -->` / `<!-- detail:standard -->` / `<!-- detail:deep -->` | Override detail level for this source |
-| `<!-- branch:dev -->` | GitHub: use this branch instead of the default |
-| `<!-- clone -->` | GitHub deep: full `git clone` to `raw/github/<org>-<repo>/` |
-| `<!-- skip -->` | Skip this URL on the next `run` |
-| `<!-- companion:github.com/<org>/<repo> -->` | Web: skip GitHub discovery, use this repo as the companion |
-| `<!-- no-companion -->` | Web: suppress companion GitHub fetch even if a repo is found |
-| `<!-- note: text -->` | Freeform note for human review (queue only; ignored by ingest) |
-
-## Querying the wiki
-
-Open `wiki/index.md` for the full source table, then follow `[[wikilinks]]` into source pages. Use `wiki/overview.md` for a cross-source synthesis.
-
-AI agents in this repo are instructed to consult this wiki before answering questions about **Oric retro computer**. See `AGENTS.md` for the exact protocol.
-
-Raw files under `raw/` are the citation backstop. Prefer the wiki pages for normal reading; use raw captures when you need to verify source text directly.
-
-## Maintenance
-
-```
-/pin-llm-wiki lint          # health checks (citations, orphans, stale sources, ...)
-/pin-llm-wiki remove <slug> # soft-delete a source to wiki/.archive/
-```
-
-To refresh a source, add `<!-- refresh -->` to its line under `## Completed` in `inbox.md`, then run:
-
-```
-/pin-llm-wiki run
-```
-
-## Git
-
-Agents never commit automatically. Review `git diff`, then commit when ready:
-```
-git add -p
-git commit -m "ingest: <slug>"
-```
+| [`../mister-fpga/`](../mister-fpga/) | MiSTer FPGA platform study (hardware setup, FPGA concepts, DE10-Nano) — context for the `projects/mister-fpga-oric-core-understanding/` project here |
+| [`../../LLMProjects/oric-forum-digest/`](../../LLMProjects/oric-forum-digest/) | Defence Force forum scraped into a markdown knowledge base — hardware troubleshooting, clone builds, community consensus |
