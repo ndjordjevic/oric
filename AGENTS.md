@@ -3,8 +3,8 @@
 This repo is a personal mono-repo for learning about the Oric retro computer. It contains:
 
 - `wiki/` — a structured knowledge base of ingested sources (the LLM wiki)
-- `projects/` — hands-on learning projects (e.g. understanding the MiSTer FPGA core)
-- `RESOURCES.md` — curated link catalog of Oric hardware, software, and community resources
+- `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`, which also holds a book catalog at `projects/mister-fpga-oric-core-understanding/docs/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic)
+- `RESOURCES.md` — curated link catalog of Oric hardware, software, community, and FPGA/HDL references
 - `build-journey/` — notes and decisions from the Metaphoric clone build
 
 **Related repo:** `../mister-fpga/` covers the MiSTer FPGA platform broadly (hardware setup, FPGA concepts, DE10-Nano). When working on `projects/mister-fpga-oric-core-understanding/`, consult that repo for platform-level context before diving into the Oric-specific core.

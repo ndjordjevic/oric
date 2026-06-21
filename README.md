@@ -28,6 +28,12 @@ Manage it with the `/pin-llm-wiki` skill:
 
 To refresh a source, add `<!-- refresh -->` to its `## Completed` line in `inbox.md` and run `/pin-llm-wiki ingest`.
 
+## Projects
+
+Each subdirectory under `projects/` is a focused study. Current:
+
+- [`projects/mister-fpga-oric-core-understanding/`](projects/mister-fpga-oric-core-understanding/) — studying the MiSTer FPGA Oric core. See its [`plan.md`](projects/mister-fpga-oric-core-understanding/plan.md) and the [book catalog](projects/mister-fpga-oric-core-understanding/docs/INDEX.md) (35 FPGA/HDL + Oric book TOCs). Online VHDL/Verilog/SystemVerilog references are in [`RESOURCES.md`](RESOURCES.md) §8.
+
 ## Related repos
 
 | Repo | What's there |

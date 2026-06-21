@@ -64,15 +64,49 @@ Assembled 2026-06-21.
 - [Oric-1 / Atmos Core — MiSTer FPGA Forum](https://misterfpga.org/viewtopic.php?t=4599) — community thread on the MiSTer core
 - [rampa069/Oric_Mist_48K (GitHub)](https://github.com/rampa069/Oric_Mist_48K) — older Oric Atmos MiST/SiDi core (predecessor to MiSTer-devel/Oric_MiSTer)
 
-## 8. Repair, diagnostics & parts
+## 8. FPGA / HDL learning (VHDL · Verilog · SystemVerilog)
+
+For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the project book catalog at [`projects/mister-fpga-oric-core-understanding/docs/INDEX.md`](projects/mister-fpga-oric-core-understanding/docs/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
+
+**VHDL**
+- [Nandland — VHDL & FPGA](https://nandland.com/) — beginner-friendly, hardware-first; covers both VHDL and Verilog
+- [VHDLwhiz](https://vhdlwhiz.com/) — tutorials, testbenches, FSMs, simulation
+- [Doulos — VHDL Knowhow / Golden Reference](https://www.doulos.com/knowhow/vhdl/) — concise language reference
+- [GHDL documentation](https://ghdl.github.io/ghdl/) — the VHDL simulator used to test individual modules
+
+**Verilog / SystemVerilog**
+- [ASIC World — Verilog](https://www.asic-world.com/verilog/) · [SystemVerilog](https://www.asic-world.com/systemverilog/) — the classic free tutorial reference
+- [ChipVerify — Verilog & SystemVerilog](https://www.chipverify.com/) — tutorials + worked examples
+- [Sutherland HDL — SystemVerilog quick reference](https://sutherland-hdl.com/) — free SV reference cards and "gotchas"
+- [Verilator manual](https://verilator.org/guide/latest/) — the Verilog/SV simulator for the core's `.v`/`.sv` modules
+
+**Digital design fundamentals & practice**
+- [HDLBits](https://hdlbits.01xz.net/wiki/Main_Page) — interactive Verilog practice problems
+- [fpga4fun](https://www.fpga4fun.com/) — small, focused FPGA project tutorials
+- [EDA Playground](https://www.edaplayground.com) — online VHDL/Verilog/SV simulator (no install)
+- [Intel Quartus Prime Lite](https://www.intel.com/content/www/us/en/products/details/fpga/development-tools/quartus-prime.html) — the MiSTer toolchain (Cyclone V); RTL Viewer + synthesis (Linux/Windows only)
+
+**MiSTer core internals (how cores are built)**
+- [Template_MiSTer](https://github.com/MiSTer-devel/Template_MiSTer) — minimal core skeleton; the framework boundary
+- [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-devel/Main_MiSTer/wiki/emu---Top-Level-of-a-MiSTer-core) · [overview of emu (docs)](https://mister-devel.github.io/MkDocs_MiSTer/developer/emu/)
+- [Learning to develop a core (forum)](https://misterfpga.org/viewtopic.php?t=78) · [Verilog/HDL books & tutorials (pinned)](https://misterfpga.org/viewtopic.php?t=136)
+
+## 9. Repair, diagnostics & parts
 
 - [Oric Atmos Diagnostic Harness (myretrostore.co.uk)](https://myretrostore.co.uk/product/oric-atmos-diagnostic-harness/) — test harness for fault-finding
 - [Oric Microdisc Drive (Computing History)](https://www.computinghistory.org.uk/det/31261/Oric-Microdisc-Drive/) — reference entry for the Microdisc peripheral
 
-## 9. YouTube
+## 10. YouTube
 
 - [Generate 8-bit Oric-1 graphics using Copilot!](https://www.youtube.com/watch?v=Vf9Gvi1Y3II) — Oric graphics tooling demo
 
-## 10. Buying (vintage hardware)
+## 11. Buying (vintage hardware)
 
 - [RARE Oric Atmos Boxed — eBay UK](https://www.ebay.co.uk/itm/198339907875) — example listing for reference pricing
+
+## 12. Emulators & local archives
+
+Local files in the pCloud library (`iCloud-Migration/Programming/Retro/Oric/`), not public URLs:
+
+- **`oric-183.zip`** — Oric v1.8.3, a native **macOS Oric-1 / Atmos emulator** (`Oric.app`), bundled with a "Mega Demo" tape. Useful for running Oric software and cross-checking behavior against the MiSTer core.
+- **`ee-320.zip`** — Emulator Enhancer v3.2, a generic macOS emulation utility (not Oric-specific; misfiled in the Oric folder).
