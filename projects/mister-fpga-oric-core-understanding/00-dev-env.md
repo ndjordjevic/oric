@@ -57,8 +57,41 @@ These were generated automatically. Key decisions:
 - **Project type:** `genericProject` (not Quartus — `quartus_sh` is not installed on macOS)
 - **Files:** all 43 HDL files from `core/` and `core/rtl/` recursively; `sys/` excluded (MiSTer framework black box)
 - **Toplevel:** `core/Oric.sv` (the `emu` module)
-- **VHDL linter:** `ghdl` (default was already correct)
-- **Verilog/SV linter:** `verilator` (default was `modelsim` → caused `vlog: command not found` error)
+- **VHDL linter:** `disabled` (was `ghdl`) — GHDL lints **one file at a time** and can't see the other `rtl/` sources, so any multi-file design throws false `unit "<name>" not found in library "work"` errors (12 of them on `oricatmos.vhd`: `t65`, `m6522`, `ula`, `microdisc`, the ROMs, plus two pedantic "globally static" complaints). None are real bugs — the core builds fine in Quartus. Disabled to silence the noise; use `ghdl -a` from the shell (with dependencies analyzed first) when you actually want to check VHDL.
+- **Verilog/SV linter:** `disabled` — Verilator per-file lint on `Oric.sv` is misleading (see below); run `verilator --lint-only` manually on individual `rtl/` modules when needed
+
+### Turning the VHDL linter back on
+
+The linter setting lives in **two** `$HOME` files (both must agree — the project file overrides the global):
+
+- `~/.teroshdl2_config.json` → `linter.general.linter_vhdl`
+- `~/.teroshdl2_prj.json` → `project_list[*].configuration.linter.general.linter_vhdl`
+
+Set both back to `"ghdl"` to re-enable (or `"disabled"` to turn off again):
+
+```bash
+python3 - << 'EOF'
+import json, os
+val = "ghdl"   # "ghdl" to enable, "disabled" to turn off
+for path, getter in [
+    (os.path.expanduser("~/.teroshdl2_config.json"),
+     lambda c: [c["linter"]["general"]]),
+    (os.path.expanduser("~/.teroshdl2_prj.json"),
+     lambda c: [p["configuration"]["linter"]["general"] for p in c["project_list"]]),
+]:
+    c = json.load(open(path))
+    for g in getter(c):
+        g["linter_vhdl"] = val
+    json.dump(c, open(path, "w"), indent=2)
+print("linter_vhdl ->", val)
+EOF
+```
+
+**Scope:** these are **user/system-level** files in `$HOME`, *not* in the repo — the change is not committed and affects only this machine. After editing, **fully quit and reopen Cursor** (Cmd+Q, not just Reload Window), then edit + save `oricatmos.vhd` once to force TerosHDL to refresh its markers.
+
+> Note: TerosHDL 6.x does **not** read linter settings from VS Code `settings.json` (the `teroshdl.linter.*` keys don't exist in v6) — only the two `$HOME` files above.
+
+To change either linter in the UI instead: TerosHDL sidebar → **Configuration** → **Linter**. Then `Cmd+Shift+P` → `Developer: Reload Window`.
 
 To regenerate after a core update (e.g. new files added):
 
@@ -96,6 +129,23 @@ EOF
 ```
 
 Then reload Cursor: `Cmd+Shift+P` → `Developer: Reload Window`.
+
+## Expected lint on `Oric.sv` (ignore)
+
+TerosHDL runs **Verilator per-file** on the open source when the Verilog/SV linter is enabled. `Oric.sv` is the MiSTer **`emu` glue module** — it instantiates `sys/` (excluded), `rtl/*.v` (not elaborated in per-file lint), and `rtl/*.vhd` (invisible to Verilator). With Verilator enabled, expect **~32 squiggles** on `Oric.sv`; they are not core bugs. **Verilog/SV lint is disabled** in TerosHDL for this reason; use GHDL for VHDL and `verilator --lint-only` from the shell on individual `rtl/` files.
+
+| Kind | Count | Cause |
+|---|---|---|
+| ERROR | 18 | `Cannot find file containing module` — `video_freak`, `hps_io`, `video_mixer`, `ltc2308_tape` (all in `sys/`), plus `rtl/` Verilog and VHDL (`oricatmos`) not visible to single-file lint |
+| WARNING | 14 | MiSTer conventions: filename `Oric.sv` vs `module emu`, intentionally unconnected ports (`.VGA_DE()`, `.phi2()`, …), width quirks (`LED_DISK[1:0]` ← 1-bit `led_disk`, multi-bit `if (img_mounted)`) |
+
+Reproduce from the shell (same errors):
+
+```bash
+cd core && verilator --lint-only Oric.sv
+```
+
+**Study workflow:** treat `Oric.sv` as a wiring diagram. Lint and simulate individual `rtl/` modules as you read them — GHDL for VHDL (`oricatmos.vhd`, `ula.vhd`, …), Verilator or Icarus for Verilog/SV (`psg.v`, `cassette.v`, …). Keep `sys/` as a black box. Full elaboration only happens in Quartus (`sys_top` → `emu`).
 
 ## Smoke-test results (2026-06-21)
 

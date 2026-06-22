@@ -82,8 +82,8 @@ The stated goal is **reading and analyzing** code. The whole reading + simulatio
 ---
 
 ## Phase 1 — Orient in the codebase
-- [ ] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine.
-- [ ] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution.
+- [x] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine. → **Deliverable: `01a-Oric-sv-understanding.md` ✅ (2026-06-22)**
+- [ ] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable: `01b-oricatmos-vhd-understanding.md`**
 - **Deliverable:** `01-block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases.
 
 ## Phase 2 — Learn the real Oric hardware (so the RTL means something)

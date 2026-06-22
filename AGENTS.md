@@ -50,6 +50,18 @@ Each subforum is a directory. List the directories to discover available subforu
 
 ---
 
+## Audience background — HDL code walkthroughs
+
+The human is **not** experienced with VHDL, Verilog, or SystemVerilog. When studying or explaining HDL source files (e.g. `Oric.sv`, any `.vhd`/`.v`/`.sv` file), agents must:
+
+- Briefly explain relevant **syntax** and **language constructs** the first time they appear (e.g. `always_ff`, `assign`, `logic`, port maps, generate blocks).
+- Assume solid knowledge of **digital electronics** (logic gates, flip-flops, clocks, buses, state machines) and **general programming** — no need to explain those concepts from scratch.
+- Keep syntax explanations short (1–2 sentences) — the goal is to unlock the code, not teach HDL in depth.
+- When explaining an HDL construct, always include an **analogy to a well-known programming language** (C, Python, JavaScript, etc.) to ground the concept in familiar terms.
+- End every explanation with **1–2 plain-English sentences** summarising what the code actually does at a functional level (no jargon).
+
+---
+
 ## Git — never auto-commit
 
 **Do not** run `git commit` or `git push` after any file change in this repo — ingest, refresh, lint, project edits, or anything else — **unless the human explicitly asked you to commit or push in this conversation.**
