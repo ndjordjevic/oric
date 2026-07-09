@@ -66,7 +66,7 @@ Assembled 2026-06-21.
 
 ## 8. FPGA / HDL learning (VHDL · Verilog · SystemVerilog)
 
-For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the project book catalog at [`projects/mister-fpga-oric-core-understanding/docs/INDEX.md`](projects/mister-fpga-oric-core-understanding/docs/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
+For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the repo-wide book catalog at [`books/INDEX.md`](books/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
 
 **VHDL**
 - [Nandland — VHDL & FPGA](https://nandland.com/) — beginner-friendly, hardware-first; covers both VHDL and Verilog

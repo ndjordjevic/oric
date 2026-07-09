@@ -7,7 +7,6 @@
 **Project layout:**
 ```
 plan.md          ← this file
-docs/            ← book catalog (see docs/INDEX.md): FPGA/HDL + Oric book TOCs; drop learning PDFs here
 00-dev-env.md … 06-build-notes.md   ← phase deliverables (created as you go)
 04-modules/      ← per-subsystem notes (Phase 4)
 05-sim/          ← testbenches + waveforms (Phase 5)
@@ -96,7 +95,7 @@ Pair with the wiki — this is required reading, not optional:
 ## Phase 3 — Enough HDL to read fluently
 The core is mixed-language, so you need reading fluency in **both** VHDL and Verilog (not authoring mastery).
 - [ ] Skim a VHDL primer and a Verilog primer focused on *reading* synthesizable RTL (processes/`always` blocks, signals vs variables, clocked vs combinational). Use the misterfpga.org pinned lists: [Learning to dev a core](https://misterfpga.org/viewtopic.php?t=78) · [Verilog/HDL books & tutorials](https://misterfpga.org/viewtopic.php?t=136).
-- [ ] Use the **`docs/` book catalog** ([`docs/INDEX.md`](docs/INDEX.md)) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in [`../../RESOURCES.md`](../../RESOURCES.md) §8.
+- [ ] Use the repo-wide **`books/` catalog** ([`../../books/INDEX.md`](../../books/INDEX.md)) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in [`../../RESOURCES.md`](../../RESOURCES.md) §8.
 - [ ] Optional sandbox: re-type a tiny module into [EDA Playground](https://www.edaplayground.com) and watch it simulate.
 - **Deliverable:** `03-hdl-cheatsheet.md` — a personal read-only cheatsheet for the VHDL/Verilog idioms this core uses.
 

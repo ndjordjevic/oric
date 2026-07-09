@@ -3,7 +3,8 @@
 This repo is a personal mono-repo for learning about the Oric retro computer. It contains:
 
 - `wiki/` — a structured knowledge base of ingested sources (the LLM wiki)
-- `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`, which also holds a book catalog at `projects/mister-fpga-oric-core-understanding/docs/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic)
+- `books/` — repo-wide book catalog at `books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
+- `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`)
 - `RESOURCES.md` — curated link catalog of Oric hardware, software, community, and FPGA/HDL references
 - `build-journey/` — notes and decisions from the Metaphoric clone build
 
