@@ -10,7 +10,8 @@ plan.md          ← this file
 00-dev-env.md … 06-build-notes.md   ← phase deliverables (created as you go)
 04-modules/      ← per-subsystem notes (Phase 4)
 05-sim/          ← testbenches + waveforms (Phase 5)
-core/            ← cloned Oric_MiSTer source (gitignored sibling)
+annotated/       ← frozen, git-tracked copies of core/ files with ★ study comments
+core/            ← cloned Oric_MiSTer source (gitignored sibling, kept pristine)
 ```
 
 **Why this repo:** the [wiki](../../wiki/index.md) already documents the *real* Oric hardware (register-level manual, ULA reverse-engineering, memory map) and the [core itself](../../wiki/sources/MiSTer-devel-Oric_MiSTer.md). You cannot read `ula.vhd` without knowing what the ULA does — so each code-reading step below is paired with required wiki reading.
@@ -82,8 +83,8 @@ The stated goal is **reading and analyzing** code. The whole reading + simulatio
 
 ## Phase 1 — Orient in the codebase
 - [x] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine. → **Deliverable: `01a-Oric-sv-understanding.md` ✅ (2026-06-22)**
-- [ ] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable: `01b-oricatmos-vhd-understanding.md`**
-- **Deliverable:** `01-block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases.
+- [x] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable: `01b-oricatmos-vhd-understanding.md` ✅ (2026-07-09)**
+- [x] **Deliverable:** `01-block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases. ✅ (2026-07-09)
 
 ## Phase 2 — Learn the real Oric hardware (so the RTL means something)
 Pair with the wiki — this is required reading, not optional:

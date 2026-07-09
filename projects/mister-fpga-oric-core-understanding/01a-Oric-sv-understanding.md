@@ -4,6 +4,8 @@
 **File studied:** `core/Oric.sv`  
 **Role:** Top-level MiSTer `emu` module — the wiring harness that connects the MiSTer platform (ARM CPU, SD card, OSD, HDMI) to the Oric Atmos computer core.
 
+**Annotated source:** [`annotated/Oric.sv`](annotated/Oric.sv) — a frozen copy with the `★` section comments below inlined at each site (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](annotated/README.md)).
+
 ---
 
 ## What this file is
