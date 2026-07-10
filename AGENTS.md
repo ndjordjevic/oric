@@ -30,7 +30,7 @@ The wiki is the authoritative local source for this domain. Start there, use it 
 
 A structured knowledge base of forum threads from `forum.defence-force.org`, maintained as a separate project.
 
-**Location:** `/Users/nenaddjordjevic/LLMProjects/oric-forum-digest/digests/`
+**Location:** `../oric-forum-digest/digests/` (sibling repo under `retro-computers/`, same pattern as `../mister-fpga/`)
 
 Each subforum is a directory. List the directories to discover available subforums. Each directory has an **`index.md`** listing all topics with digest links. Individual digest files are named `<topic-id>-<slug>.md` and follow a consistent structure: _Question/goal_, _Outcome_, _Key facts_.
 

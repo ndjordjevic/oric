@@ -81,3 +81,113 @@ Open questions to resolve before starting:
   a serial link out via Microdisc/LOCI (like the NoICE port) for a host-side debugger.
 - Whether working `.tap`/`.dsk` images and manuals for ORICMON/ORIC-MON/ORION actually survive
   in a usable state, or whether this would also become a preservation/archaeology task.
+
+## 2. Reverse-engineer a favorite Oric game (played via MiSTer + joystick)
+
+Goal: pick an Oric game genuinely enjoyed on the MiSTer core with a joystick, then reverse-
+engineer it — disassemble, annotate, understand the ROM/RAM layout, sound, and input handling
+— as a concrete, motivating way to learn Oric hardware and 6502 assembly, rather than studying
+in the abstract.
+
+**Tools already in hand, from work already done in this repo:**
+
+- [`mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md`](mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md)
+  already documents exactly how joystick input reaches the game: `joystick.sv` maps the MiSTer
+  USB gamepad to VIA Port A bits via `via_pa_joy_value`/`via_pa_joy_mask`, selected by
+  `joystick_adapter` (see §13). Useful for
+  understanding *how* a game reads the joystick in its input-poll routine, and for confirming
+  which joystick "protocol" (there were multiple incompatible Oric joystick interfaces
+  historically) a given game expects.
+- The same core exposes full **snapshot save/restore** (`.sna`) and **MiSTer savestates**
+  (F1–F4 save / F5–F8 restore) — see 01b §18. This is a shortcut for RE work: pause the game at
+  an interesting moment (e.g. right before a specific event) and capture a complete memory/CPU/
+  VIA/PSG/ULA snapshot to pick apart offline, rather than single-stepping from cold boot.
+- The core's own `tools/tape-inspect.py` and `tools/sna-inspect.py` (see
+  `mister-fpga-oric-core-understanding/core/README.md`) can inspect a game's `.tap`/`.sna` file
+  directly — a natural first step before touching a disassembler.
+- **Idea #1** (above) is directly complementary — a working machine-code monitor/debugger
+  (Oricutron's built-in F2 monitor is the zero-setup option) is what actually drives the
+  disassembly and single-stepping.
+- The [OSDK](https://osdk.org) XA assembler (`RESOURCES.md` §8) is the natural tool for
+  reassembling/annotating extracted code, if the goal extends to modifying or rebuilding parts
+  of the game.
+- Reference material for reading the disassembly: `oric.free.fr`'s Hardware Programming How-To
+  (register-level VIA/PSG/ULA reference) and the *Oric Advanced User Guide: ROM Disassembly*
+  (catalogued at [`../books/oric/oric-advanced-user-guide-rom-disassembly.md`](../books/oric/oric-advanced-user-guide-rom-disassembly.md))
+  for cross-checking ROM routine calls the game makes.
+- One forum thread not yet in the local digest looks relevant: ["Disassemblies"](https://forum.defence-force.org/viewtopic.php?t=584)
+  (technical-questions subforum) — worth checking before starting in case the chosen game (or
+  a similar one) already has a public partial disassembly to cross-check against.
+
+Open questions to resolve before starting:
+- **Which game.** Not yet chosen. Criteria worth weighing: joystick-controlled (matches the
+  stated MiSTer + joystick play style); reasonably simple (a first RE project benefits from
+  avoiding heavy compression/self-modifying code); ideally well-known enough that community
+  notes or an existing partial disassembly exist to cross-check against (see the "Disassemblies"
+  thread above); available as a clean `.tap`/`.dsk` dump.
+- **Licensing/scope:** RE'ing a commercial game is fine for personal study and understanding,
+  but redistributing a modified/annotated binary would raise the same licensing questions noted
+  in the sibling `amiga-learning/projects/ideas.md` RE entry — treat this as a personal-notes
+  project, not a release.
+- **Depth:** full disassembly of the whole game vs. targeting specific subsystems first (input
+  handling, main game loop, sprite/character-set update, sound) — the latter is more consistent
+  with "make sure I understand Oric HW and assembly," since the goal is understanding, not a
+  complete annotated ROM dump.
+- **Tooling order:** whether to start with Oricutron's F2 monitor (zero setup) and only build a
+  native monitor (Idea #1) if a real-hardware angle becomes worthwhile later.
+
+## 3. Rewrite Choplifter (Apple II) for the Oric
+
+Goal: port/rewrite Dan Gorlin's **Choplifter** (Brøderbund, 1982) — a horizontally-scrolling
+helicopter rescue/shooter, one of the best-known Apple II games of its era — from Apple II to
+the Oric. This is a step beyond Idea #2: not just reverse-engineering to understand a game, but
+reimplementing one on genuinely different graphics/sound hardware.
+
+**Why this game, and why it's a real gap:** Choplifter was ported the same year to Atari 8-bit,
+and later to the VIC-20, Commodore 64, Atari 5200, ColecoVision, MSX, and Thomson computers — it
+was even ported *backward* to arcade hardware by Sega in 1985 (unusually, home-computer-first).
+Checked `oric.org`, the forum digest, `RESOURCES.md`, and `books/INDEX.md`: no evidence it was
+ever ported to the Oric. Every contemporary got a Choplifter except this one.
+
+**A major head start already exists:** Quinn Dunki (blondie7575) did a full clean-room reverse
+engineering of the original Apple II binary — [`ChoplifterReverse` (GitHub)](https://github.com/blondie7575/ChoplifterReverse),
+with an accompanying [write-up](https://blondihacks.com/reversing-choplifter/) — fully commented
+6502 source that rebuilds byte-identical to the original. This is real annotated source to study
+and adapt, not a raw binary to disassemble from scratch.
+
+**What actually needs rewriting vs. what carries over:**
+- Both machines run a plain 6502 (Apple II 6502; Oric 6502 @ 1 MHz) — the game *logic* (flight
+  physics, tank/plane AI, hostage state machine, collision detection, scoring) should translate
+  fairly directly from the reverse-engineered source.
+- **Video is the real rewrite.** Apple II hi-res bitmap graphics vs. the Oric's ULA-generated
+  TEXT/HIRES modes with inline "serial attribute" bytes for color/blink (see `oric.free.fr`'s
+  Hardware Programming How-To). Neither machine has hardware sprites or hardware scrolling, but
+  the two hi-res schemes are structurally different enough that redraw/animation routines need
+  rewriting, not porting.
+- **Sound is a genuine upgrade opportunity.** The Apple II original used only the single click
+  speaker; the Oric has a real AY-3-8912 PSG (3 tone channels + noise + envelope) — an Oric
+  version could sound better than the original ever did.
+- **Input** — Apple II paddle/joystick port vs. the Oric's VIA-based joystick interface — ties
+  directly into Idea #2's research on `joystick.sv`/VIA PA mapping
+  ([`01b-oricatmos-vhd-understanding.md`](mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md)
+  §13).
+- **Timing** — the Oric's CPU/video RAM contention (`PHI2` timesharing, same doc §8) is a
+  real-time constraint the Apple II doesn't share in the same form; frame-timing assumptions in
+  the original source likely won't just carry over.
+- [OSDK](https://osdk.org)'s XA assembler (`RESOURCES.md` §8) is the natural toolchain for the
+  new 6502 code; Oricutron for iteration before deploying to the MiSTer core + joystick.
+
+Open questions to resolve before starting:
+- **Scope:** a faithful reimplementation (matching the original's look/feel as closely as Oric
+  hardware allows) vs. an Oric-native reinterpretation that leans into the platform's own
+  resolution/color/sound tradeoffs rather than trying to pixel-match the Apple II version.
+- **Relationship to Idea #2:** is this the specific game that answers Idea #2's open "which
+  game" question, making the two the same project — or do they stay separate (Idea #2 as
+  "understand an existing Oric game," this as "build a new Oric game from an Apple II source")?
+- **Licensing:** same caveat as Idea #2 — this is derivative of a commercial 1982 Brøderbund
+  game (via Quinn Dunki's reverse-engineered source, itself a personal project, not an official
+  release). Treat as personal learning/study; credit Dan Gorlin/Brøderbund and Quinn Dunki if
+  ever shared, and don't sell or widely redistribute a finished build.
+- **Starting point:** study `ChoplifterReverse`'s annotated source directly vs. doing an
+  independent disassembly of the Apple II binary first for the practice (redundant with Idea #1/
+  #2's disassembly-skill goals, but slower).

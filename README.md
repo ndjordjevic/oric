@@ -39,4 +39,4 @@ Each subdirectory under `projects/` is a focused study. Current:
 | Repo | What's there |
 |---|---|
 | [`../mister-fpga/`](../mister-fpga/) | MiSTer FPGA platform study (hardware setup, FPGA concepts, DE10-Nano) — context for the `projects/mister-fpga-oric-core-understanding/` project here |
-| [`../../LLMProjects/oric-forum-digest/`](../../LLMProjects/oric-forum-digest/) | Defence Force forum scraped into a markdown knowledge base — hardware troubleshooting, clone builds, community consensus |
+| [`../oric-forum-digest/`](../oric-forum-digest/) | Defence Force forum scraped into a markdown knowledge base — hardware troubleshooting, clone builds, community consensus |
