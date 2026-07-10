@@ -33,7 +33,7 @@
 
 <div class="kicker">Learn VHDL · Lesson 0009</div>
 <h1><code>WAIT UNTIL</code> &amp; the priority-mux process</h1>
-<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 876–927 (★ SECTION 19 — CPU data-in mux). Prior: <a href="0008-concatenation-bit-assignment.html">Lesson 8</a>.</p>
+<p class="source-link">Source: <code>annotated/rtl/oricatmos.vhd</code>, lines 876–927 (★ SECTION 19 — CPU data-in mux). Prior: <a href="0008-concatenation-bit-assignment.html">Lesson 8</a>.</p>
 
 <h2>The win for today</h2>
 <p>You'll read a third way VHDL expresses "on the clock edge" — <code>PROCESS BEGIN WAIT UNTIL rising_edge(clk); ... END PROCESS;</code> with no sensitivity list at all — and read a long <code>IF/ELSIF</code> chain as a hardware priority mux, mirroring SystemVerilog Lesson 8's chained ternary.</p>

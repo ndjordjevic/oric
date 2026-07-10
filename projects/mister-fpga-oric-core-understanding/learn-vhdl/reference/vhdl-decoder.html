@@ -56,6 +56,7 @@
 <tr><td><code>name : IN type;</code></td><td>Port: name, direction (<code>IN</code>/<code>OUT</code>), type.</td><td>1</td></tr>
 <tr><td><code>ARCHITECTURE RTL OF x IS … BEGIN … END RTL;</code></td><td>The implementation body. Declarations before <code>BEGIN</code>, logic after.</td><td>2, 10</td></tr>
 <tr><td><code>SIGNAL name : type;</code></td><td>Internal wire/register (covers both SV <code>wire</code> and <code>reg</code>).</td><td>2</td></tr>
+<tr><td><code>:= '0'</code> / <code>:= (OTHERS =&gt; '0')</code></td><td>Default/initial value: on a port, the value used if left unconnected; on a <code>SIGNAL</code>, its power-up value.</td><td>1, 2</td></tr>
 <tr><td><code>COMPONENT x PORT(...); END COMPONENT;</code></td><td>Forward declaration of another module's interface (like a function prototype).</td><td>3</td></tr>
 </table>
 
@@ -119,7 +120,7 @@
 <tr><td><code>label : comp PORT MAP(...)</code></td><td>Instantiate a forward-declared <code>COMPONENT</code> (the 3 Verilog/SV modules).</td><td>5</td></tr>
 <tr><td><code>port =&gt; signal</code></td><td>Named port connection (SV's <code>.port(signal)</code>).</td><td>5</td></tr>
 <tr><td><code>port =&gt; OPEN</code></td><td>Leave this (output) port unconnected (SV's <code>.port()</code>).</td><td>5</td></tr>
-<tr><td><code>bank =&gt; pravetz_bank</code> etc.</td><td>A literal or full expression may be tied straight into a port.</td><td>5</td></tr>
+<tr><td><code>Mode =&gt; "00"</code>, <code>Rdy =&gt; NOT (a OR b)</code></td><td>A literal or full expression may be tied straight into a port.</td><td>5</td></tr>
 </table>
 
 <footer>

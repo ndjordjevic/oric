@@ -35,7 +35,7 @@
 
 <div class="kicker">Learn SystemVerilog · Lesson 0004</div>
 <h1><code>reg</code>, <code>always @(posedge)</code> &amp; non-blocking assignment</h1>
-<p class="source-link">Source: <code>core/Oric.sv</code>, lines 150–173 (★ RESET &amp; RAM CLEAR). Prior: <a href="0003-localparam-strings-operators.html">Lesson 3</a>. This is the most important lesson so far — it's the syntax of <em>sequential logic</em>, i.e. anything with memory.</p>
+<p class="source-link">Source: <code>annotated/Oric.sv</code>, lines 150–173 (★ RESET &amp; RAM CLEAR). Prior: <a href="0003-localparam-strings-operators.html">Lesson 3</a>. This is the most important lesson so far — it's the syntax of <em>sequential logic</em>, i.e. anything with memory.</p>
 
 <h2>The win for today</h2>
 <p>You'll be able to read a clocked block that counts, resets, and toggles — the pattern every flip-flop, counter, and state machine in this codebase is built from.</p>
@@ -57,7 +57,7 @@
 <span class="ln">162</span>		reset <= 1;
 <span class="ln">163</span>	end
 <span class="ln">165</span>end</pre>
-<p><code>always @(posedge clk_sys)</code> means "run everything inside this block exactly once, at the instant <code>clk_sys</code> transitions from 0 to 1" (a rising edge) — repeated forever, once per clock cycle. <code>begin ... end</code> groups multiple statements into one block, exactly like curly braces <code>{ }</code> group statements in C/JS (SystemVerilog reserves <code>{ }</code> for concatenation, so it needs different block delimiters).</p>
+<p><code>always @(posedge clk_sys)</code> means "run everything inside this block exactly once, at the instant <code>clk_sys</code> transitions from 0 to 1" (a rising edge) — repeated forever, once per clock cycle. <code>begin ... end</code> groups multiple statements into one block, exactly like curly braces <code>{ }</code> group statements in C/JS (SystemVerilog reserves <code>{ }</code> for concatenation, so it needs different block delimiters). And just like braces in C/JS, <code>begin/end</code> is optional when the body is a single statement — later in the file you'll see one-liners like <code>always @(posedge clk_sys) if(reset) rom &lt;= status[4:3];</code> with no <code>begin/end</code> at all.</p>
 <div class="callout analogy">The closest software analogy is an event handler that fires once per clock tick: <code>clock.on('risingEdge', () =&gt; { ... })</code>. But unlike a JS event handler, everything inside conceptually happens <strong>simultaneously and instantaneously</strong> at that clock edge — there's no "first this line runs, then that one takes effect" the way software statements execute in sequence.</div>
 
 <h2>3. <code>&lt;=</code> — non-blocking assignment (the crucial hardware-only idea)</h2>

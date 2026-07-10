@@ -54,6 +54,9 @@
 <tr><td><code>reg foo;</code></td><td>Signal writable inside an <code>always</code> block; holds its value (memory).</td><td>4</td></tr>
 <tr><td><code>wire [15:0] foo;</code></td><td>16-bit bus (bits 15 down to 0). Same for <code>reg [n:0]</code>.</td><td>2</td></tr>
 <tr><td><code>wire [31:0] foo[4];</code></td><td>Array of 4 separate 32-bit buses (<code>foo[0]</code>…<code>foo[3]</code>).</td><td>5</td></tr>
+<tr><td><code>wire [W-1:0] foo;</code></td><td>Width bounds may be expressions of constants (e.g. <code>[FILE_CACHE_ADDR_WIDTH-1:0]</code>) — evaluated at compile time.</td><td>3, 5</td></tr>
+<tr><td><code>wire [27:1] foo;</code></td><td>A range need not end at 0 — this is 27 bits, indexed 27 down to 1 (DDR address convention).</td><td>2</td></tr>
+<tr><td><code>reg a, b;</code></td><td>Several signals of the same type/width declared in one statement, comma-separated.</td><td>4</td></tr>
 <tr><td><code>reg foo = 0;</code></td><td>Power-up/initial value of the flip-flop (not a software default).</td><td>4</td></tr>
 <tr><td><code>localparam NAME = ...;</code></td><td>Compile-time constant, fixed forever.</td><td>3</td></tr>
 <tr><td><code>// ...</code></td><td>Line comment (may appear even inside a port list).</td><td>1, 7</td></tr>
@@ -66,6 +69,7 @@
 <tr><td><code>wire x = expr;</code></td><td>Declare + continuously drive in one line (same as <code>assign</code>).</td><td>2</td></tr>
 <tr><td><code>always @(posedge clk)</code></td><td>Run the block once per rising clock edge (sequential/clocked logic).</td><td>4</td></tr>
 <tr><td><code>begin … end</code></td><td>Groups multiple statements (SystemVerilog's <code>{ }</code>-for-blocks).</td><td>4</td></tr>
+<tr><td><code>always @(posedge clk) if(c) x &lt;= y;</code></td><td><code>begin/end</code> is optional when the block holds exactly one statement — same rule as braces in C/JS.</td><td>4</td></tr>
 <tr><td><code>&lt;=</code> (inside <code>always</code>)</td><td>Non-blocking: RHS read from old values; all updates land together at the edge.</td><td>4</td></tr>
 <tr><td><code>if / else if / else</code></td><td>Priority branch inside a block; here "next edge," not "right now."</td><td>4</td></tr>
 <tr><td><code>reg tmp;</code> after <code>begin</code></td><td>Block-local register, private to that <code>always</code>, still with memory.</td><td>9</td></tr>
