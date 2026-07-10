@@ -190,8 +190,8 @@
 
 <div class="quiz">
 <details>
-<summary>Q3. Why can't <code>'Z</code> ever appear inside an <code>if</code> condition the way <code>0</code> or <code>1</code> can be tested meaningfully in normal code?</summary>
-<div class="answer">Answer: <code>'Z</code> means the wire isn't being driven at all — it has no defined logic value to test — so treating it like a boolean 0/1 doesn't make sense; it's a statement about the wire's electrical state, not a data value.</div>
+<summary>Q3. Why is <code>'Z</code> not a meaningful value to test inside an <code>if</code> condition the way <code>0</code> or <code>1</code> are?</summary>
+<div class="answer">Answer: <code>'Z</code> means the wire isn't being driven at all — it has no defined logic value, so a condition treats it as false/unknown rather than as real data; it's a statement about the wire's electrical state, not a value you branch on.</div>
 </details>
 </div>
 

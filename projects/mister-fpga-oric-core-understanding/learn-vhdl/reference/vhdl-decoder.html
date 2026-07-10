@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL decoder — every token in oricatmos.vhd</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 5rem; line-height:1.5; font-size:17px; }
+  h1 { font-size:1.7rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.4rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.72rem; color:var(--muted); margin-bottom:0.5rem; }
+  h2 { font-size:1.1rem; margin-top:2rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.2rem; }
+  p { margin:0.7rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.3em; border-radius:3px; font-size:0.9em; white-space:nowrap; }
+  table { border-collapse:collapse; width:100%; margin:0.8rem 0; font-size:0.85rem; }
+  th, td { border:1px solid var(--rule); padding:0.35rem 0.55rem; text-align:left; vertical-align:top; }
+  th { background:var(--code-bg); }
+  td:first-child { white-space:nowrap; }
+  td:last-child { text-align:center; white-space:nowrap; color:var(--muted); }
+  .intro { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .algo { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .algo ol { margin:0.4rem 0 0 1.1rem; padding:0; }
+  .algo li { margin:0.35rem 0; }
+  .sv { background:#fff6ee; border:1px solid #e0c4a8; border-radius:6px; padding:0.8rem 1.1rem; margin:1.1rem 0; font-size:0.9rem; }
+  a { color:var(--accent); }
+  footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--rule); font-size:0.85rem; color:var(--muted); }
+  @media print { body { font-size:11pt; max-width:100%; } h2 { break-after:avoid; } table { break-inside:auto; } tr { break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Reference card</div>
+<h1>VHDL decoder — every token in <code>oricatmos.vhd</code></h1>
+<p class="intro">This card lists <strong>every VHDL construct, operator, and literal form that appears anywhere in <code>oricatmos.vhd</code></strong>, with its meaning and the lesson that teaches it. Keep it open beside the source: when you hit a keyword or symbol on any line and aren't sure what it does, find it here. If a line contains only tokens in these tables, you can decode that line in full. (Syntax only — what a given <em>signal</em> does functionally is in <a href="../../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a>.)</p>
+
+<div class="algo">
+<strong>How to decode any line of <code>oricatmos.vhd</code>:</strong>
+<ol>
+<li><strong>Where am I?</strong> Inside a <code>PROCESS</code> (sequential; <code>&lt;=</code> is clocked) or out in the architecture body between <code>BEGIN</code> and <code>END RTL</code> (concurrent; <code>&lt;=</code> is continuous, like SV's <code>assign</code>)? This is the single most important question in VHDL.</li>
+<li><strong>Is it a declaration?</strong> Before the architecture's <code>BEGIN</code>: <code>SIGNAL</code>/<code>COMPONENT</code>. In the entity: a <code>PORT</code>.</li>
+<li><strong>Is it an instantiation?</strong> <code>label : ENTITY work.X PORT MAP(...)</code> or <code>label : comp PORT MAP(...)</code> — then it's ports, not an expression.</li>
+<li><strong>Otherwise break the expression into tokens</strong> and look each up: <code>WHEN/ELSE</code>, operators, casts, slices, <code>&amp;</code>.</li>
+</ol>
+</div>
+
+<div class="sv"><strong>⇄ The two symbol traps vs. SystemVerilog:</strong> in VHDL, <code>&amp;</code> is <em>concatenation</em> (SV's <code>{ }</code>), and bitwise-AND is the word <code>AND</code> (SV's <code>&amp;</code>). And <code>&lt;=</code> means continuous assignment outside a <code>PROCESS</code> but clocked/non-blocking inside one. Check these two every time.</div>
+
+<h2>Structure &amp; declarations</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>LIBRARY ieee;</code></td><td>Make the IEEE library available.</td><td>1</td></tr>
+<tr><td><code>USE ieee.pkg.ALL;</code></td><td>Import all names from a package (types, functions).</td><td>1</td></tr>
+<tr><td><code>-- ...</code></td><td>Line comment (VHDL's <code>//</code>).</td><td>1</td></tr>
+<tr><td><code>ENTITY x IS PORT(...); END;</code></td><td>Declare the interface (pins). The "what," separate from the "how."</td><td>1</td></tr>
+<tr><td><code>name : IN type;</code></td><td>Port: name, direction (<code>IN</code>/<code>OUT</code>), type.</td><td>1</td></tr>
+<tr><td><code>ARCHITECTURE RTL OF x IS … BEGIN … END RTL;</code></td><td>The implementation body. Declarations before <code>BEGIN</code>, logic after.</td><td>2, 10</td></tr>
+<tr><td><code>SIGNAL name : type;</code></td><td>Internal wire/register (covers both SV <code>wire</code> and <code>reg</code>).</td><td>2</td></tr>
+<tr><td><code>COMPONENT x PORT(...); END COMPONENT;</code></td><td>Forward declaration of another module's interface (like a function prototype).</td><td>3</td></tr>
+</table>
+
+<h2>Types</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>STD_LOGIC</code></td><td>A single wire/bit (SV's unwidthed <code>wire</code>).</td><td>1</td></tr>
+<tr><td><code>STD_LOGIC_VECTOR(15 DOWNTO 0)</code></td><td>16-bit bus, high(15) to low(0). SV's <code>[15:0]</code>. No numeric meaning on its own.</td><td>1</td></tr>
+<tr><td><code>UNSIGNED(11 DOWNTO 0)</code> / <code>unsigned</code></td><td>Bit vector interpreted as an unsigned number (needed for arithmetic/compare).</td><td>7</td></tr>
+<tr><td><code>DOWNTO</code></td><td>Range direction, high→low (the ":" in SV's <code>[msb:lsb]</code>).</td><td>1</td></tr>
+</table>
+
+<h2>Assignment &amp; control flow</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>x &lt;= expr;</code> (outside PROCESS)</td><td>Continuous assignment — permanently live (SV's <code>assign</code>).</td><td>4</td></tr>
+<tr><td><code>x &lt;= expr;</code> (inside PROCESS)</td><td>Clocked non-blocking assignment (SV's <code>&lt;=</code> in <code>always</code>).</td><td>4, 6</td></tr>
+<tr><td><code>a WHEN cond ELSE b</code></td><td>Conditional (ternary), <em>value-first</em>. Chains as a priority list.</td><td>4</td></tr>
+<tr><td><code>… ELSE fallback;</code></td><td>Final bare value = unconditional fallback (SV's last <code>:</code> branch).</td><td>4</td></tr>
+<tr><td><code>PROCESS (clk) BEGIN … END PROCESS;</code></td><td>Sequential block; sensitivity list wakes it. Needs inner <code>rising_edge</code>.</td><td>6</td></tr>
+<tr><td><code>PROCESS BEGIN WAIT UNTIL rising_edge(clk); …</code></td><td>Same idea, no sensitivity list — <code>WAIT UNTIL</code> gates the edge instead.</td><td>9</td></tr>
+<tr><td><code>rising_edge(clk)</code></td><td>True on the clock's low→high transition.</td><td>6</td></tr>
+<tr><td><code>IF … THEN … ELSIF … ELSE … END IF;</code></td><td>Sequential priority ladder. <code>ELSIF</code> is one word; each <code>IF</code> needs <code>END IF;</code>.</td><td>6</td></tr>
+<tr><td>(no <code>ELSE</code> in a clocked IF)</td><td>Unassigned signal holds its previous value (implicit register).</td><td>9</td></tr>
+</table>
+
+<h2>Operators</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>AND</code>, <code>OR</code>, <code>NOT</code></td><td>Boolean/bitwise AND, OR, NOT (SV's <code>&amp;</code>, <code>|</code>, <code>~</code>).</td><td>4</td></tr>
+<tr><td><code>&amp;</code></td><td><strong>Concatenation</strong> — glue two vectors (SV's <code>{ }</code>). Not AND!</td><td>8</td></tr>
+<tr><td><code>=</code></td><td>Equality comparison (SV's <code>==</code>).</td><td>4</td></tr>
+<tr><td><code>/=</code></td><td>Inequality (SV's <code>!=</code>) — e.g. <code>cpu_do /= X"00"</code>.</td><td>8, 9</td></tr>
+<tr><td><code>&gt;=</code>, <code>&gt;</code>, <code>&lt;</code></td><td>Numeric comparison (operands must be <code>unsigned</code>/<code>signed</code>, not raw vectors).</td><td>7</td></tr>
+</table>
+
+<h2>Bit manipulation &amp; casts</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>sig(3)</code></td><td>Single-bit select (bit 3). Parentheses, not SV's <code>[ ]</code>.</td><td>1, 4</td></tr>
+<tr><td><code>sig(15 DOWNTO 0)</code></td><td>Bit-slice, high to low inclusive.</td><td>1, 4</td></tr>
+<tr><td><code>unsigned(vec)</code></td><td>Cast a bit vector to unsigned (to compare/arith).</td><td>7</td></tr>
+<tr><td><code>TO_UNSIGNED(val, width)</code></td><td>Build a <code>width</code>-bit unsigned number from an integer.</td><td>7</td></tr>
+<tr><td><code>STD_LOGIC_VECTOR(u)</code></td><td>Cast back from unsigned to a plain bit vector.</td><td>7</td></tr>
+</table>
+
+<h2>Literals</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>'0'</code>, <code>'1'</code>, <code>'Z'</code></td><td>Single-bit literal (0, 1, high-impedance). Single quotes = one bit.</td><td>1, 5</td></tr>
+<tr><td><code>"00"</code>, <code>"10"</code>, <code>"ZZZZZZZZ"</code></td><td>Bit-vector literal. Double quotes = a vector (one char per bit).</td><td>4, 5</td></tr>
+<tr><td><code>X"03"</code></td><td>Hex vector literal (SV's <code>8'h03</code>).</td><td>4</td></tr>
+<tr><td><code>16#10#</code></td><td>Based numeric literal: <em>base</em>#<em>value</em># (here hex 10 = decimal 16), usable as a plain number.</td><td>7</td></tr>
+<tr><td><code>(OTHERS =&gt; '0')</code></td><td>Aggregate — set every remaining bit to this value (fill).</td><td>2</td></tr>
+</table>
+
+<h2>Instantiation (wiring in a sub-module)</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>label : ENTITY work.X PORT MAP(...)</code></td><td>Instantiate VHDL entity <code>X</code> from the local (<code>work</code>) library.</td><td>5</td></tr>
+<tr><td><code>label : comp PORT MAP(...)</code></td><td>Instantiate a forward-declared <code>COMPONENT</code> (the 3 Verilog/SV modules).</td><td>5</td></tr>
+<tr><td><code>port =&gt; signal</code></td><td>Named port connection (SV's <code>.port(signal)</code>).</td><td>5</td></tr>
+<tr><td><code>port =&gt; OPEN</code></td><td>Leave this (output) port unconnected (SV's <code>.port()</code>).</td><td>5</td></tr>
+<tr><td><code>bank =&gt; pravetz_bank</code> etc.</td><td>A literal or full expression may be tied straight into a port.</td><td>5</td></tr>
+</table>
+
+<footer>
+Every token above appears somewhere in <code>oricatmos.vhd</code>. If you find one on a line that isn't listed here, that's a gap — ask your teacher to add it. See also the sibling <a href="../../learn-systemverilog/reference/systemverilog-decoder.html">SystemVerilog decoder</a> for <code>Oric.sv</code>.
+</footer>
+
+</body>
+</html>

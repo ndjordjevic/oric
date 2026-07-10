@@ -48,7 +48,7 @@
 <span class="ln">393</span>	.key_pressed      (kbd_ps2_key[9]),
 <span class="ln">394</span>	.key_code         (kbd_ps2_key[7:0]),
 <span class="ln">395</span>	.key_extended     (kbd_ps2_key[8]),</pre>
-<p><code>module_name instance_name ( .port(signal), ... )</code> — identical shape to <code>video_freak</code> (Lesson 2), <code>pll</code> and <code>hps_io</code> (Lesson 5). The only thing that's changed is scale: <code>oricatmos</code> (defined in <code>rtl/oricatmos.vhd</code> — see <a href="../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a>) has roughly 90 ports, because it <em>is</em> the whole computer — CPU, video, sound, keyboard, tape, floppy all in one module.</p>
+<p><code>module_name instance_name ( .port(signal), ... )</code> — identical shape to <code>video_freak</code> (Lesson 2), <code>pll</code> and <code>hps_io</code> (Lesson 5). The only thing that's changed is scale: <code>oricatmos</code> (defined in <code>rtl/oricatmos.vhd</code> — see <a href="../../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a>) has roughly 90 ports, because it <em>is</em> the whole computer — CPU, video, sound, keyboard, tape, floppy all in one module.</p>
 <div class="callout gotcha">Line 391 wires the port <code>clk_in</code> to the signal <code>clk_sys</code> — different names either side of the parens is completely normal and expected; the port name belongs to <code>oricatmos</code>'s internal namespace, the signal name belongs to <code>Oric.sv</code>'s. Don't assume matching names means anything special, and don't assume different names mean anything special either — always check which side of <code>.port(signal)</code> you're looking at.</div>
 
 <h2>2. Bit-slices inline in a port connection — nothing new, just combined</h2>
@@ -79,7 +79,7 @@
 <div class="win"><strong>You now have this in hand:</strong> confidence reading a large, real port map at a glance — recognizing it as the same handful of patterns (named connection, bit-slice, ternary, unconnected output, inline comment) repeated, not new syntax to fear.</div>
 
 <h2>Primary source</h2>
-<p>Re-read <a href="../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §11</a> for the functional (non-syntax) meaning of each port group now that the syntax itself is no longer a barrier.</p>
+<p>Re-read <a href="../../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §11</a> for the functional (non-syntax) meaning of each port group now that the syntax itself is no longer a barrier.</p>
 
 <div class="callout">Try picking any 5 consecutive lines from this port map and explaining them out loud to me — that's the fastest way to confirm this has really landed.</div>
 

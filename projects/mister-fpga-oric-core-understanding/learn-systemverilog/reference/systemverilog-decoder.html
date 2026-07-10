@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SystemVerilog decoder — every token in Oric.sv</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:52rem; margin:0 auto; padding:2.5rem 1.5rem 5rem; line-height:1.5; font-size:17px; }
+  h1 { font-size:1.7rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.4rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.72rem; color:var(--muted); margin-bottom:0.5rem; }
+  h2 { font-size:1.1rem; margin-top:2rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.2rem; }
+  p { margin:0.7rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.3em; border-radius:3px; font-size:0.9em; white-space:nowrap; }
+  table { border-collapse:collapse; width:100%; margin:0.8rem 0; font-size:0.85rem; }
+  th, td { border:1px solid var(--rule); padding:0.35rem 0.55rem; text-align:left; vertical-align:top; }
+  th { background:var(--code-bg); }
+  td:first-child { white-space:nowrap; }
+  td:last-child { text-align:center; white-space:nowrap; color:var(--muted); }
+  .intro { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .algo { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .algo ol { margin:0.4rem 0 0 1.1rem; padding:0; }
+  .algo li { margin:0.35rem 0; }
+  a { color:var(--accent); }
+  footer { margin-top:2.5rem; padding-top:1rem; border-top:1px solid var(--rule); font-size:0.85rem; color:var(--muted); }
+  @media print { body { font-size:11pt; max-width:100%; } h2 { break-after:avoid; } table { break-inside:auto; } tr { break-inside:avoid; } }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Reference card</div>
+<h1>SystemVerilog decoder — every token in <code>Oric.sv</code></h1>
+<p class="intro">This card lists <strong>every SystemVerilog construct, operator, and literal form that appears anywhere in <code>Oric.sv</code></strong>, with its meaning and the lesson that teaches it. Keep it open beside the source: when you hit a symbol on any line and aren't sure what it does, find it here. If a line contains only tokens in these tables, you can decode that line in full. (This is syntax only — what a given <em>signal</em> does functionally is in <a href="../../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md</a>.)</p>
+
+<div class="algo">
+<strong>How to decode any line of <code>Oric.sv</code>:</strong>
+<ol>
+<li><strong>Where am I?</strong> Inside an <code>always @(...)</code> block (clocked/sequential) or out in the module body (continuous)? This decides what <code>&lt;=</code> / <code>=</code> mean.</li>
+<li><strong>What's the left-hand side?</strong> A signal being declared (<code>wire</code>/<code>reg</code> + width), or an existing signal being driven?</li>
+<li><strong>Break the right-hand side into tokens</strong> and look each up below: operators, literals, slices, <code>{ }</code>.</li>
+<li><strong>Is it an instantiation?</strong> <code>ModName inst ( ... )</code> — then it's ports (§7), not an expression.</li>
+</ol>
+</div>
+
+<h2>Structure &amp; declarations</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>module emu ( ... );</code></td><td>Declares the block and its pin list. One per file here.</td><td>1</td></tr>
+<tr><td><code>endmodule</code></td><td>Closes the module. No semicolon. Last line of the file.</td><td>1, 10</td></tr>
+<tr><td><code>`include "file"</code></td><td>Preprocessor: paste another file's text here before compiling.</td><td>1</td></tr>
+<tr><td><code>`BUILD_DATE</code>, <code>`NAME</code></td><td>Preprocessor macro: substitute its defined text (from a <code>`define</code>/included file).</td><td>3</td></tr>
+<tr><td><code>wire foo;</code></td><td>1-bit continuous signal (must be driven by <code>assign</code>/a port). No memory.</td><td>2, 4</td></tr>
+<tr><td><code>reg foo;</code></td><td>Signal writable inside an <code>always</code> block; holds its value (memory).</td><td>4</td></tr>
+<tr><td><code>wire [15:0] foo;</code></td><td>16-bit bus (bits 15 down to 0). Same for <code>reg [n:0]</code>.</td><td>2</td></tr>
+<tr><td><code>wire [31:0] foo[4];</code></td><td>Array of 4 separate 32-bit buses (<code>foo[0]</code>…<code>foo[3]</code>).</td><td>5</td></tr>
+<tr><td><code>reg foo = 0;</code></td><td>Power-up/initial value of the flip-flop (not a software default).</td><td>4</td></tr>
+<tr><td><code>localparam NAME = ...;</code></td><td>Compile-time constant, fixed forever.</td><td>3</td></tr>
+<tr><td><code>// ...</code></td><td>Line comment (may appear even inside a port list).</td><td>1, 7</td></tr>
+</table>
+
+<h2>Assignment &amp; blocks</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>assign x = expr;</code></td><td>Continuous assignment — permanently live; re-evaluates when any input changes.</td><td>1</td></tr>
+<tr><td><code>wire x = expr;</code></td><td>Declare + continuously drive in one line (same as <code>assign</code>).</td><td>2</td></tr>
+<tr><td><code>always @(posedge clk)</code></td><td>Run the block once per rising clock edge (sequential/clocked logic).</td><td>4</td></tr>
+<tr><td><code>begin … end</code></td><td>Groups multiple statements (SystemVerilog's <code>{ }</code>-for-blocks).</td><td>4</td></tr>
+<tr><td><code>&lt;=</code> (inside <code>always</code>)</td><td>Non-blocking: RHS read from old values; all updates land together at the edge.</td><td>4</td></tr>
+<tr><td><code>if / else if / else</code></td><td>Priority branch inside a block; here "next edge," not "right now."</td><td>4</td></tr>
+<tr><td><code>reg tmp;</code> after <code>begin</code></td><td>Block-local register, private to that <code>always</code>, still with memory.</td><td>9</td></tr>
+</table>
+
+<h2>Operators</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>a | b</code></td><td>Bitwise OR (two operands).</td><td>1</td></tr>
+<tr><td><code>a &amp; b</code></td><td>Bitwise AND (two operands).</td><td>9</td></tr>
+<tr><td><code>a ^ b</code></td><td>Bitwise/logical XOR — true where bits differ (edge/toggle detect).</td><td>6</td></tr>
+<tr><td><code>~a</code></td><td>Bitwise NOT — flips every bit.</td><td>3</td></tr>
+<tr><td><code>!a</code></td><td>Logical NOT — treats whole value as one true/false ("is it zero?").</td><td>2, 3</td></tr>
+<tr><td><code>&amp;&amp;</code>, <code>||</code></td><td>Logical AND / OR — combine two true/false results.</td><td>6</td></tr>
+<tr><td><code>&amp;x</code> (one operand)</td><td>Reduction-AND — true if <em>all</em> bits of <code>x</code> are 1.</td><td>4</td></tr>
+<tr><td><code>|x</code> (one operand)</td><td>Reduction-OR — true if <em>any</em> bit of <code>x</code> is 1.</td><td>6</td></tr>
+<tr><td><code>==</code></td><td>Equality → 1-bit true/false.</td><td>3</td></tr>
+<tr><td><code>&gt;=</code>, <code>&gt;</code>, <code>&lt;</code></td><td>Unsigned numeric comparison → 1 bit.</td><td>3</td></tr>
+<tr><td><code>+</code>, <code>-</code></td><td>Arithmetic add / subtract (e.g. counters, <code>clr_addr + 1'd1</code>).</td><td>4</td></tr>
+<tr><td><code>cond ? a : b</code></td><td>Ternary — <code>a</code> if cond else <code>b</code>. Chains as a priority list.</td><td>2, 8</td></tr>
+</table>
+
+<h2>Bit manipulation</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>sig[9]</code></td><td>Single-bit select (bit 9).</td><td>2, 7</td></tr>
+<tr><td><code>sig[7:0]</code></td><td>Bit-slice, high:low inclusive (here 8 bits).</td><td>2, 7</td></tr>
+<tr><td><code>{a, b, c}</code></td><td>Concatenation — glue signals end-to-end; on LHS, split a value across targets.</td><td>1</td></tr>
+<tr><td><code>{4{r}}</code></td><td>Replication — repeat <code>r</code> 4 times → 4-bit bus.</td><td>9</td></tr>
+</table>
+
+<h2>Literals</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>'1</code></td><td>Fill every bit of the target with 1 (width from LHS).</td><td>1</td></tr>
+<tr><td><code>'Z</code></td><td>Fill every bit with high-impedance (undriven / released).</td><td>1</td></tr>
+<tr><td><code>0</code></td><td>Plain number, zero-extended to the target width.</td><td>1</td></tr>
+<tr><td><code>1'b0</code>, <code>2'b00</code></td><td><em>width</em>'b<em>binary</em> — e.g. 1-bit 0, 2-bit 00.</td><td>3</td></tr>
+<tr><td><code>2'd0</code>, <code>12'd4</code>, <code>1'd1</code></td><td><em>width</em>'d<em>decimal</em>.</td><td>2, 3</td></tr>
+<tr><td><code>8'h00</code></td><td><em>width</em>'h<em>hex</em>.</td><td>2, 3</td></tr>
+<tr><td><code>196608</code></td><td>Unsized decimal constant (e.g. a <code>localparam</code> value).</td><td>3</td></tr>
+<tr><td><code>"Oric;SS..."</code></td><td>String literal (built into the OSD menu; concatenated with <code>{ }</code>).</td><td>3</td></tr>
+</table>
+
+<h2>Instantiation (wiring in a sub-module)</h2>
+<table>
+<tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
+<tr><td><code>Mod inst ( ... );</code></td><td>Create one copy of module <code>Mod</code> named <code>inst</code>.</td><td>2, 7</td></tr>
+<tr><td><code>.port(signal)</code></td><td>Named port connection — connect <code>port</code> to <code>signal</code>/expression.</td><td>2, 7</td></tr>
+<tr><td><code>.*</code></td><td>Auto-connect every port whose name matches a same-named signal in scope.</td><td>2</td></tr>
+<tr><td><code>.port()</code></td><td>Leave this (output) port deliberately unconnected.</td><td>2, 5</td></tr>
+<tr><td><code>#(.PARAM(v))</code></td><td>Compile-time parameters — supplied before the instance name.</td><td>5</td></tr>
+<tr><td><code>.rst(0)</code></td><td>A literal or full expression may be tied directly to a port.</td><td>5, 7</td></tr>
+</table>
+
+<footer>
+Every token above appears somewhere in <code>Oric.sv</code>. If you find one on a line that isn't listed here, that's a gap — ask your teacher to add it. See also the sibling <a href="../../learn-vhdl/reference/vhdl-decoder.html">VHDL decoder</a> for <code>oricatmos.vhd</code>.
+</footer>
+
+</body>
+</html>
