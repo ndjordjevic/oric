@@ -70,9 +70,9 @@
 <div class="quiz"><details><summary>Q1. What must come before the <code>BEGIN</code> keyword inside an <code>ARCHITECTURE</code> block?</summary>
 <div class="answer">Answer: all declarations for that architecture — <code>SIGNAL</code>s and <code>COMPONENT</code>s (Lesson 3) — the declarative region.</div></details></div>
 <div class="quiz"><details><summary>Q2. Does VHDL use a different keyword to declare a signal that will later be driven by a clocked process, versus one driven continuously?</summary>
-<div class="answer">Answer: no — both use <code>SIGNAL</code>; the distinction (roughly matching SystemVerilog's wire/reg split) comes from how the signal is assigned later in the code, not from a different declaration keyword.</div></details></div>
+<div class="answer">Answer: no — both use <code>SIGNAL</code>; the distinction (roughly matching SystemVerilog's <code>wire</code>/<code>reg</code> split) comes from how the signal is assigned later in the code, not from a different declaration keyword.</div></details></div>
 
-<div class="win"><strong>You now have this in hand:</strong> the <code>ARCHITECTURE ... BEGIN ... END</code> shape, <code>SIGNAL</code> as VHDL's unified wire/reg declaration, and the <code>(OTHERS => '0')</code> aggregate for initializing a whole bus.</div>
+<div class="win"><strong>You now have this in hand:</strong> the <code>ARCHITECTURE ... BEGIN ... END</code> shape, <code>SIGNAL</code> as VHDL's unified <code>wire</code>/<code>reg</code> declaration, and the <code>(OTHERS => '0')</code> aggregate for initializing a whole bus.</div>
 
 <h2>Primary source</h2>
 <p><a href="https://www.vhdl-online.de/courses/system_design/vhdl_language_and_syntax/vhdl_structural_elements/entity_and_architecture" target="_blank" rel="noopener">VHDL-Online — Entity and Architecture</a>. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>

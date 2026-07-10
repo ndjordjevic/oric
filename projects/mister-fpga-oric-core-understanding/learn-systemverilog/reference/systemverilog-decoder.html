@@ -49,8 +49,8 @@
 <tr><td><code>module emu ( ... );</code></td><td>Declares the block and its pin list. One per file here.</td><td>1</td></tr>
 <tr><td><code>endmodule</code></td><td>Closes the module. No semicolon. Last line of the file.</td><td>1, 10</td></tr>
 <tr><td><code>`include "file"</code></td><td>Preprocessor: paste another file's text here before compiling.</td><td>1</td></tr>
-<tr><td><code>`BUILD_DATE</code>, <code>`NAME</code></td><td>Preprocessor macro: substitute its defined text (from a <code>`define</code>/included file).</td><td>3</td></tr>
-<tr><td><code>wire foo;</code></td><td>1-bit continuous signal (must be driven by <code>assign</code>/a port). No memory.</td><td>2, 4</td></tr>
+<tr><td><code>`BUILD_DATE</code>, <code>`NAME</code></td><td>Preprocessor macro: substitute its defined text (from a <code>`define</code>, typically in an included file).</td><td>3</td></tr>
+<tr><td><code>wire foo;</code></td><td>1-bit continuous signal (must be driven by an <code>assign</code> or a port connection). No memory.</td><td>2, 4</td></tr>
 <tr><td><code>reg foo;</code></td><td>Signal writable inside an <code>always</code> block; holds its value (memory).</td><td>4</td></tr>
 <tr><td><code>wire [15:0] foo;</code></td><td>16-bit bus (bits 15 down to 0). Same for <code>reg [n:0]</code>.</td><td>2</td></tr>
 <tr><td><code>wire [31:0] foo[4];</code></td><td>Array of 4 separate 32-bit buses (<code>foo[0]</code>…<code>foo[3]</code>).</td><td>5</td></tr>
@@ -118,7 +118,7 @@
 <table>
 <tr><th>Token</th><th>Meaning</th><th>Lesson</th></tr>
 <tr><td><code>Mod inst ( ... );</code></td><td>Create one copy of module <code>Mod</code> named <code>inst</code>.</td><td>2, 7</td></tr>
-<tr><td><code>.port(signal)</code></td><td>Named port connection — connect <code>port</code> to <code>signal</code>/expression.</td><td>2, 7</td></tr>
+<tr><td><code>.port(signal)</code></td><td>Named port connection — wires the named port to the given signal or expression.</td><td>2, 7</td></tr>
 <tr><td><code>.*</code></td><td>Auto-connect every port whose name matches a same-named signal in scope.</td><td>2</td></tr>
 <tr><td><code>.port()</code></td><td>Leave this (output) port deliberately unconnected.</td><td>2, 5</td></tr>
 <tr><td><code>#(.PARAM(v))</code></td><td>Compile-time parameters — supplied before the instance name.</td><td>5</td></tr>

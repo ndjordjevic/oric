@@ -115,7 +115,7 @@
 <p class="source-link">Source: <code>annotated/Oric.sv</code>, lines 22–46 (the <strong>★ MODULE SETUP</strong> section) — same lines summarized functionally in <a href="../../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §1</a>. This lesson covers the <em>syntax</em> only. All lessons cite line numbers from <code>annotated/Oric.sv</code> (the frozen study copy with ★ section comments); the pristine <code>core/Oric.sv</code> is the same code minus those comments, so its line numbers sit slightly lower.</p>
 
 <h2>The win for today</h2>
-<p>By the end of this lesson you'll be able to read the opening lines of any SystemVerilog file — the <code>module</code>/port skeleton and a block of <code>assign</code> statements — and know exactly what's being declared versus what's happening every clock cycle.</p>
+<p>By the end of this lesson you'll be able to read the opening lines of any SystemVerilog file — the <code>module ... endmodule</code> skeleton with its port list, and a block of <code>assign</code> statements — and know exactly what's being declared versus what's happening every clock cycle. (Note: <code>module</code> is a literal keyword you'll see in the code; "port" is just the concept — SystemVerilog has no <code>port</code> keyword.)</p>
 
 <h2>1. A module is a component, not a function call</h2>
 <pre><span class="ln"> 22</span>module emu
@@ -196,7 +196,7 @@
 </div>
 
 <div class="win">
-<strong>You now have this in hand:</strong> module/port skeletons, <code>`include</code> as textual paste, <code>assign</code> as a permanently-live formula (not a one-time write), <code>{ }</code> as concatenation/destructuring, and the three literal forms <code>'1</code> / <code>'Z</code> / plain numbers. That's enough to read all of <code>Oric.sv</code>'s ★ MODULE SETUP section unaided.
+<strong>You now have this in hand:</strong> the <code>module ... endmodule</code> skeleton and its port list, <code>`include</code> as textual paste, <code>assign</code> as a permanently-live formula (not a one-time write), <code>{ }</code> as concatenation/destructuring, and the three literal forms <code>'1</code> / <code>'Z</code> / plain numbers. That's enough to read all of <code>Oric.sv</code>'s ★ MODULE SETUP section unaided.
 </div>
 
 <h2>Primary source</h2>
