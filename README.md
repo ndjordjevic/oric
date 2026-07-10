@@ -39,4 +39,5 @@ Each subdirectory under `projects/` is a focused study. Current:
 | Repo | What's there |
 |---|---|
 | [`../mister-fpga/`](../mister-fpga/) | MiSTer FPGA platform study (hardware setup, FPGA concepts, DE10-Nano) — context for the `projects/mister-fpga-oric-core-understanding/` project here |
-| [`../oric-forum-digest/`](../oric-forum-digest/) | Defence Force forum scraped into a markdown knowledge base — hardware troubleshooting, clone builds, community consensus |
+
+**Defence Force forum** (`forum.defence-force.org`) — for hardware troubleshooting, clone builds, and community consensus, search it live with `WebSearch`/`WebFetch` (see `AGENTS.md`). The `../oric-forum-digest/` bulk scrape-and-summarize pipeline is retired — live search covers the same needs without scraping time, ongoing API cost, or staleness.

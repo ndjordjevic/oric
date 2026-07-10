@@ -18,23 +18,19 @@ Before answering **any question** about the Oric retro computer, you MUST:
 
 1. Read `wiki/index.md` to identify relevant pages.
 2. Follow `[[wikilinks]]` to drill into relevant source pages.
-3. For hardware, troubleshooting, or community questions, also consult the **Defence Force forum digest** (see below).
+3. For hardware, troubleshooting, or community questions, also search the **Defence Force forum** directly (see below).
 4. Cite wiki page names in your answer.
-5. If the answer is not in the wiki or digest, say so clearly, then fetch current information online instead of relying on training data alone.
+5. If the answer is not in the wiki, say so clearly, then search/fetch current information online instead of relying on training data alone.
 
 The wiki is the authoritative local source for this domain. Start there, use it whenever it covers the question, and go online for gaps or newer information.
 
 ---
 
-## Defence Force forum digest
+## Defence Force forum (live search — do not scrape)
 
-A structured knowledge base of forum threads from `forum.defence-force.org`, maintained as a separate project.
+`forum.defence-force.org` is the Oric community forum. Search and read it live with `WebSearch`/`WebFetch` — do not build or run a local scraper/digest for it. A prior attempt at a bulk scrape-and-summarize pipeline (`../oric-forum-digest/`) turned out to be unnecessary overhead (scraping time, ongoing Claude API summarization cost, staleness) once live search was tested and found to work well; that project is retired and should not be revived or re-run.
 
-**Location:** `../oric-forum-digest/digests/` (sibling repo under `retro-computers/`, same pattern as `../mister-fpga/`)
-
-Each subforum is a directory. List the directories to discover available subforums. Each directory has an **`index.md`** listing all topics with digest links. Individual digest files are named `<topic-id>-<slug>.md` and follow a consistent structure: _Question/goal_, _Outcome_, _Key facts_.
-
-**When to consult the digest:**
+**When to search the forum:**
 
 - Hardware troubleshooting, repair, or component compatibility questions.
 - Clone board questions (Metaphoric, OriClone-1, Oric Remix, Replic'Oric, etc.).
@@ -45,9 +41,11 @@ Each subforum is a directory. List the directories to discover available subforu
 
 **How to use:**
 
-1. Check the relevant subforum `index.md` to find matching topic(s).
-2. Read the topic digest file(s) for facts and community consensus.
-3. Cite the digest file path and topic ID in your answer (e.g., `hardware-hacks/1149-oric-atmos-from-scratch.md`).
+1. `WebSearch` with `allowed_domains: ["forum.defence-force.org"]` to find candidate threads for the topic.
+2. `WebFetch` the specific `viewtopic.php?t=<id>` URL(s) to read the actual thread content and extract facts/community consensus.
+3. Cite the thread URL (and title) in your answer.
+
+Note: the forum's WAF blocks scripted requests with browser-like User-Agents (a local `curl`/`requests` script gets 403'd) — `WebSearch`/`WebFetch` avoid this since they run through Anthropic's own fetch infrastructure, not a request from this machine.
 
 ---
 
