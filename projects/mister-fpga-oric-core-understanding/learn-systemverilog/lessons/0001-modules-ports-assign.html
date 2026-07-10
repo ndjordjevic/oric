@@ -172,6 +172,8 @@
 
 <p>Line 31 sets a whole bundle of SDRAM pins to <code>'Z</code> because this core doesn't use external SDRAM — it releases those pins entirely rather than driving them to a meaningless 0.</p>
 
+<p>The plain <code>0</code> on line 37 is the odd one out of the three, and deliberately so: it's not special hardware syntax at all — it's the same ordinary decimal literal you already know from every other language. The only SystemVerilog-specific behavior is what happens to it when it's assigned to a wider target: <code>assign LED_POWER = 0;</code> zero-extends it to fill whatever width <code>LED_POWER</code> actually is. <code>'1</code> and <code>'Z</code> exist specifically because "ordinary" literals like <code>0</code> can't express "every bit set" or "electrically disconnected" without knowing the target's width in advance — they're the two special-purpose forms; plain <code>0</code> is the baseline everything else is contrasted against.</p>
+
 <h2>Quick check</h2>
 
 <div class="quiz">
