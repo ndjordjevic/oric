@@ -183,15 +183,15 @@
 
 <div class="quiz">
 <details>
-<summary>Q2. Rewrite <code>assign {p, q} = 2'b10;</code> in plain English — what value does each of <code>p</code> and <code>q</code> get?</summary>
-<div class="answer">Answer: <code>p</code> gets 1 (the leftmost/high bit of <code>10</code>) and <code>q</code> gets 0 (the rightmost/low bit) — concatenation on the left splits the right-hand value bit-by-bit across the listed targets, left to right.</div>
+<summary>Q2. In <code>assign {UART_RTS, UART_TXD, UART_DTR} = 0;</code>, what value does each of the three signals get, and why don't they get different bits of <code>0</code>?</summary>
+<div class="answer">Answer: all three get 0 — the right-hand side here is a single scalar value, not a multi-bit value being split apart, so concatenation on the left just broadcasts that one value to every listed target equally.</div>
 </details>
 </div>
 
 <div class="quiz">
 <details>
-<summary>Q3. Why is <code>'Z</code> not a meaningful value to test inside an <code>if</code> condition the way <code>0</code> or <code>1</code> are?</summary>
-<div class="answer">Answer: <code>'Z</code> means the wire isn't being driven at all — it has no defined logic value, so a condition treats it as false/unknown rather than as real data; it's a statement about the wire's electrical state, not a value you branch on.</div>
+<summary>Q3. What does it mean, physically, for a pin to be driven to <code>'Z</code> instead of <code>0</code>?</summary>
+<div class="answer">Answer: the pin is electrically disconnected — not driving any voltage at all — rather than actively driving low; this matters when a wire might be shared with another device that needs to drive it instead.</div>
 </details>
 </div>
 
