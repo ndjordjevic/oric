@@ -2,11 +2,11 @@
 type: source
 source_url: http://oric.free.fr/
 tags: [oric-reference-site, oric-history, hardware-programming, ula, 6502, sedoric, emulators, telestrat]
-related: [OldWer-Metaphoric, Board-Folk-Oric-Remix, defence-force.org, forum.defence-force.org, library.defence-force.org, 48katmos.freeuk.com]
+related: [OldWer-Metaphoric, Board-Folk-Oric-Remix, defence-force.org, forum.defence-force.org, library.defence-force.org, 48katmos.freeuk.com, oric.org]
 product: oric.free.fr
 detail_level: standard
 created: 2026-05-17
-updated: 2026-05-17
+updated: 2026-07-10
 ---
 
 `oric.free.fr` is a long-running static reference site for the Tangerine Oric family of 8-bit home computers, online since 1998 and maintained by Fabrice Frances (author of the Euphoric emulator). It is one of the most complete single-site Oric resources: a full hardware-programming manual, a 12-chapter narrative history of the company, archives of disk operating systems and languages, an emulator and PC-tool collection, and pages on the related Microtan 65 and Oric Phoenix machines. For this wiki it is the authoritative primary reference on how the original Oric hardware works and why the platform exists.

@@ -61,3 +61,4 @@ Drop URLs below under `## Pending`. Run `/pin-llm-wiki run <url>` to ingest a si
 - [x] https://github.com/sodiumlb/ocula-docs <!-- ingested 2026-05-17 -->
 - [x] https://forum.defence-force.org/viewtopic.php?f=11&t=2709 <!-- folded 2026-05-17 — OCULA thread; already summarised in wiki/sources/forum.defence-force.org.md -->
 - [x] https://github.com/MiSTer-devel/Oric_MiSTer <!-- ingested 2026-06-21 -->
+- [x] https://www.oric.org/ <!-- ingested 2026-07-10 -->

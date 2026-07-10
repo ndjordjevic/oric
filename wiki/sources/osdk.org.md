@@ -7,11 +7,11 @@ raw_files:
   - ../../raw/web/osdk.org.md
   - ../../raw/github/Oric-Software-Development-Kit-osdk.md
 tags: [osdk, oric-cross-development, 6502-assembler, c-compiler, xa-assembler, rcc16, floppybuilder, sdk-documentation]
-related: [defence-force.org, forum.defence-force.org, oric.free.fr, library.defence-force.org, blog.defence-force.org, wiki.defence-force.org]
+related: [defence-force.org, forum.defence-force.org, oric.free.fr, library.defence-force.org, blog.defence-force.org, wiki.defence-force.org, oric.org]
 product: osdk
 detail_level: standard
 created: 2026-05-17
-updated: 2026-05-17
+updated: 2026-07-10
 ---
 
 `osdk.org` is the dedicated documentation website for the Oric Software Development Kit — the modern cross-development toolchain for writing software targeting the Oric-1, Atmos, Telestrat, Pravetz 8D, and Oric Nova 64. It provides the complete reference for every OSDK tool and is the canonical place to look up compiler flags, assembler directives, linker pragmas, and utility documentation. The companion GitHub repository contains the C source of the toolchain itself, built by the same Defence Force team behind [[defence-force.org]].

@@ -32,5 +32,6 @@ created: 2026-05-17
 | [[sodiumlb-ocula-docs]] | github | standard | 2026-05-17 | OCULA user documentation — install, mux-bridges, modes |
 
 | [[MiSTer-devel-Oric_MiSTer]] | github | standard | 2026-06-21 | |
+| [[oric.org]] | web | standard | 2026-07-10 | community software archive — surfaced ORICMON/ORIC-MON/ORION monitor tools |
 
-_19 sources ingested._
+_20 sources ingested._

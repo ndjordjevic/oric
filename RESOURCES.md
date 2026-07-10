@@ -110,3 +110,18 @@ Local files in the pCloud library (`iCloud-Migration/Programming/Retro/Oric/`), 
 
 - **`oric-183.zip`** — Oric v1.8.3, a native **macOS Oric-1 / Atmos emulator** (`Oric.app`), bundled with a "Mega Demo" tape. Useful for running Oric software and cross-checking behavior against the MiSTer core.
 - **`ee-320.zip`** — Emulator Enhancer v3.2, a generic macOS emulation utility (not Oric-specific; misfiled in the Oric folder).
+
+## 13. Machine-code monitors, assemblers & debuggers
+
+Found while researching [`projects/ideas.md`](projects/ideas.md) idea #1 — three period commercial tools existed (contrary to the initial assumption that none did), plus a modern homebrew debugger port.
+
+- [The Oric Site — software archive (oric.org)](https://www.oric.org/) — community-maintained Oric software database with scanned manuals and cassette/disk dumps; not previously catalogued in this file
+- [ORICMON (oric.org)](https://www.oric.org/software/oric_mon-145.html) — Tansoft, 1983 (Geoff M. Phillips & Paul Kaufman); machine code monitor + block move + mnemonic assembler/disassembler, Oric-1/Atmos
+- [ORIC-MON (oric.org)](https://www.oric.org/software/oric_mon-79.html) — PSS, 1983 (A. J. Clarke); a separate product despite the near-identical name; v1.1 added Atmos support
+- [ORION (oric.org)](https://www.oric.org/software/orion-1507.html) — AWA Software / later MC Lothlorien, 1983 (S. Hughes); assembler/disassembler/monitor resident at `$8100–$97FF`, plus a `PDUMPO` utility to print disassembly
+- [Oricutron (GitHub)](https://github.com/pete-gordon/oricutron) — the reference Oric-1/Atmos/Telestrat/Pravetz 8D emulator; built-in **F2** monitor/debugger (disassembler, memory dump, breakpoints, register display, symbol-file loading)
+- [Oricutron user guide](https://github.com/pete-gordon/oricutron/blob/master/Oricutron.guide) — documents the F2 monitor's command set
+- [Forum: Oricutron feature request — external debugger support](https://forum.defence-force.org/viewtopic.php?t=1896) — a working NoICE port: a native 6502 resident monitor (`mon6502.dsk`/`.tap`) that runs as ordinary Oric machine code and talks to PC-hosted NoICE over serial; can't debug code that changes the IRQ vector
+- [Forum: Assembler / disassembler](https://forum.defence-force.org/viewtopic.php?t=1765)
+- [Forum: Towards an onboard Oric Assembler/Editor Development environment](https://forum.defence-force.org/viewtopic.php?t=2430) — brainstorming thread, mentions a tool called MONASM, no shipped result
+- [Forum: ASMOS recommendation thread](https://forum.defence-force.org/viewtopic.php?t=1199) — recommends ASMOS as an accessible on-machine assembler/monitor; notes poor documentation across these period tools generally

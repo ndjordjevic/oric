@@ -8,6 +8,12 @@ created: 2026-05-17
 
 Append-only record of all ingests, refreshes, and significant changes. Newest entries at top.
 
+## 2026-07-10 | ingest | oric.org | Community software archive/database — surfaced ORICMON, ORIC-MON, and ORION period monitor tools
+
+- Created: wiki/sources/oric.org.md
+- Updated: wiki/index.md, wiki/overview.md, wiki/log.md, raw/web/README.md, inbox.md
+- Also updated (bidirectional related): wiki/sources/oric.free.fr.md, wiki/sources/osdk.org.md
+
 ## 2026-06-21 | ingest | MiSTer-devel-Oric_MiSTer | Official MiSTer FPGA core for Oric-1, Atmos, and Pravetz 8D
 
 - Created: wiki/sources/MiSTer-devel-Oric_MiSTer.md
