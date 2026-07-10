@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 9 · WAIT UNTIL &amp; the priority-mux process</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0009</div>
+<h1><code>WAIT UNTIL</code> &amp; the priority-mux process</h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 876–927 (★ SECTION 19 — CPU data-in mux). Prior: <a href="0008-concatenation-bit-assignment.html">Lesson 8</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read a third way VHDL expresses "on the clock edge" — <code>PROCESS BEGIN WAIT UNTIL rising_edge(clk); ... END PROCESS;</code> with no sensitivity list at all — and read a long <code>IF/ELSIF</code> chain as a hardware priority mux, mirroring SystemVerilog Lesson 8's chained ternary.</p>
+
+<h2>1. A <code>PROCESS</code> with no sensitivity list, using <code>WAIT UNTIL</code> instead</h2>
+<pre><span class="ln">882</span>PROCESS BEGIN
+<span class="ln">883</span>
+<span class="ln">884</span>	WAIT UNTIL rising_edge(clk_in);
+<span class="ln">885</span>
+<span class="ln">886</span>	IF cpu_rw = '1' AND ula_phi2 = '1' AND patch_active = '1'
+<span class="ln">887</span>	      AND ula_CSROMn = '0' AND cont_MAPn = '1' AND cont_ROMDISn = '1' THEN
+<span class="ln">888</span>		cpu_di <= patch_data;
+<span class="ln">889</span>	ELSIF ...</pre>
+<p>Compare to Lesson 6's <code>PROCESS (CLK_IN) BEGIN IF rising_edge(CLK_IN) THEN ... END IF; END PROCESS;</code>. This is a third equivalent style: <code>PROCESS</code> with an empty sensitivity list <code>()</code> (or none at all, as here), where <code>WAIT UNTIL rising_edge(clk_in);</code> as the very first statement does the same job — pause here until the next rising edge, then run everything below once, then loop back to the <code>WAIT UNTIL</code> and repeat forever.</p>
+<div class="callout sv">All three forms — <code>always @(posedge clk)</code> (SV), <code>PROCESS(clk) ... IF rising_edge(clk) THEN</code> (Lesson 6), and <code>PROCESS BEGIN WAIT UNTIL rising_edge(clk); ...</code> (here) — describe the exact same hardware: a bank of flip-flops sampling their inputs once per clock rising edge. Different eras/authors of VHDL style prefer different spellings; recognizing all three as "the same clocked-block idea" matters more than picking a favorite.</div>
+<div class="callout gotcha">A <code>WAIT UNTIL</code> statement can only appear inside a <code>PROCESS</code> with <em>no</em> sensitivity list — mixing a sensitivity list AND a <code>WAIT</code> statement in the same process is illegal. That's why line 882 has bare <code>PROCESS BEGIN</code>, no <code>(CLK_IN)</code> after it, unlike Lesson 6's examples.</div>
+
+<h2>2. Reading the long <code>IF/ELSIF</code> chain as a priority mux</h2>
+<p>This whole process is one big decision: which of ~9 sources gets to drive <code>cpu_di</code> (the CPU's data-in bus) this cycle. Reading it top to bottom, first match wins — the exact same priority-list idea as SystemVerilog Lesson 8's chained ternary, and VHDL Lesson 4's chained <code>WHEN/ELSE</code>, just written as a sequential <code>IF/ELSIF</code> ladder inside a <code>PROCESS</code> instead of a concurrent expression.</p>
+<table>
+<tr><th>Priority (highest first)</th><th>Condition gate</th><th>Source</th></tr>
+<tr><td>1</td><td><code>patch_active</code> AND in ROM window</td><td>Tape-load ROM patch (wins over everything)</td></tr>
+<tr><td>2</td><td>Pravetz FDC softswitch selected</td><td>Pravetz-8D FDC</td></tr>
+<tr><td>3</td><td>Pravetz bank-ROM window</td><td>Pravetz bank ROM</td></tr>
+<tr><td>4</td><td>expansion port I/O selected</td><td>Microdisc controller</td></tr>
+<tr><td>5</td><td>VIA I/O selected</td><td>VIA</td></tr>
+<tr><td>6-9</td><td>ROM window, by <code>rom</code> value</td><td>Atmos / Oric-1 / Pravetz / Loadable ROM</td></tr>
+<tr><td>10</td><td>Microdisc ROM window</td><td>Microdisc ROM</td></tr>
+<tr><td>11 (fallback)</td><td>RAM window</td><td>SRAM</td></tr>
+</table>
+<div class="callout gotcha">Notice there's no final unconditional <code>ELSE</code> here — if none of the <code>IF/ELSIF</code> conditions match, <code>cpu_di</code> simply isn't assigned this cycle, meaning it holds its previous value (VHDL's rule: an unassigned signal in a clocked process retains its old value, exactly like an unassigned <code>reg</code> in a SystemVerilog <code>always</code> block). This is different from SV Lesson 8's chained ternary, which always has a defined fallback because a continuous <code>wire</code> assignment can never be "left unassigned."</div>
+<p>Each condition itself is nothing new — a chain of <code>AND</code>-combined comparisons, same as Section 6 and Section 18. The only genuinely new idea in this whole lesson is the sensitivity-list-free <code>PROCESS</code>/<code>WAIT UNTIL</code> form.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. Can a <code>PROCESS</code> have both a sensitivity list like <code>(CLK_IN)</code> and a <code>WAIT UNTIL</code> statement inside it?</summary>
+<div class="answer">Answer: no — a process with a sensitivity list cannot contain a WAIT statement, and vice versa; they're two mutually exclusive ways of expressing the same "wake up on this event" idea.</div></details></div>
+<div class="quiz"><details><summary>Q2. If none of the IF/ELSIF conditions in this process are true on a given clock edge, what happens to <code>cpu_di</code>?</summary>
+<div class="answer">Answer: it keeps its previous value — an unassigned signal in a clocked process implicitly holds state, the same behavior as an unassigned reg in a SystemVerilog always block.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> the sensitivity-list-free <code>PROCESS BEGIN WAIT UNTIL rising_edge(clk); ... END PROCESS;</code> form as a third spelling of "clocked block," and reading a long <code>IF/ELSIF</code> chain as a hardware priority mux with implicit hold-state on no match.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.eecs.umich.edu/courses/doing_dsp/handout/vhdl-tutorial.pdf" target="_blank" rel="noopener">Ashenden — VHDL Tutorial</a> (WAIT statements and process styles). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0009</span><span><a href="0008-concatenation-bit-assignment.html">← Lesson 8</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

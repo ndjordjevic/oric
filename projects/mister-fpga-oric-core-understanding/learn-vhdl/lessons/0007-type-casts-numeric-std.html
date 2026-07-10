@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 7 · Type casts &amp; numeric_std</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0007</div>
+<h1>Type casts &amp; <code>numeric_std</code></h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 399–406 (Pravetz window decode) and lines 478–493 (★ SECTION 8 — RAM bus arbitration). Prior: <a href="0006-process-rising-edge.html">Lesson 6</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read VHDL's strict-typing casts (<code>unsigned(...)</code>, <code>TO_UNSIGNED(...)</code>, <code>STD_LOGIC_VECTOR(...)</code>) and understand why VHDL needs them where SystemVerilog just lets you compare numbers directly.</p>
+
+<h2>1. Why casts exist: VHDL's stricter type system</h2>
+<pre><span class="ln">401</span>unsigned(cpu_ad(7 DOWNTO 0)) >= TO_UNSIGNED(16#10#, 8)</pre>
+<p><code>cpu_ad(7 DOWNTO 0)</code> is a <code>STD_LOGIC_VECTOR</code> — just a bundle of individual bits with no built-in idea of "numeric value." To do a numeric comparison (<code>&gt;=</code>) you must first tell VHDL to treat that bit-bundle <em>as</em> a number: <code>unsigned(...)</code> casts it to the <code>unsigned</code> type (from the <code>numeric_std</code> package imported in Lesson 1). <code>TO_UNSIGNED(16#10#, 8)</code> builds the other side of the comparison directly as an 8-bit unsigned number, from the value <code>16#10#</code> (VHDL's hex-literal syntax: <code>base#value#</code> — here, hex 10, i.e. decimal 16).</p>
+<div class="callout sv">SystemVerilog collapses this entire distinction — a <code>wire [7:0]</code> can be compared numerically with <code>&gt;=</code> directly, no cast needed, because SV doesn't separate "bit vector" from "number" as strictly. VHDL's extra ceremony here (<code>unsigned(...)</code>, <code>TO_UNSIGNED(...)</code>) exists specifically because <code>STD_LOGIC_VECTOR</code> deliberately carries no numeric interpretation on its own — it's a design choice for type safety, not an oversight.</div>
+<div class="callout gotcha"><code>16#10#</code> is <em>not</em> the same as VHDL's other hex literal you already know, <code>X"10"</code>. Both mean hex 0x10 (decimal 16), but <code>base#value#</code> is a general based-literal notation usable directly as a plain number (as the first argument to <code>TO_UNSIGNED</code> here, which expects a number, not a bit vector), while <code>X"..."</code> directly produces a <code>STD_LOGIC_VECTOR</code>-typed literal.</div>
+
+<h2>2. Casting back: <code>STD_LOGIC_VECTOR(TO_UNSIGNED(...))</code></h2>
+<p>You'll see this combined pattern later in the file (Section 17): <code>STD_LOGIC_VECTOR(TO_UNSIGNED(16#2735#, 14))</code> — build a number with <code>TO_UNSIGNED</code>, then cast the result back to a plain bit vector with <code>STD_LOGIC_VECTOR(...)</code> so it can be compared against <code>cpu_ad(13 DOWNTO 0)</code> (which is itself a <code>STD_LOGIC_VECTOR</code>, not an <code>unsigned</code>).</p>
+<div class="callout analogy">Think of <code>STD_LOGIC_VECTOR</code>, <code>unsigned</code>, and <code>signed</code> as three different VHDL types that all happen to store the same bits — like TypeScript's structural types where the same underlying data needs an explicit cast/assertion to be treated as a different named type before certain operations (arithmetic, numeric comparison) are allowed on it.</div>
+
+<h2>3. Bus arbitration: reading a mux with no new syntax</h2>
+<pre><span class="ln">483</span>ram_ad <= ula_AD_SRAM WHEN (ula_PHI2 = '0') ELSE
+<span class="ln">484</span>	cpu_ad(15 DOWNTO 0);
+<span class="ln">487</span>ram_cs <= '0' WHEN RESETn = '0' ELSE
+<span class="ln">488</span>	ula_CE_SRAM;</pre>
+<p>Nothing new here — this is Lesson 4's <code>WHEN/ELSE</code> pattern, applied to the RAM address bus: when the ULA's <code>PHI2</code> clock-half is low (the video-fetch half-cycle), the RAM address comes from the ULA's own video-scan address; otherwise it comes from the CPU's address bus. Same idiom, just worth confirming you can read it fluently now without the earlier line-by-line commentary.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. Why can't <code>cpu_ad(7 DOWNTO 0) &gt;= TO_UNSIGNED(16#10#, 8)</code> be written without the <code>unsigned(...)</code> cast around <code>cpu_ad(7 DOWNTO 0)</code>?</summary>
+<div class="answer">Answer: because <code>cpu_ad(7 DOWNTO 0)</code> is a <code>STD_LOGIC_VECTOR</code>, which has no built-in numeric comparison operators — VHDL requires it to be explicitly cast to <code>unsigned</code> before <code>&gt;=</code> can treat it as a number.</div></details></div>
+<div class="quiz"><details><summary>Q2. What's the difference between <code>X"10"</code> and <code>16#10#</code>?</summary>
+<div class="answer">Answer: both represent hex 0x10 (decimal 16), but <code>X"10"</code> produces a <code>STD_LOGIC_VECTOR</code>-typed bit-vector literal directly, while <code>16#10#</code> is a general based-number literal usable as a plain numeric value, e.g. as an argument to <code>TO_UNSIGNED</code>.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> why VHDL needs explicit casts (<code>unsigned(...)</code>, <code>TO_UNSIGNED(...)</code>, <code>STD_LOGIC_VECTOR(...)</code>) where SystemVerilog doesn't, the <code>base#value#</code> literal notation, and confirmation that the RAM arbitration logic is just Lesson 4's <code>WHEN/ELSE</code> idiom again.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.eecs.umich.edu/courses/doing_dsp/handout/vhdl-tutorial.pdf" target="_blank" rel="noopener">Ashenden — VHDL Tutorial</a> (numeric_std and type conversion). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0007</span><span><a href="0006-process-rising-edge.html">← Lesson 6</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

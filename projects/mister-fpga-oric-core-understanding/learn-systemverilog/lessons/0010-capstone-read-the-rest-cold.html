@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 10 · Capstone — read the rest of Oric.sv cold</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0010 (Capstone)</div>
+<h1>Read the rest of <code>Oric.sv</code> cold</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 549–925 — everything from ★ BIOS &amp; TAPE ROM PATCHES through the closing <code>endmodule</code>. Prior: <a href="0009-local-vars-replication-cdc.html">Lesson 9</a>.</p>
+
+<h2>The win for today</h2>
+<p>No new syntax is introduced in this lesson — every construct in the remaining ~370 lines of the file is something you've already met in Lessons 1–9. This is a fluency checkpoint: read the remaining sections yourself, using the table below only if you get stuck, then confirm against <a href="../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md</a>.</p>
+
+<h2>Syntax inventory — everything left is a repeat</h2>
+<table>
+<tr><th>Section (★)</th><th>Lines</th><th>Constructs used — all from earlier lessons</th></tr>
+<tr><td>BIOS &amp; TAPE ROM PATCHES</td><td>549–577</td><td>parameterized instantiation (L5), bit-slice <code>bios_addr[13:0]</code> (L2), ternary in a connection (L7)</td></tr>
+<tr><td>AUDIO MIXING</td><td>581–590</td><td>concatenation + reduction-OR + ternary combined in one expression (L1, L3, L6, L8) — e.g. <code>{|tapeVolume ? (...) : 2'b00, 9'b00}</code></td></tr>
+<tr><td>FILE CACHE &amp; CASSETTE PLAYER</td><td>594–665</td><td>chained ternary priority mux (L8, you've seen this exact block already), comparison operators (L3), <code>always</code> blocks with non-blocking assignment (L4), instantiation (L2/L5/L7)</td></tr>
+<tr><td>TAPE SPEED LOADERS</td><td>667–734</td><td>instantiation with inline expressions (L7), reduction/equality operators combined in a trigger condition (L3, L6), the "host mailbox" register pattern (L4)</td></tr>
+<tr><td>SNAPSHOT &amp; SAVE-STATES</td><td>736–910</td><td>the largest remaining block, but structurally just more wire declarations (L2) and two more big instantiations (L7) — <code>snap_loader</code>, <code>snap_ss</code>, <code>ddram</code></td></tr>
+<tr><td>PHYSICAL TAPE INPUT</td><td>913–925</td><td>instantiation (L2), ternary (L2), and the closing <code>endmodule</code> keyword — the counterpart to line 22's <code>module emu</code>, closing the single module that is the entire file</td></tr>
+</table>
+
+<h2>One genuinely new (but tiny) piece: <code>endmodule</code></h2>
+<pre><span class="ln">925</span>endmodule</pre>
+<p>Every <code>module ... ( ... );</code> opening must be matched by exactly one <code>endmodule</code> — no semicolon after it, unlike almost everything else in the language. This is the only unpaired keyword in the whole 925-line file: everything between line 22 (<code>module emu</code>) and line 925 is the single <code>emu</code> module's body.</p>
+<div class="callout analogy">Exactly like a closing <code>}</code> for a class body, or Python's implicit dedent at the end of a function — it marks where the module's scope ends.</div>
+
+<h2>Self-test</h2>
+<p>Pick any 15-line stretch from lines 549–925 you haven't specifically discussed yet, and try to answer, out loud or in writing, without looking anything up:</p>
+<ol>
+<li>Which lines declare a signal (wire/reg), and which lines <em>use</em> one?</li>
+<li>Is each assignment continuous (<code>assign</code>/inline <code>wire = ...</code>) or clocked (inside an <code>always</code> block)? How do you tell?</li>
+<li>Any bit-slices — what width and which bits?</li>
+<li>Any ternary chains — what's the priority order, and what's the fallback?</li>
+</ol>
+<div class="callout gotcha">If you can answer all four for an unfamiliar stretch of this file without help, that's the actual mission success criterion from <a href="../MISSION.md">MISSION.md</a> being met — not just having sat through ten lessons.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. Does <code>endmodule</code> take a semicolon, unlike most other SystemVerilog statements?</summary>
+<div class="answer">Answer: no — <code>endmodule</code> stands alone with no trailing semicolon.</div></details></div>
+<div class="quiz"><details><summary>Q2. Name the six recurring idioms this whole lesson series has been built from (one word/phrase each).</summary>
+<div class="answer">Answer: continuous assignment, bit-slicing, ternary, clocked always-blocks with non-blocking assignment, module instantiation (with parameters), and edge-detection (delayed-copy / XOR).</div></details></div>
+
+<div class="win"><strong>Mission checkpoint:</strong> if the self-test above went well, bring me a specific unfamiliar stretch of code and walk me through it — that's the strongest evidence for a learning record, and the natural next step is doing the same exercise on <code>rtl/oricatmos.vhd</code> (a different language, VHDL, covering the actual computer itself) via the sibling <code>learn-vhdl</code> workspace.</div>
+
+<h2>Primary source</h2>
+<p>Cross-check your reading against <a href="../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md</a> (the functional walkthrough) — by now the syntax shouldn't be the hard part; the interesting remaining questions are architectural, which is exactly what that document covers.</p>
+
+<footer><div class="nav"><span>Lesson 0010 of Learn SystemVerilog (final)</span><span><a href="0009-local-vars-replication-cdc.html">← Lesson 9</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

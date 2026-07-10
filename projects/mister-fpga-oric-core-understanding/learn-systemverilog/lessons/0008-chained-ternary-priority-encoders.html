@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 8 · Chained ternary as a priority encoder</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0008</div>
+<h1>Chained ternary as a priority encoder</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 498–508 (★ ROM SELECTION &amp; FDD READY) and lines 616–622 (file-cache address mux). Prior: <a href="0007-large-port-maps.html">Lesson 7</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read a chain of stacked ternary operators as what it really is: an ordered list of "if this, else if that" cases collapsed into one expression — the same pattern shows up at least twice more later in the file.</p>
+
+<h2>1. Chaining <code>?:</code> like an if/else-if ladder</h2>
+<pre><span class="ln">500</span>wire [1:0] rom_sel =
+<span class="ln">501</span>	(rom == 2'd0) ? 2'd2 :
+<span class="ln">502</span>	(rom == 2'd1) ? 2'd0 :
+<span class="ln">503</span>	(rom == 2'd2) ? 2'd1 :
+<span class="ln">504</span>	(bios_loaded ? 2'd3 : 2'd0);</pre>
+<p>Each <code>cond ? a : b</code> can nest inside another's "else" branch, producing a top-to-bottom priority chain: check the first condition; if false, its <code>: ...</code> branch is itself another ternary, checked next; and so on. Read line-by-line, top to bottom, exactly like a priority list:</p>
+<div class="callout analogy">This is precisely an if/else-if/else ladder written as one expression — the JS equivalent would be:
+<pre>const romSel =
+  (rom === 0) ? 2 :
+  (rom === 1) ? 0 :
+  (rom === 2) ? 1 :
+  (biosLoaded ? 3 : 0);</pre>
+Same top-to-bottom priority reading, same "first match wins" semantics — just written as nested ternaries instead of an <code>if</code> chain, because this whole thing has to be one continuously-live <code>wire</code> expression, not a procedural statement.</div>
+<div class="callout gotcha">This particular chain is a lookup-table remap: the menu's ROM option order (0,1,2,3) doesn't match the internal ROM numbering, so this translates one numbering into the other. The logic itself isn't complicated once you read it as a priority list — the only trap is trying to parse all four lines "at once" instead of top-to-bottom.</div>
+
+<h2>2. The same pattern used for muxing an address, not just a constant</h2>
+<pre><span class="ln">616</span>wire [FILE_CACHE_ADDR_WIDTH-1:0] file_selected_addr =
+<span class="ln">617</span>  file_download_active ? file_download_addr :
+<span class="ln">618</span>  ss_load_active       ? ss_fc_addr :
+<span class="ln">619</span>  snap_active          ? snap_cache_addr :
+<span class="ln">620</span>  tap_active           ? tap_cache_addr :
+<span class="ln">621</span>  tap_byte_active      ? tap_byte_cache_addr :
+<span class="ln">622</span>                         tape_addr;</pre>
+<p>Identical shape to the ROM-select chain, just picking between five different <em>address buses</em> instead of five constants — whichever subsystem is currently "active" gets to drive the shared file-cache address, in a fixed priority order (download > save-state load > snapshot restore > tape segment loader > tape byte streamer > default cassette playback).</p>
+<div class="callout gotcha">Notice there's no explicit final condition on line 622 — <code>tape_addr</code> is the unconditional fallback if none of the five <code>_active</code> flags are set, exactly like a final bare <code>else</code> at the end of an if/else-if ladder.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. If <code>rom == 2'd1</code> is true, what value does <code>rom_sel</code> get, regardless of whether later conditions would also be true?</summary>
+<div class="answer">Answer: <code>2'd0</code> — the first matching condition in a ternary chain wins; later conditions are never even evaluated for their effect once an earlier one matches.</div></details></div>
+<div class="quiz"><details><summary>Q2. In the second example, what drives <code>file_selected_addr</code> when none of the five named "_active" signals are true?</summary>
+<div class="answer">Answer: <code>tape_addr</code> — the final unconditional fallback value at the end of the chain.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> reading a nested/stacked ternary chain as an ordered priority list — top-to-bottom, first match wins, with an optional unconditional fallback at the end. This single idiom recurs throughout the codebase wherever several subsystems compete to drive one shared signal.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://chipverify.com/verilog/verilog-conditional-operator" target="_blank" rel="noopener">ChipVerify — conditional (ternary) operator</a>, including nested-ternary examples. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">If you'd like, I can walk through one more chained-ternary example live and have you predict the output for a specific input combination.</div>
+
+<footer><div class="nav"><span>Lesson 0008 of Learn SystemVerilog</span><span><a href="0007-large-port-maps.html">← Lesson 7</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

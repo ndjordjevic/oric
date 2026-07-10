@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 10 · Capstone — read the rest of oricatmos.vhd cold</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0010 (Capstone)</div>
+<h1>Read the rest of <code>oricatmos.vhd</code> cold</h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, remaining sections: ★10 ULA (539–575), ★11 VIA (577–631), ★13 Keyboard/joystick (673–706), ★14 Pravetz FDC (708–737), ★15 Microdisc (739–795), ★17 CPU address snoops (818–852), and the closing <code>END RTL;</code>. Prior: <a href="0009-wait-until-priority-mux.html">Lesson 9</a>.</p>
+
+<h2>The win for today</h2>
+<p>No new syntax — every remaining section reuses <code>PORT MAP</code> instantiation (Lesson 5), <code>WHEN/ELSE</code> (Lesson 4), and comparison/boolean operators (Lesson 4/7). This is a fluency checkpoint, and the final piece needed to close the loop back to <code>Oric.sv</code>.</p>
+
+<h2>Syntax inventory — everything left is a repeat</h2>
+<table>
+<tr><th>Section (★)</th><th>Lines</th><th>Constructs used — all from earlier lessons</th></tr>
+<tr><td>ULA instantiation</td><td>539–575</td><td><code>ENTITY work.ULA PORT MAP(...)</code> (L5) — the single largest port map in the file, but structurally identical to the CPU/ROM instantiations you've already read</td></tr>
+<tr><td>VIA (M6522) instantiation</td><td>577–631</td><td>same instantiation shape (L5); note comment-documented port groups ("PORT A", "PORT B") — same organizing convention as Lesson 2's signal groupings</td></tr>
+<tr><td>Keyboard &amp; joystick instantiations</td><td>673–706</td><td>the plain component-name form (L5, same as <code>psg</code>) since these are also SystemVerilog modules (L3); bit-slice <code>via_pb_out(2 DOWNTO 0)</code> (L1/L4) passed straight into a port</td></tr>
+<tr><td>Pravetz-8D FDC controller</td><td>708–737</td><td><code>ENTITY work.X PORT MAP(...)</code> (L5); slices of <code>sd_ack(1 DOWNTO 0)</code> (L1) passed into a port, same pattern as SV Lesson 7's inline slices</td></tr>
+<tr><td>Microdisc controller</td><td>739–795</td><td>same instantiation shape (L5); note <code>nRESET => RESETn AND pll_locked</code> — a boolean expression (L4) inlined directly into a port connection, same idiom as SV Lesson 7</td></tr>
+<tr><td>CPU address snoops ($C000 mailbox etc.)</td><td>818–852</td><td>pure <code>WHEN/ELSE</code> (L4) with multi-line <code>AND</code> chains (L4/L6/L7) and the <code>STD_LOGIC_VECTOR(TO_UNSIGNED(...))</code> cast pattern (L7) — you've already read every piece of this</td></tr>
+</table>
+
+<h2>One closing piece: <code>END RTL;</code></h2>
+<pre><span class="ln">929</span>END RTL;</pre>
+<p>Matches <code>ARCHITECTURE RTL OF oricatmos IS</code> from VHDL Lesson 2 — the architecture's name (<code>RTL</code>) is repeated at the close, unlike SystemVerilog's bare <code>endmodule</code>. This is the very last line of the file, closing the single architecture body that everything since line 395's <code>BEGIN</code> belongs to.</p>
+
+<h2>Self-test</h2>
+<p>Pick one of the remaining instantiations (ULA, VIA, Microdisc) and answer, without looking anything up:</p>
+<ol>
+<li>Is this the <code>ENTITY work.X</code> form or the plain component-name form — and how do you know which?</li>
+<li>Find one port connected to a bit-slice, and one connected to a full boolean expression rather than a bare signal.</li>
+<li>In the CPU address snoops section, pick one <code>WHEN/ELSE</code> chain and rewrite it as a SystemVerilog ternary — condition-first, remember the word-order flip from VHDL Lesson 4.</li>
+</ol>
+
+<h2>The full-circle question</h2>
+<p>Now that both <code>Oric.sv</code> (SystemVerilog series) and <code>oricatmos.vhd</code> (this series) are readable at the syntax level, the natural next check is cross-file: pick any signal that crosses the boundary between the two files — e.g. <code>cpu_halt</code>, <code>bios_addr</code>, or any of the <code>_snap_</code> signals — and trace it from its <code>PORT MAP</code> connection in <code>Oric.sv</code>'s <code>oricatmos</code> instantiation (SV Lesson 7) through to its declaration in this file's <code>ENTITY</code> port list (VHDL Lesson 1).</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What has to match between <code>ARCHITECTURE RTL OF oricatmos IS</code> and the file's closing line?</summary>
+<div class="answer">Answer: the architecture name — <code>END RTL;</code> repeats <code>RTL</code> to close the specific architecture block opened earlier, unlike SystemVerilog's unnamed <code>endmodule</code>.</div></details></div>
+<div class="quiz"><details><summary>Q2. Name the two instantiation forms this file mixes, and what determines which one a given sub-module uses.</summary>
+<div class="answer">Answer: <code>ENTITY work.X PORT MAP(...)</code> for VHDL-native modules, and plain <code>component_name PORT MAP(...)</code> for modules needing an explicit forward COMPONENT declaration (the three SystemVerilog sub-modules: keyboard, joystick, psg).</div></details></div>
+
+<div class="win"><strong>Mission checkpoint:</strong> if the self-test and full-circle question went well, the success criteria from <a href="../MISSION.md">MISSION.md</a> are met — reading real, unfamiliar VHDL from this file cold, distinguishing concurrent from sequential logic, and translating fluently against the SystemVerilog vocabulary from the sibling workspace.</div>
+
+<h2>Primary source</h2>
+<p>Cross-check your reading against <a href="../../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a> — the syntax shouldn't be the hard part anymore; what's left is architectural understanding, which that document covers directly.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0010 (final)</span><span><a href="0009-wait-until-priority-mux.html">← Lesson 9</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

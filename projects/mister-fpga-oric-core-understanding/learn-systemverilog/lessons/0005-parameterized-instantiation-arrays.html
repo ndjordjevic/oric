@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 5 · Parameterized instantiation &amp; unpacked arrays</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0005</div>
+<h1>Parameterized instantiation &amp; unpacked arrays</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 140–148 (★ CLOCK GENERATION) and 178–252 (★ HPS FRAMEWORK INTERFACE). Prior: <a href="0004-reg-always-nonblocking.html">Lesson 4</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read a module instantiation that passes compile-time parameters (not just port connections), understand what an empty port connection really means, and recognize an array-of-buses declaration.</p>
+
+<h2>1. A plain instantiation with one intentionally-empty port</h2>
+<pre><span class="ln">140</span>pll pll
+<span class="ln">141</span>(
+<span class="ln">142</span>	.refclk(CLK_50M),
+<span class="ln">143</span>	.rst(0),
+<span class="ln">144</span>	.outclk_0(clk_sys),
+<span class="ln">145</span>	.outclk_1(CLK_VIDEO),
+<span class="ln">146</span>	.outclk_2(),
+<span class="ln">147</span>	.locked(locked)
+<span class="ln">148</span>);</pre>
+<p>This is the same instantiation pattern from Lesson 2 — nothing new in the shape. Two details worth calling out precisely: <code>.rst(0)</code> feeds a constant literal directly into a port (perfectly legal — an input port can be tied to a fixed value, not just a named wire), and <code>.outclk_2()</code> leaves an output completely unconnected because this design only needs two of the PLL's three output clocks.</p>
+<div class="callout analogy">Passing a literal into a port is like calling a function with a hardcoded argument: <code>makePLL({ rst: 0, outclk_2: undefined })</code> — you're allowed to not care about a return value (<code>outclk_2</code>) the same way you'd ignore an object's field you don't need.</div>
+
+<h2>2. Compile-time parameters: <code>#( .PARAM(value) )</code></h2>
+<pre><span class="ln">216</span>hps_io #(.CONF_STR(CONF_STR), .VDNUM(4)) hps_io
+<span class="ln">217</span>(
+<span class="ln">218</span>	.clk_sys(clk_sys),
+<span class="ln">219</span>	.HPS_BUS(HPS_BUS),
+<span class="ln">220</span>	...</pre>
+<p>The <code>#( ... )</code> block right after the module name — <em>before</em> the instance name and the port list — passes <strong>parameters</strong>: compile-time configuration values, distinct from the ports (which carry live signals at runtime). Here, <code>hps_io</code> is told its menu string (<code>CONF_STR</code>, the constant from Lesson 3) and that it should support 4 virtual disk drives (<code>VDNUM(4)</code>).</p>
+<div class="callout analogy">Think of a parameter as a generic/template argument — like TypeScript's <code>Array&lt;number&gt;</code> or a C++ template parameter — it configures the <em>shape</em ​of the module at compile time (how wide some internal buffer is, how many drives it supports), whereas a port carries a value that changes while the circuit runs.</div>
+<div class="callout gotcha">Don't confuse <code>#( .PARAM(value), ... )</code> (compile-time, comes right after the module name) with the port list <code>( .port(signal), ... )</code> (runtime, comes after the instance name). Same <code>.name(value)</code> visual syntax, completely different meaning and timing.</div>
+
+<h2>3. Arrays of buses: <code>wire [31:0] sd_lba[4];</code></h2>
+<pre><span class="ln">187</span>wire  [31:0] sd_lba[4];
+<span class="ln">193</span>wire   [7:0] sd_buff_din[4];</pre>
+<p>Two sets of brackets, two different jobs. <code>[31:0]</code> (right after <code>wire</code>) is the bit-width of each element — 32 bits per entry. <code>[4]</code> (right after the name) says there are 4 <em>separate</em> 32-bit buses, indexed <code>sd_lba[0]</code> through <code>sd_lba[3]</code> — one per virtual disk drive.</p>
+<div class="callout analogy">This is exactly a fixed-size array of same-width values: <code>const sd_lba: number[4]</code> in a hardware-flavored TypeScript, or Python's <code>sd_lba = [0,0,0,0]</code> where each entry happens to be a 32-bit integer. You saw this used later: <code>.sd_lba_fd0(sd_lba[0])</code> picks out drive 0's bus specifically.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. In <code>hps_io #(.CONF_STR(CONF_STR), .VDNUM(4)) hps_io (...)</code>, which part configures the module at compile time, and which part wires it up at runtime?</summary>
+<div class="answer">Answer: the <code>#(.CONF_STR(...), .VDNUM(4))</code> block is compile-time configuration; the <code>( .clk_sys(clk_sys), ... )</code> block afterward is the runtime port/signal wiring.</div></details></div>
+<div class="quiz"><details><summary>Q2. What's the difference in meaning between <code>wire [31:0] sd_lba[4]</code> and a hypothetical <code>wire [3:0] sd_lba</code>?</summary>
+<div class="answer">Answer: the first is 4 separate 32-bit buses (an array); the second would be a single bus that's only 4 bits wide — completely different shape despite superficially similar-looking brackets.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> tying a literal directly into a port, leaving a port deliberately unconnected, compile-time parameters via <code>#(...)</code> versus runtime ports, and array-of-buses declarations with two independent bracket dimensions.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://systemverilog.dev/3.html" target="_blank" rel="noopener">systemverilog.dev — Modules, Controls, and Interfaces</a> (parameterized instantiation) and <a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (unpacked arrays). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Ask me anytime something doesn't click — that's what I'm here for.</div>
+
+<footer><div class="nav"><span>Lesson 0005 of Learn SystemVerilog</span><span><a href="0004-reg-always-nonblocking.html">← Lesson 4</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

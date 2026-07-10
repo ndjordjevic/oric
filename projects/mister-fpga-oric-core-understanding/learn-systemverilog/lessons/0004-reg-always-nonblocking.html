@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 4 · reg, always @(posedge) &amp; non-blocking assignment</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0004</div>
+<h1><code>reg</code>, <code>always @(posedge)</code> &amp; non-blocking assignment</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 150–173 (★ RESET &amp; RAM CLEAR). Prior: <a href="0003-localparam-strings-operators.html">Lesson 3</a>. This is the most important lesson so far — it's the syntax of <em>sequential logic</em>, i.e. anything with memory.</p>
+
+<h2>The win for today</h2>
+<p>You'll be able to read a clocked block that counts, resets, and toggles — the pattern every flip-flop, counter, and state machine in this codebase is built from.</p>
+
+<h2>1. <code>reg</code> vs <code>wire</code>: who's allowed to hold a value</h2>
+<pre><span class="ln">151</span>reg        reset = 0;
+<span class="ln">152</span>reg [16:0] clr_addr = 0;</pre>
+<p><code>wire</code> (Lessons 1–3) can only ever be a live formula — it must be continuously driven by an <code>assign</code> or a port connection, and has no memory of its own. <code>reg</code> is different: it's a signal that can be <em>written inside a procedural block</em> (an <code>always</code> block, coming up next) and holds its value between writes — it's memory.</p>
+<div class="callout analogy">Think of <code>wire</code> as a computed property (a getter, always re-derived) and <code>reg</code> as a plain mutable variable that only changes when explicit code assigns to it. The <code>= 0</code> here is the reset/power-on initial value — for FPGA synthesis this becomes the value the flip-flop powers up with, not a "default if unwritten" like in software.</div>
+
+<h2>2. <code>always @(posedge clk_sys) begin ... end</code> — the heartbeat block</h2>
+<pre><span class="ln">155</span>always @(posedge clk_sys) begin
+<span class="ln">156</span>
+<span class="ln">157</span>	if(~&clr_addr) clr_addr <= clr_addr + 1'd1;
+<span class="ln">158</span>	else reset <= 0;
+<span class="ln">159</span>
+<span class="ln">160</span>	if(manual_reset_req | tap_autorun_reset_req) begin
+<span class="ln">161</span>		clr_addr <= 0;
+<span class="ln">162</span>		reset <= 1;
+<span class="ln">163</span>	end
+<span class="ln">165</span>end</pre>
+<p><code>always @(posedge clk_sys)</code> means "run everything inside this block exactly once, at the instant <code>clk_sys</code> transitions from 0 to 1" (a rising edge) — repeated forever, once per clock cycle. <code>begin ... end</code> groups multiple statements into one block, exactly like curly braces <code>{ }</code> group statements in C/JS (SystemVerilog reserves <code>{ }</code> for concatenation, so it needs different block delimiters).</p>
+<div class="callout analogy">The closest software analogy is an event handler that fires once per clock tick: <code>clock.on('risingEdge', () =&gt; { ... })</code>. But unlike a JS event handler, everything inside conceptually happens <strong>simultaneously and instantaneously</strong> at that clock edge — there's no "first this line runs, then that one takes effect" the way software statements execute in sequence.</div>
+
+<h2>3. <code>&lt;=</code> — non-blocking assignment (the crucial hardware-only idea)</h2>
+<p>Inside an <code>always</code> block, <code>&lt;=</code> means: "at the <em>next</em> clock edge, this signal will become this value" — all the right-hand sides in the block are read using the <em>old</em> values, and all the updates land together, atomically, as one snapshot.</p>
+<div class="callout gotcha">This is the single most important, least intuitive rule in this whole lesson series. Look at lines 160–163: <code>clr_addr &lt;= 0;</code> and <code>reset &lt;= 1;</code> both use the values <em>as they were before this clock edge</em> to decide what to become — they do NOT see each other's new values within the same block execution. It's as if every <code>&lt;=</code> in the block were computed first from old values, then all applied at once. This models real flip-flops: their outputs only change at the clock edge, and every flip-flop reads its input from before that edge.</div>
+<div class="callout analogy">If you've used React's <code>setState</code>, this is a decent analogy: calling <code>setState</code> doesn't change the value immediately — it queues an update that's applied together with other updates, using the state as it was at the start of the current render. <code>&lt;=</code> behaves the same way inside one clock edge.</div>
+
+<h2>4. Priority via <code>if / else if</code>, and two reduction operators</h2>
+<pre><span class="ln">157</span>if(~&clr_addr) clr_addr <= clr_addr + 1'd1;
+<span class="ln">158</span>else reset <= 0;</pre>
+<p><code>&clr_addr</code> is the <strong>reduction-AND</strong> operator: it ANDs together <em>every single bit</em> of <code>clr_addr</code> into one result — true only if <em>all</em> bits are 1 (i.e. the counter has reached its maximum value, all-1s, meaning RAM-clearing is done). <code>~&clr_addr</code> then flips that: true while the counter has <em>not yet</em> reached all-1s.</p>
+<div class="callout analogy">There's no single-operator equivalent in software, but the effect is exactly <code>clr_addr !== MAX_VALUE</code> in JS — "not yet finished counting." SystemVerilog spells that as a bit-reduction instead of a comparison, but the intent is identical.</div>
+<p><code>if (cond) stmt1; else stmt2;</code> reads exactly like C/JS/Python's if/else. Because this is inside a clocked <code>always</code> block, "else" here doesn't mean "otherwise, right now" — it means "otherwise, at the next clock edge."</p>
+
+<h2>5. A second block, same shape: toggling a clock divider</h2>
+<pre><span class="ln">167</span>wire tape_clk;
+<span class="ln">168</span>always @(posedge clk_sys) begin
+<span class="ln">169</span>	if (reset)
+<span class="ln">170</span>    	tape_clk <= 1'b0;
+<span class="ln">171</span>	else
+<span class="ln">172</span>    	tape_clk <= ~tape_clk;
+<span class="ln">173</span>end</pre>
+<div class="callout gotcha">Wait — <code>tape_clk</code> is declared <code>wire</code> above but assigned with <code>&lt;=</code> inside an <code>always</code> block? That's actually a latent bug/inconsistency in the real source (it should be <code>reg</code>) — some tools accept it, but it's not something to imitate. Worth noting precisely because spotting "that doesn't look right" is a sign you're actually reading the syntax rules, not just pattern-matching.</div>
+<p>Ignoring that wrinkle, the logic itself is a classic <strong>clock divider</strong>: every cycle, if not resetting, <code>tape_clk</code> flips to its own opposite (<code>~tape_clk</code>) — producing a signal that toggles once per <code>clk_sys</code> cycle, i.e. runs at half the frequency.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. In the block on lines 155–165, if both the counter-increment condition and the manual-reset condition were true on the same clock edge, which one wins, and why?</summary>
+<div class="answer">Answer: the reset block (lines 160–163) wins, because it appears later in the same always block and unconditionally overwrites both <code>clr_addr</code> and <code>reset</code> after the earlier if/else already queued its own update — later non-blocking assignments to the same signal in one block simply override earlier ones.</div></details></div>
+<div class="quiz"><details><summary>Q2. Why can't <code>&amp;clr_addr</code> just be written as <code>clr_addr == 17'h1FFFF</code> and mean something different?</summary>
+<div class="answer">Answer: they mean the same thing here (both true only when every bit is 1) — reduction-AND is just a shorter, width-independent way to express "all bits set" without hardcoding the all-ones constant for a specific width.</div></details></div>
+<div class="quiz"><details><summary>Q3. What real hardware component does one <code>always @(posedge clk)</code> block with <code>&lt;=</code> assignments model?</summary>
+<div class="answer">Answer: a flip-flop (or a bank of flip-flops) — a memory element that samples its input and updates its output only at the clock's rising edge.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> <code>reg</code> as stateful memory, <code>always @(posedge clk)</code> as the clocked-block trigger, <code>begin/end</code> as SystemVerilog's block delimiter, non-blocking <code>&lt;=</code> and why it differs fundamentally from software assignment, reduction-AND <code>&amp;</code>, and if/else priority inside a clocked block. This unlocks reading almost every stateful signal in the file.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://chipverify.com/verilog/verilog-always-block" target="_blank" rel="noopener">ChipVerify — Verilog always Block</a> and <a href="https://www.asic-world.com/verilog/verilog_one_day3.html" target="_blank" rel="noopener">ASIC World — blocking vs. non-blocking assignment</a>. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">This is the densest lesson yet — if the non-blocking-assignment idea doesn't click on the first pass, ask me for a second worked example. It's worth getting solid before moving on.</div>
+
+<footer><div class="nav"><span>Lesson 0004 of Learn SystemVerilog</span><span><a href="0003-localparam-strings-operators.html">← Lesson 3</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

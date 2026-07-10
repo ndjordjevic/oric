@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 7 · Reading a large port map</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0007</div>
+<h1>Reading a large port map</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 389–493 (★ ORIC ATMOS COMPUTER CORE — the single biggest instantiation in the file). Prior: <a href="0006-edge-detection-idioms.html">Lesson 6</a>.</p>
+
+<h2>The win for today</h2>
+<p>No new syntax appears here — the point of this lesson is fluency: reading a 100-line port map without losing your place, by recognizing the same small set of patterns from Lessons 1–6 repeated at scale.</p>
+
+<h2>1. It's the same shape as every instantiation you've already read</h2>
+<pre><span class="ln">389</span>oricatmos oricatmos
+<span class="ln">390</span>(
+<span class="ln">391</span>	.clk_in           (clk_sys),
+<span class="ln">392</span>	.RESET            (reset),
+<span class="ln">393</span>	.key_pressed      (kbd_ps2_key[9]),
+<span class="ln">394</span>	.key_code         (kbd_ps2_key[7:0]),
+<span class="ln">395</span>	.key_extended     (kbd_ps2_key[8]),</pre>
+<p><code>module_name instance_name ( .port(signal), ... )</code> — identical shape to <code>video_freak</code> (Lesson 2), <code>pll</code> and <code>hps_io</code> (Lesson 5). The only thing that's changed is scale: <code>oricatmos</code> (defined in <code>rtl/oricatmos.vhd</code> — see <a href="../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a>) has roughly 90 ports, because it <em>is</em> the whole computer — CPU, video, sound, keyboard, tape, floppy all in one module.</p>
+<div class="callout gotcha">Line 391 wires the port <code>clk_in</code> to the signal <code>clk_sys</code> — different names either side of the parens is completely normal and expected; the port name belongs to <code>oricatmos</code>'s internal namespace, the signal name belongs to <code>Oric.sv</code>'s. Don't assume matching names means anything special, and don't assume different names mean anything special either — always check which side of <code>.port(signal)</code> you're looking at.</div>
+
+<h2>2. Bit-slices inline in a port connection — nothing new, just combined</h2>
+<pre><span class="ln">393</span>.key_pressed      (kbd_ps2_key[9]),
+<span class="ln">394</span>.key_code         (kbd_ps2_key[7:0]),
+<span class="ln">395</span>.key_extended     (kbd_ps2_key[8]),</pre>
+<p>One 11-bit bus (<code>kbd_ps2_key</code>) is being split across three different ports: bit 9 alone, bits 7 down to 0 as an 8-bit byte, and bit 8 alone. This is exactly the <code>[msb:lsb]</code> slicing from Lesson 2 — it just happens to sit directly inside a port connection instead of on the right of a <code>wire</code> declaration.</p>
+
+<h2>3. A ternary expression inline in a port connection</h2>
+<pre><span class="ln">428</span>.disk_enable      ((!status[6:5]) ? ~fdd_ready : status[5]),</pre>
+<p>Again, nothing new: the ternary operator from Lesson 2, just written directly as a port's value instead of first being assigned to a named <code>wire</code>. Anywhere a signal is expected, a full expression is allowed — SystemVerilog doesn't require you to pre-name every intermediate value.</p>
+<div class="callout analogy">Same idea as inlining an expression as a function argument in JS: <code>configure({ diskEnable: !status ? !fddReady : status })</code> instead of computing a named variable first. Both are legal; the codebase mixes styles depending on whether the expression is reused elsewhere (named <code>wire</code>) or used exactly once (inlined).</div>
+
+<h2>4. Comments inside a port map, and an unconnected output</h2>
+<pre><span class="ln">416</span>.ram_oe           (),
+<span class="ln">426</span>.phi2             (),
+<span class="ln">472</span>	// mode write-back is shared by the loader (after restore) and the
+<span class="ln">473</span>	// save engine (after the RAM dump) — never active simultaneously
+<span class="ln">474</span>	.ula_snap_mode_we (ula_snap_mode_we | ss_ula_mode_we),</pre>
+<p><code>()</code> again means "this output is deliberately left unconnected" (Lesson 5) — <code>ram_oe</code> and <code>phi2</code> are outputs <code>Oric.sv</code> simply doesn't need. Regular <code>//</code> line comments are allowed anywhere, including inside a port list, and are worth reading — they often explain a non-obvious sharing arrangement between two signals feeding the same port (line 474 combines two write-enable sources with bitwise-OR, and the comment explains why that's safe: they're never both active at once).</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. On line 394, what does <code>kbd_ps2_key[7:0]</code> represent, and how wide is it?</summary>
+<div class="answer">Answer: the low 8 bits of the 11-bit <code>kbd_ps2_key</code> bus — the ASCII/scan-code byte portion of the key event, 8 bits wide.</div></details></div>
+<div class="quiz"><details><summary>Q2. Is there any rule preventing an expression (like a ternary) from being written directly inside a port connection, instead of via a named wire first?</summary>
+<div class="answer">Answer: no — any valid expression can appear directly as a port's connected value; naming it first via a <code>wire</code> is a style choice for readability/reuse, not a language requirement.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> confidence reading a large, real port map at a glance — recognizing it as the same handful of patterns (named connection, bit-slice, ternary, unconnected output, inline comment) repeated, not new syntax to fear.</div>
+
+<h2>Primary source</h2>
+<p>Re-read <a href="../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §11</a> for the functional (non-syntax) meaning of each port group now that the syntax itself is no longer a barrier.</p>
+
+<div class="callout">Try picking any 5 consecutive lines from this port map and explaining them out loud to me — that's the fastest way to confirm this has really landed.</div>
+
+<footer><div class="nav"><span>Lesson 0007 of Learn SystemVerilog</span><span><a href="0006-edge-detection-idioms.html">← Lesson 6</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

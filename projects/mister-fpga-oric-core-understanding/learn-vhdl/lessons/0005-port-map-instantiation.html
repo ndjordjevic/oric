@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 5 · PORT MAP instantiation</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0005</div>
+<h1><code>PORT MAP</code> instantiation — two spellings, one meaning</h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 441–460 (★ SECTION 7 — CPU), lines 503–537 (★ SECTION 9 — ROMs), and lines 641–671 (★ SECTION 12 — PSG). Prior: <a href="0004-concurrent-assignment-when-else.html">Lesson 4</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read both instantiation styles this file uses — <code>ENTITY work.X</code> (for VHDL modules) and plain component-name instantiation (for the three <code>COMPONENT</code>-declared SystemVerilog modules from Lesson 3) — and recognize <code>=&gt;</code> as VHDL's version of SystemVerilog's <code>.port(signal)</code>.</p>
+
+<h2>1. <code>ENTITY work.X PORT MAP ( port =&gt; signal, ... );</code></h2>
+<pre><span class="ln">441</span>inst_cpu : ENTITY work.T65
+<span class="ln">442</span>	PORT MAP(
+<span class="ln">443</span>		Mode => "00",
+<span class="ln">444</span>		Res_n => cont_RESETn,
+<span class="ln">445</span>		Enable => ENA_1MHZ,
+<span class="ln">446</span>		Clk => CLK_IN,
+<span class="ln">447</span>		Rdy => NOT (cpu_halt OR save_halted_i),
+<span class="ln">456</span>		Sync => cpu_sync,
+<span class="ln">457</span>		Regs => cpu_regs_q,
+<span class="ln">460</span>	);</pre>
+<p><code>inst_cpu</code> is the instance's own label (chosen by the author, must be unique in this architecture) — like the instance name in a SystemVerilog instantiation. <code>: ENTITY work.T65</code> says "this instance is one copy of the <code>T65</code> entity, found in the <code>work</code> library" (<code>work</code> is the default local-project library — think of it as "look in this same codebase," not an external package). <code>PORT MAP ( port =&gt; signal, ... )</code> then connects each of <code>T65</code>'s ports to a signal here, using <code>=&gt;</code> where SystemVerilog uses <code>.port(signal)</code>.</p>
+<div class="callout sv">Directly: <code>T65 inst_cpu ( .Mode("00"), .Res_n(cont_RESETn), .Clk(CLK_IN), ... );</code> in SystemVerilog. Same idea (named-association port connection), <code>=&gt;</code> replaces <code>.name(...)</code> syntax, and the instance label comes <em>before</em> the module name (<code>label : ENTITY ...</code>) instead of after it.</div>
+<p>Line 447 shows a full boolean expression fed directly into a port, same as SV Lesson 7's inline-ternary-in-a-port-connection — nothing new there beyond VHDL's <code>NOT</code>/<code>OR</code> spelling.</p>
+
+<h2>2. Repeated for every VHDL sub-module — same shape, every time</h2>
+<pre><span class="ln">503</span>inst_rom0 : ENTITY work.BASIC11A -- Oric Atmos ROM
+<span class="ln">504</span>	PORT MAP(
+<span class="ln">505</span>		clk => CLK_IN,
+<span class="ln">506</span>		addr => cpu_ad(13 DOWNTO 0),
+<span class="ln">507</span>		data => ROM_ATMOS_DO
+<span class="ln">508</span>	);</pre>
+<p>Each ROM (BASIC11A, BASIC10, PRAVETZ8D, etc.) is instantiated identically: clock in, a 14-bit address slice in, one data byte out. These giant lookup tables are literally the ROM contents compiled into block RAM — no logic to understand here beyond recognizing the now-familiar instantiation shape.</p>
+
+<h2>3. The other spelling: plain component-name instantiation</h2>
+<pre><span class="ln">641</span>psg_a: psg
+<span class="ln">642</span>port map (
+<span class="ln">643</span>	clock       => CLK_IN,
+<span class="ln">644</span>	ce          => ENA_1MHZ,
+<span class="ln">645</span>	reset       => RESETn AND KEYB_RESETn,
+<span class="ln">...</span>
+<span class="ln">655</span>	ioad        => "ZZZZZZZZ",
+<span class="ln">660</span>	sel         => '1',
+<span class="ln">671</span>	);</pre>
+<p>Here there's no <code>ENTITY work.</code> prefix — just <code>label : component_name</code>. This is the older-style instantiation VHDL uses when a <code>COMPONENT</code> was forward-declared (Lesson 3) rather than resolved directly against an entity. Functionally identical to the <code>ENTITY work.X</code> form — it's a syntax choice tied to whether the module needed a forward declaration, not a difference in what gets built.</p>
+<div class="callout gotcha">Line 655's <code>"ZZZZZZZZ"</code> is eight repeated <code>Z</code> characters inside a double-quoted vector literal — VHDL's tri-state/high-impedance value (matching SystemVerilog's <code>'Z</code> from SV Lesson 1), applied to every bit of an 8-bit port at once. Same electrical meaning as SV's <code>'Z</code>, just written per-bit inside a string-like literal instead of as a single width-filling token.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What does <code>=&gt;</code> connect, on which sides, in a <code>PORT MAP</code>?</summary>
+<div class="answer">Answer: the module's port name on the left, the signal/expression from this architecture connecting to it on the right — same relationship as SystemVerilog's <code>.port(signal)</code>.</div></details></div>
+<div class="quiz"><details><summary>Q2. Is there a functional difference between <code>inst_cpu : ENTITY work.T65 PORT MAP(...)</code> and <code>psg_a: psg port map(...)</code>, beyond syntax?</summary>
+<div class="answer">Answer: no — both instantiate one copy of a module and wire its ports; the difference is purely which VHDL instantiation style is used (direct entity reference vs. a previously-declared COMPONENT), driven by whether the target module needed a forward declaration.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> both VHDL instantiation styles (<code>ENTITY work.X</code> and plain component-name), the <code>label : module PORT MAP ( port =&gt; signal )</code> shape as VHDL's counterpart to SV's named-port instantiation, and the <code>"ZZ...Z"</code> multi-bit tri-state literal.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://faculty-web.msoe.edu/johnsontimoj/EE3921/files3921/Book_FreeRangeVHDL.pdf" target="_blank" rel="noopener">Free Range VHDL</a> — component instantiation chapter. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0005</span><span><a href="0004-concurrent-assignment-when-else.html">← Lesson 4</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

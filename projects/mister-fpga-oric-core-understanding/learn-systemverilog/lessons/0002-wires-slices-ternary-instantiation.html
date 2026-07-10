@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 2 · Wires, bit-slices, ternary &amp; module instantiation</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0002</div>
+<h1>Wires, bit-slices, ternary &amp; module instantiation</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 48–61 (★ OSD MENU &amp; ASPECT RATIO). Prior lesson: <a href="0001-modules-ports-assign.html">0001 — modules, ports &amp; assign</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll be able to read a <code>wire</code> declaration with a width, pull a sub-range out of a wide bus, follow a ternary expression, and read a module instantiation that mixes auto-wiring (<code>.*</code>) with explicit named ports.</p>
+
+<h2>1. <code>wire [1:0] ar = status[122:121];</code> — declaring <em>and</em> wiring in one line</h2>
+<pre><span class="ln">49</span>wire [1:0] ar = status[122:121];</pre>
+<p><code>wire [1:0] ar</code> declares a 2-bit-wide signal named <code>ar</code>. The <code>[1:0]</code> means "bit 1 down to bit 0" — two bits total, indexed high-to-low. The <code>= status[122:121]</code> immediately wires it to a 2-bit slice pulled out of <code>status</code>, a much wider (128-bit) bus declared elsewhere.</p>
+<div class="callout analogy">A <code>wire</code> declared with an initializer is like <code>const ar = status.slice(121, 123)</code> in JS, except it's not a one-time copy — like <code>assign</code>, it's a live formula: whenever <code>status</code> changes, <code>ar</code> updates instantly.</div>
+<div class="callout gotcha"><code>[msb:lsb]</code> range syntax is always <strong>high bit first</strong>. <code>status[122:121]</code> means bits 122 and 121 — NOT a Python-style slice where the second number is exclusive. Both ends are inclusive, and the width is <code>122-121+1 = 2</code> bits, matching <code>ar</code>'s declared width.</div>
+
+<h2>2. The ternary operator <code>?:</code> — the same one you already know</h2>
+<pre><span class="ln">56</span>.ARX((!ar) ? 12'd4 : (ar - 1'd1)),
+<span class="ln">57</span>.ARY((!ar) ? 12'd3 : 12'd0),</pre>
+<p>SystemVerilog's <code>cond ? a : b</code> is exactly the ternary operator from C/JS/Python's <code>a if cond else b</code>. If <code>ar</code> is zero (<code>!ar</code> is true), <code>ARX</code> gets the sized literal <code>12'd4</code>; otherwise it gets <code>ar - 1</code>.</p>
+<div class="callout analogy">Directly the same as JavaScript: <code>const ARX = (!ar) ? 4 : (ar - 1);</code> — no new concept here, just new surrounding syntax (sized literals, ports).</div>
+
+<h3>Sized literals: <code>12'd4</code></h3>
+<p><code>12'd4</code> reads as "a 4, forced into 12 bits, in decimal." The general form is <code>&lt;width&gt;'&lt;base&gt;&lt;value&gt;</code> where base is <code>b</code> (binary), <code>d</code> (decimal), <code>h</code> (hex), or <code>o</code> (octal). You saw <code>2'd0</code>, <code>8'h00</code>, <code>1'b0</code> elsewhere in this file — same pattern, different width/base.</p>
+<div class="callout gotcha">Why bother sizing a literal at all? Because in hardware, every wire has a fixed width, and an unsized literal's width is ambiguous in some contexts (it can silently zero- or sign-extend differently than you expect). Explicit sizing removes that ambiguity — treat it as documentation plus a safety net, not decoration.</div>
+
+<h2>3. Module instantiation: <code>.*</code> vs. named ports</h2>
+<pre><span class="ln">50</span>video_freak video_freak
+<span class="ln">51</span>(
+<span class="ln">52</span>	.*,
+<span class="ln">53</span>	.VGA_DE_IN(VGA_DE),
+<span class="ln">54</span>	.VGA_DE(),
+<span class="ln">56</span>	.ARX((!ar) ? 12'd4 : (ar - 1'd1)),
+<span class="ln">57</span>	.ARY((!ar) ? 12'd3 : 12'd0),
+<span class="ln">58</span>	.CROP_SIZE(0),
+<span class="ln">59</span>	.CROP_OFF(0),
+<span class="ln">60</span>	.SCALE(status[16:15])
+<span class="ln">61</span>);</pre>
+<p><code>video_freak video_freak ( ... );</code> instantiates one copy of the <code>video_freak</code> module, naming this particular copy <code>video_freak</code> too (module name and instance name are independent — reusing the same word is just a convention here).</p>
+<div class="callout analogy">A module instantiation is like constructing an object: <code>const video_freak = new VideoFreak({ ARX: ..., ARY: ..., SCALE: status.slice(...) })</code>. Each <code>.PORT_NAME(value)</code> is one constructor argument, matched by name rather than position.</div>
+<p><code>.*</code> is a shortcut meaning "auto-connect every port whose name matches a same-named signal already in scope" — it saves typing <code>.CLK_VIDEO(CLK_VIDEO), .VGA_DE(VGA_DE), ...</code> for every port that happens to share its name with an existing wire. Anything listed explicitly afterward (like <code>.VGA_DE_IN(VGA_DE)</code>, connecting a differently-named port) overrides the auto-connect for that one port.</p>
+<div class="callout gotcha"><code>.VGA_DE()</code> — empty parentheses — means "leave this output port unconnected." It's valid and common for outputs you don't care about, but it would be meaningless for a required input.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. How many bits wide is <code>status[16:15]</code>, and which port receives it above?</summary>
+<div class="answer">Answer: 2 bits (15 and 16 inclusive); it's wired to the <code>.SCALE</code> port of <code>video_freak</code>.</div></details></div>
+<div class="quiz"><details><summary>Q2. What does <code>.*</code> do that plain named ports don't?</summary>
+<div class="answer">Answer: it auto-connects any port whose name exactly matches an already-declared signal in the surrounding scope, without writing out <code>.name(name)</code> for each one.</div></details></div>
+<div class="quiz"><details><summary>Q3. In <code>12'd4</code>, what do the <code>12</code> and the <code>d</code> each mean?</summary>
+<div class="answer">Answer: <code>12</code> is the bit-width the literal is forced into; <code>d</code> says the number that follows is written in decimal.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> sized <code>wire</code> declarations, <code>[msb:lsb]</code> bit-slicing, the ternary operator, sized literals, and module instantiation via both <code>.*</code> auto-wiring and explicit <code>.PORT(signal)</code> named connections — including leaving a port deliberately unconnected.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://systemverilog.dev/3.html" target="_blank" rel="noopener">systemverilog.dev — Modules, Controls, and Interfaces</a> (named port connection conventions) and <a href="https://chipverify.com/systemverilog/systemverilog-quick-refresher" target="_blank" rel="noopener">ChipVerify — SystemVerilog Quick Refresher</a> (literal sizing). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Anything unclear? Ask me directly — I can pull up more real examples from further down the file.</div>
+
+<footer><div class="nav"><span>Lesson 0002 of Learn SystemVerilog</span><span><a href="0001-modules-ports-assign.html">← Lesson 1</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

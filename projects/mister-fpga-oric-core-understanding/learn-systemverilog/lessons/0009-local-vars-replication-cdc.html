@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 9 · Local variables in always blocks, replication &amp; clock-domain crossing</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0009</div>
+<h1>Local variables, replication &amp; clock-domain crossing</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 512–546 (★ VIDEO OUTPUT PIPELINE). Prior: <a href="0008-chained-ternary-priority-encoders.html">Lesson 8</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read a variable declared <em>inside</em> an always block, understand the double-flop pattern used whenever a signal crosses from one clock to another, and read the replication operator <code>{n{x}}</code>.</p>
+
+<h2>1. A <code>reg</code> declared inside an <code>always</code> block</h2>
+<pre><span class="ln">516</span>reg ce_pix;
+<span class="ln">517</span>always @(posedge CLK_VIDEO) begin
+<span class="ln">518</span>	reg old_clk;
+<span class="ln">519</span>
+<span class="ln">520</span>	old_clk <= clk_pix2;
+<span class="ln">521</span>	ce_pix <= ~old_clk & clk_pix2;
+<span class="ln">522</span>end</pre>
+<p>Line 518 declares <code>old_clk</code> <em>inside</em> the <code>always</code> block, right after <code>begin</code>. This is legal, and — because it's never referenced outside this block — it behaves as a private register belonging only to this one clocked process, still with memory across cycles (unlike a plain local variable in software that resets every function call).</p>
+<div class="callout analogy">The closest software analogy is a variable declared with <code>static</code> inside a C function, or a closure variable in JS that persists between calls — declared in a narrow scope, but its value survives from one invocation (clock edge) to the next.</div>
+<div class="callout gotcha">Two different clocks appear here: this whole block runs on <code>posedge CLK_VIDEO</code> (the HDMI pixel clock), while <code>clk_pix2</code> was itself set by an <em>earlier</em>, separate <code>always @(posedge clk_sys)</code> block (the system clock) just above it in the file. That's not a mistake — it's the clock-domain-crossing pattern below.</div>
+
+<h2>2. The double-flop synchronizer: crossing between clocks safely</h2>
+<pre><span class="ln">513</span>reg clk_pix2;
+<span class="ln">514</span>always @(posedge clk_sys) clk_pix2 <= clk_pix;</pre>
+<p>Here's the full picture: <code>clk_pix</code> is generated inside the <code>oricatmos</code> core, ticking on its own schedule. To safely read it from the <code>CLK_VIDEO</code> domain without risking a signal caught mid-transition (a real hardware hazard when two independent clocks interact), the design re-samples it twice: first into <code>clk_pix2</code> (on <code>clk_sys</code>), then into <code>old_clk</code> (on <code>CLK_VIDEO</code>, line 520). <code>ce_pix</code> then pulses for one <code>CLK_VIDEO</code> cycle exactly when a rising edge of the (already-resynchronized) pixel clock is detected — the same edge-detection idiom from Lesson 6, just combining a bitwise-AND (<code>&amp;</code>, two operands here — not reduction) with a NOT.</p>
+<div class="callout analogy">There's no clean single-clock software analogy — this is a genuinely hardware-specific safety pattern, needed because two clocks in a real chip are physically independent oscillators that can tick at any relative phase. The closest conceptual parallel is debouncing a physical button: you don't trust the very first raw reading, you let it settle across a couple of samples first.</div>
+<p><strong>You don't need to master clock-domain-crossing theory to keep reading this file</strong> — just recognize the shape: a signal sampled by one clock, then re-sampled again by a second clock, before anything in the second domain is allowed to act on it.</p>
+
+<h2>3. The replication operator: <code>{n{x}}</code></h2>
+<pre><span class="ln">542</span>.R({4{r}}),
+<span class="ln">543</span>.G({4{g}}),
+<span class="ln">544</span>.B({4{b}}),</pre>
+<p><code>{4{r}}</code> repeats the single bit <code>r</code> four times, producing a 4-bit bus where every bit equals <code>r</code>. The Oric only has 1-bit-per-channel video (fully on or fully off), but HDMI wants 4 bits per channel — replication is the cheap way to expand a 1-bit signal to a wider bus without changing its meaning (all-1s if on, all-0s if off).</p>
+<div class="callout analogy">Equivalent to JS's <code>Array(4).fill(r).join('')</code> if you imagine bits as characters — repeat the same value <code>n</code> times to build a wider value. It's concatenation's close cousin: <code>{a, b}</code> glues different values together; <code>{n{x}}</code> glues <code>n</code> copies of the <em>same</em> value together.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. Why does the pixel clock get sampled twice (into <code>clk_pix2</code>, then <code>old_clk</code>) instead of being used directly by <code>CLK_VIDEO</code>'s logic?</summary>
+<div class="answer">Answer: because <code>clk_pix</code> comes from a different, independent clock domain — reading it directly risks catching it mid-transition; sampling it through two flip-flops in sequence lets it settle safely before anything acts on it.</div></details></div>
+<div class="quiz"><details><summary>Q2. What's the resulting width and value of <code>{4{1'b1}}</code>?</summary>
+<div class="answer">Answer: a 4-bit value, all four bits equal to 1 — i.e. <code>4'b1111</code>.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> block-scoped <code>reg</code> declarations inside <code>always</code>, the double-flop clock-domain-crossing shape (recognize it, don't need to design one yet), and the replication operator <code>{n{x}}</code> for widening a narrow signal.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (replication operator) and a search for "two-flop synchronizer clock domain crossing" for further depth when you want it (not essential for reading this file). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Clock-domain crossing is a deep rabbit hole if you ever want to go there — ask me and we can add a dedicated future lesson once the rest of the file is comfortable.</div>
+
+<footer><div class="nav"><span>Lesson 0009 of Learn SystemVerilog</span><span><a href="0008-chained-ternary-priority-encoders.html">← Lesson 8</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

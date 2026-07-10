@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 1 · Libraries, ENTITY &amp; PORT</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0001</div>
+<h1>Libraries, <code>ENTITY</code> &amp; <code>PORT</code></h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 45–182 (★ SECTION 2 — Library imports, ★ SECTION 3 — Entity). Companion: <a href="../../01b-oricatmos-vhd-understanding.md">01b-oricatmos-vhd-understanding.md</a>. Assumes SystemVerilog Lessons 1–2 (see <a href="../../learn-systemverilog/lessons/0001-modules-ports-assign.html">learn-systemverilog</a>).</p>
+
+<h2>The win for today</h2>
+<p>You'll read a VHDL file's opening — library imports and the entity/port declaration — and map every piece directly onto the SystemVerilog <code>module (...)</code> syntax you already know.</p>
+
+<h2>1. <code>LIBRARY</code> / <code>USE</code> — VHDL's import statement</h2>
+<pre><span class="ln">47</span>LIBRARY ieee;
+<span class="ln">48</span>USE ieee.std_logic_1164.ALL;
+<span class="ln">49</span>USE ieee.numeric_std.all;</pre>
+<p><code>LIBRARY ieee;</code> says "I'm going to use the standard IEEE library." Each <code>USE</code> line then imports a specific *package* from it: <code>std_logic_1164</code> gives you the <code>STD_LOGIC</code> types (VHDL's basic wire/bit types), <code>numeric_std</code> gives you arithmetic on bit vectors (<code>unsigned</code>, <code>TO_UNSIGNED</code>, etc., seen in later lessons).</p>
+<div class="callout analogy">Exactly like <code>import { something } from 'package'</code> in JS, or <code>from ieee.std_logic_1164 import *</code> in Python — pulling named definitions into scope before you can use them.</div>
+<div class="callout gotcha">VHDL is case-insensitive for keywords and identifiers (<code>ENTITY</code>, <code>entity</code>, and <code>Entity</code> are the same token) — this file mixes cases fairly freely (compare <code>PORT MAP</code> in Section 7 to <code>port map</code> in Section 12). Don't read meaning into capitalization; it's a style inconsistency, not a semantic difference.</div>
+
+<h2>2. Comments: <code>--</code> instead of <code>//</code></h2>
+<pre><span class="ln">1</span>-- ★ SECTION 1 — License & origin</pre>
+<p>VHDL line comments start with <code>--</code> (two dashes) rather than SystemVerilog's <code>//</code>. Same idea, different character.</p>
+
+<h2>3. <code>ENTITY ... PORT ( ... ) END;</code> — VHDL's module boundary</h2>
+<pre><span class="ln">55</span>ENTITY oricatmos IS
+<span class="ln">56</span>	PORT (
+<span class="ln">57</span>		CLK_IN : IN STD_LOGIC;
+<span class="ln">58</span>		RESET : IN STD_LOGIC;
+<span class="ln">59</span>		key_pressed : IN STD_LOGIC;
+<span class="ln">61</span>		key_code : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+<span class="ln">63</span>		pravetz_layout : IN STD_LOGIC := '0';
+<span class="ln">64</span>		K7_TAPEIN : IN STD_LOGIC;
+<span class="ln">65</span>		K7_TAPEOUT : OUT STD_LOGIC;
+<span class="ln">181</span>	);
+<span class="ln">182</span>END;</pre>
+<p><code>ENTITY name IS PORT ( ... ); END;</code> is VHDL's version of SystemVerilog's <code>module name ( ... ); ... endmodule</code> — it declares the component's *interface*, i.e. its pins, without yet saying how it works internally (that's the separate <code>ARCHITECTURE</code> block, Lesson 2).</p>
+<div class="callout sv">SystemVerilog fuses the port list and the implementation into one <code>module ... endmodule</code>. VHDL deliberately splits them: <code>ENTITY</code> is the interface (the "what"), <code>ARCHITECTURE</code> is a separate block holding the implementation (the "how"). One entity can even have multiple different architectures — not used in this file, but the split exists for that reason.</div>
+<p>Each port line reads: <code>name : direction type;</code> — for example <code>CLK_IN : IN STD_LOGIC;</code> declares an input pin named <code>CLK_IN</code>, one bit wide. <code>IN</code>/<code>OUT</code> correspond directly to SystemVerilog's <code>input</code>/<code>output</code> port directions (implicit via context in the `.sv` file's included port list).</p>
+
+<h2>4. <code>STD_LOGIC</code> vs. <code>STD_LOGIC_VECTOR(n DOWNTO 0)</code></h2>
+<table>
+<tr><th>VHDL type</th><th>Meaning</th><th>SystemVerilog equivalent</th></tr>
+<tr><td><code>STD_LOGIC</code></td><td>a single wire/bit</td><td>an unwidthed <code>wire</code> (1 bit)</td></tr>
+<tr><td><code>STD_LOGIC_VECTOR(7 DOWNTO 0)</code></td><td>an 8-bit bus, indexed high (7) to low (0)</td><td><code>wire [7:0]</code></td></tr>
+</table>
+<div class="callout sv"><code>DOWNTO</code> plays exactly the role of SystemVerilog's <code>[msb:lsb]</code> colon — <code>(7 DOWNTO 0)</code> means the same range as SV's <code>[7:0]</code>, just spelled as a word instead of a symbol. VHDL also allows <code>TO</code> for low-to-high ranges, but this file consistently uses <code>DOWNTO</code>, matching the SV convention you already know.</div>
+
+<h2>5. A default value right in the port declaration</h2>
+<pre><span class="ln">63</span>pravetz_layout : IN STD_LOGIC := '0';</pre>
+<p><code>:=</code> here assigns a *default* value an input port takes if the instantiating code doesn't explicitly connect it. <code>'0'</code> (single quotes) is a single-bit literal — VHDL uses single quotes for one bit, double quotes for a vector of bits (you'll see <code>"00"</code> for a 2-bit literal in later lessons).</p>
+<div class="callout gotcha">Single quotes (<code>'0'</code>, <code>'1'</code>) vs. double quotes (<code>"00"</code>, <code>"10"</code>) is not a stylistic choice — it changes the type. A single-quoted literal is exactly one bit (<code>STD_LOGIC</code>); a double-quoted literal is a bit vector, even if it's only one character long conceptually.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What VHDL construct plays the role of SystemVerilog's <code>endmodule</code>, and what comes right before it here?</summary>
+<div class="answer">Answer: <code>END;</code> closes the <code>ENTITY</code> block, coming right after the closing <code>)</code> of the port list.</div></details></div>
+<div class="quiz"><details><summary>Q2. How many bits wide is a port declared <code>STD_LOGIC_VECTOR(3 DOWNTO 0)</code>, and what's the SystemVerilog spelling of the same range?</summary>
+<div class="answer">Answer: 4 bits; in SystemVerilog it would be written <code>[3:0]</code>.</div></details></div>
+<div class="quiz"><details><summary>Q3. Why does the entity alone (without an architecture) not tell you how the module actually behaves?</summary>
+<div class="answer">Answer: because VHDL deliberately separates the interface (<code>ENTITY</code>) from the implementation (<code>ARCHITECTURE</code>) — the entity only lists the pins and their types/directions, not any logic.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> library imports, <code>--</code> comments, the <code>ENTITY ... PORT (...) END;</code> shape as VHDL's counterpart to <code>module ... endmodule</code>, <code>STD_LOGIC</code>/<code>STD_LOGIC_VECTOR(n DOWNTO 0)</code> types, and single- vs. double-quoted bit literals.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://nandland.com/introduction-to-vhdl-for-beginners-with-code-examples/" target="_blank" rel="noopener">Nandland — Introduction to VHDL for Beginners</a> (entity/port basics). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Ask me anytime — especially if a "how is this different from the SV version" comparison would help it stick.</div>
+
+<footer><div class="nav"><span>VHDL Lesson 0001</span><span><a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

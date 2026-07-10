@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 3 · COMPONENT forward declarations</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0003</div>
+<h1><code>COMPONENT</code> forward declarations</h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 322–387 (★ SECTION 5 — Component declarations). Prior: <a href="0002-architecture-signals.html">Lesson 2</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll recognize <code>COMPONENT ... PORT (...) END COMPONENT;</code> as a forward declaration — telling VHDL about another module's interface before instantiating it — and see why it's needed here specifically for the Verilog sub-modules.</p>
+
+<h2>1. The shape: identical to an entity's port list, wrapped differently</h2>
+<pre><span class="ln">326</span>COMPONENT keyboard
+<span class="ln">327</span>	PORT (
+<span class="ln">328</span>		clk_sys : IN STD_LOGIC;
+<span class="ln">329</span>		reset : IN STD_LOGIC;
+<span class="ln">330</span>		key_pressed : IN STD_LOGIC;
+<span class="ln">...</span>
+<span class="ln">339</span>		swrst : OUT STD_LOGIC
+<span class="ln">340</span>	);
+<span class="ln">341</span>END COMPONENT;</pre>
+<p>Compare this to Lesson 1's <code>ENTITY oricatmos IS PORT (...) END;</code> — same shape (a name, a port list with direction/type per pin), wrapped in <code>COMPONENT ... END COMPONENT;</code> instead of <code>ENTITY ... END;</code>. This block doesn't *define* the keyboard's behavior — it just tells this file "there exists a module called <code>keyboard</code> with these exact pins," so the compiler can check instantiations of it later in this file for correctness.</p>
+<div class="callout analogy">This is exactly a C function prototype (<code>int foo(int, char*);</code> in a header, with the real implementation in a separate <code>.c</code> file) or a TypeScript <code>interface</code>/ambient declaration — describing a shape without providing the body.</div>
+<div class="callout sv">SystemVerilog doesn't need this step at all — you can instantiate any module directly by name (as you did throughout <code>Oric.sv</code>, and as this same file does for its VHDL sub-modules via <code>ENTITY work.T65</code>, coming in Lesson 5) as long as the compiler can find its source. VHDL's <code>COMPONENT</code> declaration exists specifically for this reason: <code>keyboard</code>, <code>joystick</code>, and <code>psg</code> here are actually written in <em>SystemVerilog</em> (<code>keyboard.sv</code>, <code>joystick.sv</code>, <code>psg.v</code>), and VHDL's older instantiation style needs an explicit local declaration to cross that language boundary cleanly.</div>
+
+<h2>2. Why three components, and why these three specifically</h2>
+<p><code>keyboard</code>, <code>joystick</code>, and <code>psg</code> are declared here because they're the only sub-modules in this file written in a *different* HDL (SystemVerilog/Verilog) than the VHDL modules instantiated elsewhere (which use the more modern <code>ENTITY work.X</code> style you'll see in Lesson 5 — no forward declaration needed for same-language, same-library modules).</p>
+<div class="callout gotcha">Don't spend time trying to learn <code>keyboard.sv</code>, <code>joystick.sv</code>, or <code>psg.v</code>'s internals here — from this VHDL file's point of view they're opaque boxes with a fixed pin interface. Their actual SystemVerilog syntax is in scope of the sibling <code>../learn-systemverilog/</code> workspace, not this one, per this workspace's <code>MISSION.md</code>.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What's the practical difference between a <code>COMPONENT</code> declaration and the <code>ENTITY</code> it's forward-declaring?</summary>
+<div class="answer">Answer: none in terms of pin shape — a <code>COMPONENT</code> declaration just repeats the entity's port list, without any implementation, so this file can check instantiations against it before that module's actual body is compiled/linked in.</div></details></div>
+<div class="quiz"><details><summary>Q2. Why do only <code>keyboard</code>, <code>joystick</code>, and <code>psg</code> get a <code>COMPONENT</code> declaration, while ROMs and the CPU (T65) don't?</summary>
+<div class="answer">Answer: those three are written in SystemVerilog/Verilog rather than VHDL, and this file's older-style cross-language instantiation needs an explicit local component declaration; the VHDL modules use the newer <code>ENTITY work.X</code> instantiation form instead, which needs no forward declaration.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> reading <code>COMPONENT ... END COMPONENT;</code> as a forward declaration (like a function prototype), and understanding specifically why this file needs it for its three non-VHDL sub-modules.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://faculty-web.msoe.edu/johnsontimoj/EE3921/files3921/Book_FreeRangeVHDL.pdf" target="_blank" rel="noopener">Free Range VHDL</a> — component declaration and instantiation chapter. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0003</span><span><a href="0002-architecture-signals.html">← Lesson 2</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

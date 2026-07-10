@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 3 · localparam, string concatenation &amp; boolean operators</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0003</div>
+<h1><code>localparam</code>, string concatenation &amp; boolean operators</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 63–132 (★ OSD MENU tail + ★ OSD SETTINGS DECODE). Prior: <a href="0002-wires-slices-ternary-instantiation.html">Lesson 2</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll recognize <code>localparam</code> as a compile-time constant, see how <code>{ }</code> concatenation builds one long string out of many short ones, and read the four operators that turn raw status bits into named booleans: <code>~</code>, <code>==</code>, <code>&gt;=</code>, and <code>&amp;&amp;</code>-free plain comparisons.</p>
+
+<h2>1. <code>localparam</code> — a named constant, fixed forever</h2>
+<pre><span class="ln">64</span>localparam CONF_STR = {
+<span class="ln">65</span>	"Oric;SS3E000000:200000;",
+<span class="ln">66</span>	"FS1,TAP,Load TAP file;",
+<span class="ln">67</span>	...
+<span class="ln">119</span>	"V,v",`BUILD_DATE
+<span class="ln">120</span>};</pre>
+<p><code>localparam</code> declares a constant scoped to this module — its value is fixed at compile time and can never change while the hardware runs, unlike a <code>wire</code> or <code>reg</code>.</p>
+<div class="callout analogy">Directly equivalent to a top-level <code>const</code> in JS or a module-level constant in Python — except here the compiler can use it to size other things (widths, loop bounds) at build time, not just as a convenient name for a fixed value.</div>
+<p>Notice <code>{ "a", "b", "c" }</code> here is the <em>same</em> concatenation operator from Lesson 1 — it glues multiple string literals end-to-end into one long string, which the MiSTer framework later parses to build the on-screen menu. <code>`BUILD_DATE</code> (backtick) is a preprocessor macro, defined by the <code>`include "build_id.v"</code> just above it — textual substitution again, same idea as Lesson 1's <code>`include</code>.</p>
+<div class="callout gotcha">You don't need to learn the mini-language <em>inside</em> the string (the <code>P1O[6:5],FDD Controller,...</code> syntax) — that's the MiSTer OSD menu format, not SystemVerilog. Only the concatenation and macro-substitution around it are language syntax.</div>
+
+<h2>2. Turning status bits into named signals</h2>
+<pre><span class="ln">123</span>wire [1:0] tapeVolume  = status[51:50];
+<span class="ln">124</span>wire       tapeUseADC = status[52];
+<span class="ln">127</span>wire       tap_autorun_en   = ~status[57];  // menu shows On (default) / Off
+<span class="ln">129</span>wire       tape_mode_fast   = (tape_load_mode == 2'd0);
+<span class="ln">131</span>wire       tape_mode_off    = (tape_load_mode >= 2'd2);</pre>
+<p>Four operators do all the work here:</p>
+<table>
+<tr><th>Operator</th><th>Meaning</th><th>Familiar equivalent</th></tr>
+<tr><td><code>~</code></td><td>bitwise NOT — flips every bit</td><td><code>~x</code> ≈ JS's <code>!x</code> for a single bit</td></tr>
+<tr><td><code>==</code></td><td>equality comparison, produces 1-bit true/false</td><td>same as <code>==</code> in C/JS</td></tr>
+<tr><td><code>&gt;=</code></td><td>numeric "greater than or equal", treats the bits as an unsigned number</td><td>same as C/JS</td></tr>
+<tr><td>(no width on <code>wire</code>)</td><td>a plain <code>wire foo = ...;</code> with no <code>[n:0]</code> is exactly 1 bit wide</td><td>a boolean</td></tr>
+</table>
+<div class="callout analogy">Line 127 reads exactly like <code>const tapAutorunEn = !status.bit(57);</code> — a named boolean, computed once as a live formula, with a comment explaining the polarity (why "on" is bit value 0, not 1) because that inversion isn't obvious from the name alone.</div>
+<div class="callout gotcha"><code>~</code> (bitwise NOT, works bit-by-bit across a whole bus) and <code>!</code> (logical NOT, treats the whole value as one true/false) look similar but differ once you're not dealing with single bits — you saw <code>!ar</code> in Lesson 2 used exactly because "is this whole 2-bit value zero?" is a logical question, while <code>~status[57]</code> is a single-bit flip.</div>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What does a bare <code>wire foo = a == b;</code> declaration's width have to be, and why?</summary>
+<div class="answer">Answer: 1 bit — comparison operators like <code>==</code> always produce a single true/false result, regardless of how wide <code>a</code> and <code>b</code> are.</div></details></div>
+<div class="quiz"><details><summary>Q2. Why does line 127 need a comment while line 123 doesn't?</summary>
+<div class="answer">Answer: line 127 inverts the bit with <code>~</code>, so the signal's active meaning ("on") doesn't match the raw stored bit value — worth flagging; line 123 is a direct, unambiguous slice with no inversion to explain.</div></details></div>
+<div class="quiz"><details><summary>Q3. Is <code>localparam</code> allowed to change value while the FPGA is running?</summary>
+<div class="answer">Answer: no — it's fixed at compile time, permanently, for the lifetime of that build.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> <code>localparam</code> as a compile-time constant, string concatenation for building one literal from many, macro substitution via <code>`NAME</code>, and the operator quartet <code>~</code> / <code>==</code> / <code>&gt;=</code> / bare-boolean <code>wire</code> for decoding status bits.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://chipverify.com/tutorials/verilog" target="_blank" rel="noopener">ChipVerify — Verilog operators reference</a> and <a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (parameters section). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Questions? Ask — I'm here as your teacher, not just a document.</div>
+
+<footer><div class="nav"><span>Lesson 0003 of Learn SystemVerilog</span><span><a href="0002-wires-slices-ternary-instantiation.html">← Lesson 2</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 4 · Concurrent assignment &amp; WHEN/ELSE</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0004</div>
+<h1>Concurrent assignment &amp; <code>WHEN/ELSE</code></h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 395–434 (★ SECTION 6 — Reset, Pravetz mode decode &amp; controller mux). Prior: <a href="0003-component-declarations.html">Lesson 3</a>. This is VHDL's counterpart to SystemVerilog Lessons 1, 3, and 8 combined.</p>
+
+<h2>The win for today</h2>
+<p>You'll read VHDL's <code>&lt;=</code> continuous assignment and its <code>WHEN ... ELSE</code> priority-chain idiom — the single most common pattern in this file, doing the same job as SystemVerilog's chained ternary.</p>
+
+<h2>1. <code>&lt;=</code> is VHDL's <code>assign</code>, not its non-blocking clocked assignment</h2>
+<pre><span class="ln">397</span>RESETn <= (NOT RESET AND KEYB_RESETn);</pre>
+<div class="callout gotcha">This is the single sharpest trap moving from SystemVerilog to VHDL: <code>&lt;=</code> means completely different things depending on context. <strong>Outside a <code>PROCESS</code></strong> (as here, directly in the architecture body after <code>BEGIN</code>), <code>&lt;=</code> is a <em>continuous</em> assignment — exactly SystemVerilog's <code>assign</code>, permanently live, re-evaluating the instant any input changes. <strong>Inside a <code>PROCESS</code></strong> (VHDL Lesson 6), the very same <code>&lt;=</code> symbol becomes VHDL's non-blocking assignment, matching SystemVerilog's <code>&lt;=</code> inside an <code>always</code> block. Same symbol, different meaning, determined entirely by whether you're inside a <code>PROCESS</code> or not.</div>
+<div class="callout sv">Line 397 is exactly <code>assign RESETn = ~RESET & KEYB_RESETn;</code> in SystemVerilog — <code>NOT</code>/<code>AND</code>/<code>OR</code> are VHDL's spelled-out boolean operators, doing the same job as <code>~</code>/<code>&amp;</code>/<code>|</code>.</div>
+
+<h2>2. <code>WHEN ... ELSE</code> — VHDL's ternary, chainable</h2>
+<pre><span class="ln">398</span>pravetz_mode <= '1' WHEN rom = "10" ELSE '0';</pre>
+<p>Read this right-to-left-ish: "<code>pravetz_mode</code> becomes <code>'1'</code> WHEN the condition <code>rom = "10"</code> holds, ELSE it becomes <code>'0'</code>." This is VHDL's ternary — but notice the word order is reversed from SystemVerilog's <code>cond ? a : b</code>: VHDL puts the "then" value first, then the condition, then the "else" value.</p>
+<div class="callout sv">SV: <code>wire pravetz_mode = (rom == 2'b10) ? 1'b1 : 1'b0;</code> — same logic, condition-first. VHDL: <code>value WHEN condition ELSE value</code> — value-first. Same tool, mirrored word order; worth deliberately practicing the re-ordering until it stops requiring conscious translation.</div>
+<p>Note <code>"10"</code> — double-quoted, a 2-bit vector literal (Lesson 1's quoting rule) — being compared with <code>=</code> to the <code>rom</code> signal.</p>
+
+<h2>3. Chaining <code>WHEN/ELSE</code> — same priority-list idiom as SV's chained ternary</h2>
+<pre><span class="ln">408</span>cont_MAPn <= '0' WHEN pravetz_mode = '1'
+<span class="ln">409</span>                      AND pravetz_shadow = '1'
+<span class="ln">410</span>                      AND cpu_ad(15 DOWNTO 14) = "11" ELSE
+<span class="ln">411</span>             '1' WHEN pravetz_mode = '1' ELSE
+<span class="ln">412</span>             md_MAPn;</pre>
+<p>Exactly the chained-ternary priority pattern from SystemVerilog Lesson 8 (the <code>rom_sel</code> example): read top-to-bottom, first matching condition wins. Line 408–410's condition uses <code>AND</code> to combine three sub-conditions into one (VHDL's word-based boolean operators again). If none of the explicit <code>WHEN</code> conditions match, the final bare value (<code>md_MAPn</code>, line 412 — no <code>WHEN</code> attached) is the unconditional fallback, just like the bare <code>tape_addr</code> at the end of SV Lesson 8's second example.</p>
+<div class="callout sv">SV equivalent:
+<pre>wire cont_MAPn =
+  (pravetz_mode &amp;&amp; pravetz_shadow &amp;&amp; cpu_ad[15:14]==2'b11) ? 1'b0 :
+  pravetz_mode ? 1'b1 :
+  md_MAPn;</pre>
+Identical priority-list logic; VHDL just writes each condition after its value instead of before.</div>
+
+<h2>4. Bit-slicing and comparison: same ideas, VHDL spelling</h2>
+<pre><span class="ln">400</span>cpu_ad(15 DOWNTO 8) = X"03"</pre>
+<p><code>cpu_ad(15 DOWNTO 8)</code> is VHDL's bit-slice syntax — parentheses instead of SystemVerilog's square brackets, but the same "high bit to low bit, inclusive" meaning as <code>cpu_ad[15:8]</code>. <code>X"03"</code> is a hex literal (the <code>X</code> prefix marks hex, matching SV's <code>'h</code> base marker) — here an 8-bit hex value <code>03</code>, compared for equality with <code>=</code>.</p>
+<table>
+<tr><th>VHDL</th><th>SystemVerilog</th><th>Meaning</th></tr>
+<tr><td><code>signal(15 DOWNTO 8)</code></td><td><code>signal[15:8]</code></td><td>bit-slice, high to low</td></tr>
+<tr><td><code>X"03"</code></td><td><code>8'h03</code></td><td>hex literal</td></tr>
+<tr><td><code>AND</code> / <code>OR</code> / <code>NOT</code></td><td><code>&amp;&amp;</code> / <code>||</code> / <code>!</code> (logical)</td><td>boolean combination</td></tr>
+<tr><td><code>=</code></td><td><code>==</code></td><td>equality comparison</td></tr>
+</table>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. In <code>x &lt;= '1' WHEN cond ELSE '0';</code> written directly in the architecture body (not inside a PROCESS), is this a continuous or a clocked assignment?</summary>
+<div class="answer">Answer: continuous — outside a <code>PROCESS</code>, <code>&lt;=</code> behaves like SystemVerilog's <code>assign</code>, live and re-evaluated the instant any input changes.</div></details></div>
+<div class="quiz"><details><summary>Q2. Rewrite <code>y &lt;= a WHEN c1 ELSE b WHEN c2 ELSE d;</code> as a SystemVerilog ternary chain.</summary>
+<div class="answer">Answer: <code>wire y = c1 ? a : c2 ? b : d;</code> — same priority order, condition-first instead of value-first.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> VHDL's dual-meaning <code>&lt;=</code> (continuous outside a PROCESS, clocked inside one), the <code>WHEN/ELSE</code> ternary with its reversed value-first word order, chained <code>WHEN/ELSE</code> as a priority list, parenthesis-based bit-slicing, hex literals, and word-spelled boolean operators.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.vhdl-online.de/courses/system_design/vhdl_language_and_syntax/vhdl_structural_elements/entity_and_architecture" target="_blank" rel="noopener">VHDL-Online — signal assignment</a> and <a href="https://nandland.com/introduction-to-vhdl-for-beginners-with-code-examples/" target="_blank" rel="noopener">Nandland</a> (conditional signal assignment). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">This lesson does the most "translation work" of the series — if the value-first/condition-first flip trips you up, ask for a few more paired SV/VHDL examples side by side.</div>
+
+<footer><div class="nav"><span>VHDL Lesson 0004</span><span><a href="0003-component-declarations.html">← Lesson 3</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

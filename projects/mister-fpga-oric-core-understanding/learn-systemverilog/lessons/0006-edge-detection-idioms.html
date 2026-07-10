@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 6 · Edge-detection idioms</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#7a3b2e; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#f0ece0; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:0.92rem; }
+  th, td { border:1px solid var(--rule); padding:0.4rem 0.6rem; text-align:left; }
+  th { background:var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0006</div>
+<h1>Edge-detection idioms</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 258–309 (★ DISK IMAGE MANAGEMENT + ★ KEYBOARD &amp; TAPE AUTORUN). Prior: <a href="0005-parameterized-instantiation-arrays.html">Lesson 5</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll recognize the two most common "did something just change?" patterns in this codebase — the delayed-copy comparison and the XOR toggle-detector — which appear dozens of times across the whole core.</p>
+
+<h2>1. The delayed-copy pattern: "was low, now high"</h2>
+<pre><span class="ln">258</span>reg    [3:0] img_mountedD;
+<span class="ln">261</span>always @(posedge clk_sys)
+<span class="ln">262</span>begin
+<span class="ln">263</span>	img_mountedD <= img_mounted;
+<span class="ln">264</span>	if(~|img_mountedD && |img_mounted) begin</pre>
+<p><code>img_mountedD</code> (the trailing <code>D</code> means "Delayed") is updated every clock cycle to hold <em>last cycle's</em> value of <code>img_mounted</code> — because of the non-blocking-assignment rule from Lesson 4, line 263's read of <code>img_mounted</code> happens before the update lands, so on the very next line, <code>img_mountedD</code> still holds the <em>previous</em> cycle's value while <code>img_mounted</code> holds the current one.</p>
+<p><code>|img_mounted</code> is <strong>reduction-OR</strong>: true if <em>any</em> bit is 1. So <code>~|img_mountedD && |img_mounted</code> reads as "none of the drives were mounted last cycle, AND at least one is mounted now" — i.e. exactly the clock cycle a disk image first appears.</p>
+<div class="callout analogy">This is the hardware version of comparing <code>prevValue</code> to <code>currentValue</code> across two ticks of a loop — like tracking <code>wasVisible</code> vs <code>isVisible</code> across animation frames to detect the exact frame something became visible.</div>
+<div class="callout gotcha">Reduction-OR (<code>|x</code>, one operand) is easy to visually confuse with bitwise-OR (<code>a | b</code>, two operands) — same symbol, different arity and meaning. You already saw both: Lesson 4 used reduction-AND (<code>&amp;clr_addr</code>); line 264 mixes reduction-OR (<code>|img_mounted</code>) with logical-AND (<code>&amp;&amp;</code>) combining two boolean results.</div>
+
+<h2>2. The XOR toggle-detector: "did this bit flip?"</h2>
+<pre><span class="ln">302</span>reg old_keystb = 0;
+<span class="ln">304</span>always @(posedge clk_sys) begin
+<span class="ln">305</span>	old_keystb <= ps2_key[10];
+<span class="ln">307</span>end
+<span class="ln">308</span>assign hps_key_strobe = old_keystb ^ ps2_key[10];</pre>
+<p>The keyboard interface toggles bit 10 of <code>ps2_key</code> every time a new key event arrives (rather than pulsing it briefly) — a common trick for crossing between different rates of activity. To turn a toggle into a clean one-cycle pulse, this compares the current bit to a one-cycle-delayed copy using <strong>XOR</strong> (<code>^</code>): XOR is true exactly when its two inputs differ.</p>
+<div class="callout analogy"><code>^</code> here does the same job as writing <code>current !== previous</code> in JS for two booleans — "true for exactly one cycle when the value changed," which is precisely what a toggle-to-pulse converter needs.</div>
+<table>
+<tr><th>Operator</th><th>Arity</th><th>Meaning</th></tr>
+<tr><td><code>|x</code></td><td>reduction (1 operand)</td><td>true if any bit of <code>x</code> is 1</td></tr>
+<tr><td><code>a | b</code></td><td>bitwise (2 operands)</td><td>OR each corresponding bit pair</td></tr>
+<tr><td><code>a ^ b</code></td><td>bitwise/logical XOR (2 operands)</td><td>true where bits differ</td></tr>
+</table>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. Why does the delayed-copy pattern need a separate register (<code>img_mountedD</code>) instead of just comparing <code>img_mounted</code> to itself?</summary>
+<div class="answer">Answer: comparing a signal to itself is always equal — detecting a change requires remembering the value from a previous clock cycle, which is exactly what the delayed register stores.</div></details></div>
+<div class="quiz"><details><summary>Q2. If <code>ps2_key[10]</code> toggles (flips) exactly once, for how many clock cycles will <code>hps_key_strobe</code> read as 1?</summary>
+<div class="answer">Answer: exactly one cycle — the cycle right after the flip, before <code>old_keystb</code> catches up to match the new value again.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> the delayed-copy "just became true" pattern (reduction-OR + a one-cycle-old register), and the XOR toggle-to-pulse pattern — the two edge-detection idioms this codebase reuses everywhere.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://chipverify.com/verilog/verilog-operators" target="_blank" rel="noopener">ChipVerify — Verilog operators (reduction &amp; bitwise)</a>. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<div class="callout">Ask me if you want to trace another edge-detector elsewhere in the file — there are several more, and spotting them yourself is good practice.</div>
+
+<footer><div class="nav"><span>Lesson 0006 of Learn SystemVerilog</span><span><a href="0005-parameterized-instantiation-arrays.html">← Lesson 5</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

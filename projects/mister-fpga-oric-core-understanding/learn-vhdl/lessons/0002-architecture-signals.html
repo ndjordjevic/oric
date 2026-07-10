@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 2 · ARCHITECTURE &amp; SIGNAL</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0002</div>
+<h1><code>ARCHITECTURE</code> &amp; <code>SIGNAL</code></h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 184–321 (★ SECTION 4 — Architecture: internal signal declarations). Prior: <a href="0001-entity-ports-libraries.html">Lesson 1</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll recognize the <code>ARCHITECTURE</code> block as where all the real logic lives, and read <code>SIGNAL</code> declarations — VHDL's internal wiring, equivalent to SystemVerilog's <code>wire</code>/<code>reg</code>.</p>
+
+<h2>1. <code>ARCHITECTURE name OF entity IS ... BEGIN ... END name;</code></h2>
+<pre><span class="ln">189</span>ARCHITECTURE RTL OF oricatmos IS
+<span class="ln">190</span>
+<span class="ln">191</span>	-- Gestion des resets
+<span class="ln">192</span>	SIGNAL RESETn : STD_LOGIC;
+<span class="ln">...</span>
+<span class="ln">395</span>BEGIN
+<span class="ln">...</span>
+<span class="ln">929</span>END RTL;</pre>
+<p>This is the implementation body for the <code>oricatmos</code> entity from Lesson 1. <code>RTL</code> is just a name for this particular architecture (arbitrary — VHDL allows multiple named architectures per entity, though this design only defines one). Everything between <code>ARCHITECTURE ... IS</code> and <code>BEGIN</code> is the <strong>declarative region</strong> — signals, components — and everything between <code>BEGIN</code> and <code>END RTL;</code> is the actual logic.</p>
+<div class="callout sv">There's no SystemVerilog equivalent to this two-part split (declare, then <code>BEGIN</code>, then logic) — in a <code>module</code>, declarations and logic can be interleaved freely. VHDL is stricter: all signals must be declared before the <code>BEGIN</code> that starts the architecture body.</div>
+
+<h2>2. <code>SIGNAL</code> — VHDL's internal wire</h2>
+<pre><span class="ln">198</span>SIGNAL cpu_ad : STD_LOGIC_VECTOR(23 DOWNTO 0);
+<span class="ln">201</span>SIGNAL cpu_rw : STD_LOGIC;
+<span class="ln">194</span>SIGNAL delay_count : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');</pre>
+<p><code>SIGNAL name : type;</code> declares an internal connection — something that isn't a port (not visible outside this entity) but carries a value between different pieces of logic inside the architecture, exactly like a SystemVerilog <code>wire</code> or <code>reg</code> declared inside a module.</p>
+<div class="callout sv">A VHDL <code>SIGNAL</code> covers what SystemVerilog splits into <code>wire</code> and <code>reg</code> — the same keyword is used whether the signal ends up driven continuously (like a <code>wire</code>) or from inside a clocked <code>PROCESS</code> (like a <code>reg</code>). VHDL decides which based on <em>how</em> it's assigned later, not by a different declaration keyword.</div>
+<p>Line 194 shows an initial-value aggregate: <code>(OTHERS => '0')</code> means "every bit of this vector starts at 0" — VHDL's way of writing a same-value fill across a whole bus without spelling out every bit.</p>
+<div class="callout gotcha">Just like SystemVerilog's initial value on a <code>reg</code> (Lesson 4 of the SV series), this is the FPGA's power-up/reset value, not a "default if never assigned" placeholder the way a software variable's initializer works.</div>
+
+<h2>3. Naming as documentation: prefixes and comments</h2>
+<pre><span class="ln">204</span>-- VIA
+<span class="ln">205</span>SIGNAL via_pa_out_oe : STD_LOGIC_VECTOR(7 DOWNTO 0);
+<span class="ln">227</span>-- PSG
+<span class="ln">228</span>SIGNAL psg_bdir : STD_LOGIC;</pre>
+<p>No new syntax here — just worth noticing the organizing convention: groups of related signals are clustered under a French-language <code>--</code> comment naming the subsystem (<code>via</code>, <code>psg</code>, <code>ula</code>, disk controller signals prefixed <code>md_</code> for Microdisc or <code>pravetz_</code>). This mirrors <code>Oric.sv</code>'s own <code>★</code>-section convention, just at a finer grain.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. What must come before the <code>BEGIN</code> keyword inside an <code>ARCHITECTURE</code> block?</summary>
+<div class="answer">Answer: all declarations for that architecture — <code>SIGNAL</code>s and <code>COMPONENT</code>s (Lesson 3) — the declarative region.</div></details></div>
+<div class="quiz"><details><summary>Q2. Does VHDL use a different keyword to declare a signal that will later be driven by a clocked process, versus one driven continuously?</summary>
+<div class="answer">Answer: no — both use <code>SIGNAL</code>; the distinction (roughly matching SystemVerilog's wire/reg split) comes from how the signal is assigned later in the code, not from a different declaration keyword.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> the <code>ARCHITECTURE ... BEGIN ... END</code> shape, <code>SIGNAL</code> as VHDL's unified wire/reg declaration, and the <code>(OTHERS => '0')</code> aggregate for initializing a whole bus.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.vhdl-online.de/courses/system_design/vhdl_language_and_syntax/vhdl_structural_elements/entity_and_architecture" target="_blank" rel="noopener">VHDL-Online — Entity and Architecture</a>. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0002</span><span><a href="0001-entity-ports-libraries.html">← Lesson 1</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

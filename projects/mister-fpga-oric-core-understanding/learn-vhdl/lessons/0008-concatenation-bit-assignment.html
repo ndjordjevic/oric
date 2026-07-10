@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VHDL Lesson 8 · Concatenation &amp; individual bit assignment</title>
+<style>
+  :root { --ink:#1a1a1a; --paper:#fdfcf9; --rule:#ccc4b3; --code-bg:#f4f1e8; --accent:#2e4d7a; --muted:#6b6558; }
+  * { box-sizing: border-box; }
+  body { font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif; background:var(--paper); color:var(--ink); max-width:46rem; margin:0 auto; padding:3rem 1.5rem 6rem; line-height:1.6; font-size:18px; }
+  h1 { font-size:1.9rem; margin-bottom:0.2rem; border-bottom:3px solid var(--ink); padding-bottom:0.5rem; }
+  .kicker { font-family:"Courier New",monospace; text-transform:uppercase; letter-spacing:0.08em; font-size:0.78rem; color:var(--muted); margin-bottom:0.6rem; }
+  h2 { font-size:1.25rem; margin-top:2.4rem; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:0.25rem; }
+  p { margin:0.8rem 0; }
+  code, pre { font-family:"SF Mono","Menlo","Consolas",monospace; }
+  code { background:var(--code-bg); padding:0.05em 0.35em; border-radius:3px; font-size:0.92em; }
+  pre { background:var(--code-bg); border-left:3px solid var(--accent); padding:0.9rem 1.1rem; overflow-x:auto; font-size:0.88rem; line-height:1.5; border-radius:0 4px 4px 0; }
+  pre .ln { color:var(--muted); margin-right:1em; user-select:none; }
+  .callout { background:#eef1f6; border:1px solid var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1.2rem 0; }
+  .callout.analogy::before { content:"↔ Analogy: "; font-weight:bold; color:var(--accent); }
+  .callout.gotcha::before { content:"⚠ Gotcha: "; font-weight:bold; color:var(--accent); }
+  .callout.sv::before { content:"⇄ vs. SystemVerilog: "; font-weight:bold; color:var(--accent); }
+  .win { background:#eaf0e6; border:1px solid #b9c9ae; border-radius:6px; padding:1rem 1.2rem; margin:1.4rem 0; }
+  .quiz { background:#fff; border:1px dashed var(--rule); border-radius:6px; padding:1rem 1.2rem; margin:1rem 0; }
+  .quiz summary { cursor:pointer; font-weight:bold; color:var(--accent); }
+  .quiz .answer { margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed var(--rule); }
+  .source-link { font-size:0.85rem; color:var(--muted); }
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--rule); font-size:0.9rem; color:var(--muted); }
+  a { color:var(--accent); }
+  .nav { display:flex; justify-content:space-between; font-size:0.85rem; margin-top:2rem; }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn VHDL · Lesson 0008</div>
+<h1>Concatenation &amp; individual bit assignment</h1>
+<p class="source-link">Source: <code>core/rtl/oricatmos.vhd</code>, lines 423–432 (SD bus mux) and lines 803–816 (★ SECTION 16 — VIA port wiring). Prior: <a href="0007-type-casts-numeric-std.html">Lesson 7</a>.</p>
+
+<h2>The win for today</h2>
+<p>You'll read VHDL's concatenation operator (same symbol as SystemVerilog's bitwise-AND, different job — context tells them apart) and see individual bits of a bus assigned one at a time.</p>
+
+<h2>1. <code>&amp;</code> is concatenation in VHDL, not bitwise-AND</h2>
+<pre><span class="ln">427</span>sd_rd <= "00" & pravetz_sd_rd WHEN pravetz_mode = '1' ELSE md_sd_rd;</pre>
+<div class="callout gotcha">This is the sharpest single symbol-collision in the whole series: VHDL's <code>&amp;</code> is the <strong>concatenation</strong> operator (glue two vectors end to end into a wider one), while VHDL's bitwise-AND is the word <code>AND</code> (Lesson 4). SystemVerilog does the exact opposite: <code>&amp;</code> is bitwise-AND, and concatenation uses <code>{ }</code>. Two languages, same symbol, opposite meanings — this is the one worth double-checking every time you see a bare <code>&amp;</code> in either language until it's automatic.</div>
+<p>Line 427 glues a fixed 2-bit <code>"00"</code> onto the front of the 2-bit <code>pravetz_sd_rd</code>, producing a 4-bit result matching <code>sd_rd</code>'s width — the top two bits are hardwired to 0 (drives 2 and 3 are unavailable in Pravetz mode), the bottom two carry the real drive-select bits.</p>
+<div class="callout sv">SystemVerilog equivalent: <code>{2'b00, pravetz_sd_rd}</code> — same concatenation idea from SV Lesson 1, opposite operator choice.</div>
+
+<h2>2. Assigning one bit of a bus at a time: <code>signal(index) &lt;= value;</code></h2>
+<pre><span class="ln">805</span>via_pb_in(2 DOWNTO 0) <= via_pb_out(2 DOWNTO 0);
+<span class="ln">806</span>via_pb_in(3) <= kbd_int;
+<span class="ln">807</span>via_pb_in(4) <= via_pb_out(4);
+<span class="ln">808</span>via_pb_in(5) <= 'Z';
+<span class="ln">809</span>via_pb_in(6) <= via_pb_out(6);
+<span class="ln">810</span>via_pb_in(7) <= via_pb_out(7);</pre>
+<p>Each line drives one bit (or a slice) of <code>via_pb_in</code> independently and continuously — this is legal because these are all separate, non-overlapping bits/ranges of the same 8-bit bus. Effectively this builds up the full 8-bit <code>via_pb_in</code> value bit-by-bit: bits 2-0 mirror the VIA's own output, bit 3 carries the keyboard-interrupt flag, bit 4 mirrors output again, bit 5 is tri-stated (<code>'Z'</code> — unused/not driven, same meaning as SV's <code>'Z</code>), and bits 6-7 mirror output.</p>
+<div class="callout sv">SystemVerilog would need concatenation to build one 8-bit value in a single assignment (<code>assign via_pb_in = {via_pb_out[7], via_pb_out[6], 1'bZ, via_pb_out[4], kbd_int, via_pb_out[2:0]};</code>) since SV doesn't usually assign to arbitrary bit-slices of a signal from several separate statements the way VHDL does here. VHDL allows driving different bit-ranges of the same signal from multiple separate concurrent statements, as long as the ranges never overlap.</div>
+
+<h2>3. Complex boolean expressions — same operators, more of them</h2>
+<pre><span class="ln">803</span>via_pa_in <= (((via_pa_joy_value AND via_pa_joy_mask) OR (via_pa_out_oe AND NOT via_pa_joy_mask) OR (via_pa_out AND NOT via_pa_out_oe AND NOT via_pa_joy_mask))) WHEN (via_cb2_out='0' AND psg_bdir='0') ELSE
+<span class="ln">804</span>             (((via_pa_joy_value AND via_pa_joy_mask) OR (via_pa_in_from_psg AND via_pa_out_oe AND NOT via_pa_joy_mask) OR (via_pa_out AND NOT via_pa_out_oe AND NOT via_pa_joy_mask)));</pre>
+<p>No new syntax — just <code>AND</code>/<code>OR</code>/<code>NOT</code> (Lesson 4) combined more heavily than before, still following the <code>value WHEN condition ELSE value</code> shape. Reading a dense expression like this: work from the innermost parentheses outward, and recognize the repeated three-way OR-of-ANDs pattern (a classic multiplexer built from gates) rather than trying to hold the whole line in your head at once.</p>
+
+<h2>Quick check</h2>
+<div class="quiz"><details><summary>Q1. In VHDL, what does <code>&amp;</code> do, and what's the equivalent SystemVerilog operator that looks identical but means something else?</summary>
+<div class="answer">Answer: VHDL's <code>&amp;</code> concatenates two vectors into a wider one; SystemVerilog's <code>&amp;</code> looks the same but performs bitwise-AND — completely different operations behind the same symbol.</div></details></div>
+<div class="quiz"><details><summary>Q2. Why is it legal for lines 805–810 to each assign a different part of <code>via_pb_in</code> separately?</summary>
+<div class="answer">Answer: because each line drives a different, non-overlapping bit or range of the same 8-bit signal — VHDL allows a bus to be built up from several concurrent statements as long as no two statements drive the same bit.</div></details></div>
+
+<div class="win"><strong>You now have this in hand:</strong> VHDL's <code>&amp;</code> concatenation operator (and its collision with SV's bitwise-AND symbol), assigning individual bits/slices of a bus from separate statements, and the confidence to parse a dense multi-line boolean expression by working from the innermost parentheses out.</div>
+
+<h2>Primary source</h2>
+<p><a href="https://www.vhdl-online.de/courses/system_design/vhdl_language_and_syntax/vhdl_structural_elements/entity_and_architecture" target="_blank" rel="noopener">VHDL-Online</a> (operators reference). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+
+<footer><div class="nav"><span>VHDL Lesson 0008</span><span><a href="0007-type-casts-numeric-std.html">← Lesson 7</a> · <a href="../MISSION.md">Mission</a></span></div></footer>
+
+</body>
+</html>

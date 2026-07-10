@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lesson 1 · Modules, ports &amp; continuous assignment</title>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #fdfcf9;
+    --rule: #ccc4b3;
+    --code-bg: #f4f1e8;
+    --accent: #7a3b2e;
+    --muted: #6b6558;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    background: var(--paper);
+    color: var(--ink);
+    max-width: 46rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    line-height: 1.6;
+    font-size: 18px;
+  }
+  h1 {
+    font-size: 1.9rem;
+    margin-bottom: 0.2rem;
+    border-bottom: 3px solid var(--ink);
+    padding-bottom: 0.5rem;
+  }
+  .kicker {
+    font-family: "Courier New", monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin-top: 2.4rem;
+    color: var(--accent);
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 0.25rem;
+  }
+  h3 { font-size: 1.02rem; margin-top: 1.6rem; }
+  p { margin: 0.8rem 0; }
+  code, pre {
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 0.05em 0.35em;
+    border-radius: 3px;
+    font-size: 0.92em;
+  }
+  pre {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    border-radius: 0 4px 4px 0;
+  }
+  pre .ln { color: var(--muted); margin-right: 1em; user-select: none; }
+  .callout {
+    background: #f0ece0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 1.2rem 0;
+  }
+  .callout.analogy::before { content: "↔ Analogy: "; font-weight: bold; color: var(--accent); }
+  .callout.gotcha::before { content: "⚠ Gotcha: "; font-weight: bold; color: var(--accent); }
+  .win {
+    background: #eaf0e6;
+    border: 1px solid #b9c9ae;
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 1.4rem 0;
+  }
+  .quiz {
+    background: #fff;
+    border: 1px dashed var(--rule);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+  }
+  .quiz summary { cursor: pointer; font-weight: bold; color: var(--accent); }
+  .quiz .answer { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed var(--rule); }
+  .source-link {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  a { color: var(--accent); }
+  .nav { display: flex; justify-content: space-between; font-size: 0.85rem; margin-top: 2rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { border: 1px solid var(--rule); padding: 0.4rem 0.6rem; text-align: left; }
+  th { background: var(--code-bg); }
+</style>
+</head>
+<body>
+
+<div class="kicker">Learn SystemVerilog · Lesson 0001</div>
+<h1>Modules, ports &amp; continuous assignment</h1>
+<p class="source-link">Source: <code>core/Oric.sv</code>, lines 22–46 (the <strong>★ MODULE SETUP</strong> section) — same lines summarized functionally in <a href="../../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §1</a>. This lesson covers the <em>syntax</em> only.</p>
+
+<h2>The win for today</h2>
+<p>By the end of this lesson you'll be able to read the opening lines of any SystemVerilog file — the <code>module</code>/port skeleton and a block of <code>assign</code> statements — and know exactly what's being declared versus what's happening every clock cycle.</p>
+
+<h2>1. A module is a component, not a function call</h2>
+<pre><span class="ln"> 22</span>module emu
+<span class="ln"> 23</span>(
+<span class="ln"> 24</span>	`include "sys/emu_ports.vh"
+<span class="ln"> 25</span>);
+<span class="ln"> 26</span>
+<span class="ln"> 27</span>// ★ MODULE SETUP...
+<span class="ln"> 28</span>assign USER_OUT = '1;</pre>
+
+<p><code>module emu ( ... );</code> declares a hardware block named <code>emu</code> with a fixed set of pins listed between the parentheses. Everything from this line to the matching <code>endmodule</code> (at the very end of the file) is that block's internals.</p>
+
+<div class="callout analogy">Think of <code>module</code> like a <code>class</code> declaration in Python or a <code>struct</code> with fixed fields in C — it defines a <em>shape</em>. But unlike a function, nothing inside it "runs in order" from top to bottom. Every statement inside describes a piece of wiring or a piece of behavior that exists <strong>all the time, simultaneously</strong> — more like a spreadsheet of formulas than a script.</div>
+
+<p>Line 24 is unusual: instead of listing ports directly, it uses a preprocessor directive, <code>`include "sys/emu_ports.vh"</code>, to paste in a giant shared port list from another file. This is the Verilog preprocessor (same family of tool as C's <code>#include</code>) — it happens <em>before</em> the compiler ever sees the actual module, purely textual substitution.</p>
+
+<div class="callout gotcha">The backtick before <code>include</code> is not a typo. SystemVerilog preprocessor directives (<code>`include</code>, <code>`define</code>, <code>`ifdef</code>) all start with a backtick, to distinguish them from ordinary code. If you see a leading backtick, mentally read it as "textual copy-paste happens here before compilation," exactly like C's <code>#include</code>.</div>
+
+<h2>2. <code>assign</code>: a permanently-live connection, not a one-time write</h2>
+<pre><span class="ln"> 28</span>assign USER_OUT = '1;
+<span class="ln"> 29</span>assign {UART_RTS, UART_TXD, UART_DTR} = 0;
+<span class="ln"> 33</span>assign DDRAM_CLK = clk_sys;
+<span class="ln"> 35</span>assign LED_USER    = ioctl_download | fdd_busy | tape_adc_act | led_user_pokeable;</pre>
+
+<p><code>assign left = right;</code> is a <strong>continuous assignment</strong>: it wires the right-hand expression directly to the left-hand signal, permanently. Whenever any input on the right changes, the output on the left updates immediately — there is no "moment" it runs, because it never stops running.</p>
+
+<div class="callout analogy">In JavaScript/React terms, this is closer to a computed/derived value (like a spreadsheet cell <code>=A1+B1</code>) than to a variable assignment <code>x = 5</code>. It's not "set x to 5 right now" — it's "x is now permanently defined as whatever the formula evaluates to." If <code>A1</code> changes, the cell updates on its own.</div>
+
+<p>Line 35 shows this doing real work: <code>LED_USER</code> lights whenever <em>any</em> of four conditions is true, via the bitwise-OR operator <code>|</code>. Because it's a continuous assignment, the LED reacts instantly and automatically as any of those four signals changes — no one has to "call" this logic.</p>
+
+<h2>3. Curly braces <code>{ }</code> mean concatenation, not a block or an object</h2>
+<pre><span class="ln"> 29</span>assign {UART_RTS, UART_TXD, UART_DTR} = 0;
+<span class="ln"> 31</span>assign {SDRAM_DQ, SDRAM_A, SDRAM_BA, SDRAM_CLK, SDRAM_CKE, SDRAM_DQML, SDRAM_DQMH, SDRAM_nWE, SDRAM_nCAS, SDRAM_nRAS, SDRAM_nCS} = 'Z;</pre>
+
+<p>In SystemVerilog, <code>{ }</code> is the <strong>concatenation operator</strong> — it glues several signals together end-to-end into one wider bus, or (as here, on the left of an <code>assign</code>) splits one value out across several signals at once.</p>
+
+<div class="callout analogy">This is like Python/JS destructuring assignment: <code>[UART_RTS, UART_TXD, UART_DTR] = [0, 0, 0]</code> — one value (<code>0</code>) fanned out to every named target in the list, all at once, forever (because it's an <code>assign</code>, not a one-time statement).</div>
+
+<div class="callout gotcha">Don't confuse SystemVerilog's <code>{ }</code> with C/JS curly braces for code blocks or object literals — SystemVerilog uses <code>begin ... end</code> for blocks (not seen in this lesson's snippet) and has no object-literal syntax at all here. <code>{ }</code> in an expression is always bit-concatenation.</div>
+
+<h2>4. Number literals: <code>'1</code>, <code>'Z</code>, and plain <code>0</code></h2>
+<pre><span class="ln"> 28</span>assign USER_OUT = '1;
+<span class="ln"> 31</span>assign {...} = 'Z;
+<span class="ln"> 37</span>assign LED_POWER   = 0;</pre>
+
+<table>
+<tr><th>Literal</th><th>Meaning</th></tr>
+<tr><td><code>'1</code></td><td>fill <em>every bit</em> of the target with <code>1</code> (width taken from the left-hand signal)</td></tr>
+<tr><td><code>'Z</code></td><td>fill every bit with <strong>high-impedance</strong> — electrically disconnected, not driving 0 or 1</td></tr>
+<tr><td><code>0</code></td><td>ordinary numeric literal, zero-extended to fit the target width</td></tr>
+</table>
+
+<div class="callout analogy">There's no clean software analogy for <code>'Z</code> — it's a genuinely hardware-only idea. The closest mental model: imagine a shared bus where multiple devices could try to drive it, like several people who could each shout on a party line. <code>'Z</code> means "I'm hanging up — not saying anything, not even silence, just off the line" so someone else can drive that wire without a conflict.</div>
+
+<p>Line 31 sets a whole bundle of SDRAM pins to <code>'Z</code> because this core doesn't use external SDRAM — it releases those pins entirely rather than driving them to a meaningless 0.</p>
+
+<h2>Quick check</h2>
+
+<div class="quiz">
+<details>
+<summary>Q1. What does <code>assign x = a | b;</code> do the instant <code>a</code> changes from 0 to 1, assuming <code>b</code> stays 0?</summary>
+<div class="answer">Answer: <code>x</code> becomes 1 immediately — the assignment is continuously live, so it re-evaluates the moment any input changes, with no delay or trigger needed.</div>
+</details>
+</div>
+
+<div class="quiz">
+<details>
+<summary>Q2. Rewrite <code>assign {p, q} = 2'b10;</code> in plain English — what value does each of <code>p</code> and <code>q</code> get?</summary>
+<div class="answer">Answer: <code>p</code> gets 1 (the leftmost/high bit of <code>10</code>) and <code>q</code> gets 0 (the rightmost/low bit) — concatenation on the left splits the right-hand value bit-by-bit across the listed targets, left to right.</div>
+</details>
+</div>
+
+<div class="quiz">
+<details>
+<summary>Q3. Why can't <code>'Z</code> ever appear inside an <code>if</code> condition the way <code>0</code> or <code>1</code> can be tested meaningfully in normal code?</summary>
+<div class="answer">Answer: <code>'Z</code> means the wire isn't being driven at all — it has no defined logic value to test — so treating it like a boolean 0/1 doesn't make sense; it's a statement about the wire's electrical state, not a data value.</div>
+</details>
+</div>
+
+<div class="win">
+<strong>You now have this in hand:</strong> module/port skeletons, <code>`include</code> as textual paste, <code>assign</code> as a permanently-live formula (not a one-time write), <code>{ }</code> as concatenation/destructuring, and the three literal forms <code>'1</code> / <code>'Z</code> / plain numbers. That's enough to read all of <code>Oric.sv</code>'s ★ MODULE SETUP section unaided.
+</div>
+
+<h2>Primary source</h2>
+<p>Recommended companion reading for these exact constructs: <a href="https://chipverify.com/verilog/verilog-assign-statement" target="_blank" rel="noopener">ChipVerify — Verilog assign statement</a> (continuous assignment semantics) and <a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (module/port declaration, literal formats). See <a href="../RESOURCES.md">RESOURCES.md</a> for the full curated list.</p>
+
+<div class="callout">Got stuck on anything above, or want to see one more real example from further down <code>Oric.sv</code>? Just ask — I'm your teacher here, not just a document generator.</div>
+
+<footer>
+<div class="nav">
+  <span>Lesson 0001 of Learn SystemVerilog</span>
+  <span><a href="../MISSION.md">Mission</a> · <a href="../RESOURCES.md">Resources</a></span>
+</div>
+</footer>
+
+</body>
+</html>
