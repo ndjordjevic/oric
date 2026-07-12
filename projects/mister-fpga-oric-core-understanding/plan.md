@@ -6,12 +6,14 @@
 
 **Project layout:**
 ```
+README.md        ← how the study layers fit together (lessons / annotated / walkthroughs) — read first
 plan.md          ← this file
 00-dev-env.md … 06-build-notes.md   ← phase deliverables (created as you go)
 04-modules/      ← per-subsystem notes (Phase 4)
 05-sim/          ← testbenches + waveforms (Phase 5)
-annotated/       ← frozen, git-tracked copies of core/ files with ★ study comments
+annotated/       ← frozen, git-tracked copies of core/ files with ★ study comments (canonical line numbers)
 core/            ← cloned Oric_MiSTer source (gitignored sibling, kept pristine)
+learn-systemverilog/, learn-vhdl/   ← language lesson series + per-language token decoder cards
 ```
 
 **Why this repo:** the [wiki](../../wiki/index.md) already documents the *real* Oric hardware (register-level manual, ULA reverse-engineering, memory map) and the [core itself](../../wiki/sources/MiSTer-devel-Oric_MiSTer.md). You cannot read `ula.vhd` without knowing what the ULA does — so each code-reading step below is paired with required wiki reading.
@@ -98,7 +100,7 @@ The core is mixed-language, so you need reading fluency in **both** VHDL and Ver
 - [ ] Skim a VHDL primer and a Verilog primer focused on *reading* synthesizable RTL (processes/`always` blocks, signals vs variables, clocked vs combinational). Use the misterfpga.org pinned lists: [Learning to dev a core](https://misterfpga.org/viewtopic.php?t=78) · [Verilog/HDL books & tutorials](https://misterfpga.org/viewtopic.php?t=136).
 - [ ] Use the repo-wide **`books/` catalog** ([`../../books/INDEX.md`](../../books/INDEX.md)) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in [`../../RESOURCES.md`](../../RESOURCES.md) §8.
 - [ ] Optional sandbox: re-type a tiny module into [EDA Playground](https://www.edaplayground.com) and watch it simulate.
-- **Deliverable:** `03-hdl-cheatsheet.md` — a personal read-only cheatsheet for the VHDL/Verilog idioms this core uses.
+- **Deliverable:** ✅ fulfilled (2026-07-09/12) by the `learn-systemverilog/` and `learn-vhdl/` lesson series plus their token decoder cards (`learn-*/reference/*-decoder.html`) — a per-language, per-token reading reference built from this core's own lines. No separate `03-hdl-cheatsheet.md` is needed; the decoder cards are the living cheatsheet (see `README.md` layers).
 
 ## Phase 4 — Walk the core, module by module (the main event)
 Follow the data path. For each: read the module, annotate against the Phase 1 diagram, write a short note. Suggested order (simple → complex):
@@ -111,7 +113,7 @@ Follow the data path. For each: read the module, annotate against the Phase 1 di
 - [ ] **Input** — `keyboard.sv`, `joystick.sv`.
 - [ ] **Storage** — `microdisc.vhd` + `wd1793.sv` (note `apple2_disk/` reuse) + `pravetz8d_fdc.vhd`.
 - [ ] **MiSTer glue** — the Verilog tape engine (`cload_patch_rom.v`, `tap_byte_streamer.v`, `tap_segment_loader.v`), then snapshots/savestates (`snap_loader.v`, `snap_ss.v`, `savestate_hotkeys.v`). Cross-reference the core's `tools/tool.md` (TAP/SNA format tools).
-- **Deliverable:** `04-modules/<module>.md` per subsystem — purpose, key signals, how it maps to real hardware, open questions.
+- **Deliverable:** per subsystem, following the layer pattern from `README.md`: (1) a frozen annotated copy in `annotated/rtl/<module>` carrying the `★` section summaries inline, (2) a thin `04-modules/<module>.md` with only what the inline comments can't hold — purpose, key signals, real-hardware mapping, cross-module connections, open questions — never re-narrating the `★` text, and (3) a decoder-card check (`learn-*/reference/`) that every token in the module is covered, extending lessons only for genuinely new constructs.
 
 ## Phase 5 — Simulate a module (make it concrete)
 Honest scope: **you cannot simulate the whole core** with open-source tools — `sys/` is full of Intel primitives (PLL, HPS, megafunctions). Simulation must be **module-level**, isolating a pure-logic module from the framework.

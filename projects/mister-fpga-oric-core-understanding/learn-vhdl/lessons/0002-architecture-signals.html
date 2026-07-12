@@ -48,6 +48,7 @@
 <span class="ln">...</span>
 <span class="ln">929</span>END RTL;</pre>
 <p>This is the implementation body for the <code>oricatmos</code> entity from Lesson 1. <code>RTL</code> is just a name for this particular architecture (arbitrary — VHDL allows multiple named architectures per entity, though this design only defines one). Everything between <code>ARCHITECTURE ... IS</code> and <code>BEGIN</code> is the <strong>declarative region</strong> — signals, components — and everything between <code>BEGIN</code> and <code>END RTL;</code> is the actual logic.</p>
+<p>Of the two content lines shown: line 191's comment is French — <em>Gestion des resets</em> means "reset management" (this core's original author is French; these subsystem-naming comments recur, see section 3) — and line 192 declares <code>RESETn</code>, the combined active-low reset (the trailing <code>n</code> is the active-low naming convention) that Lesson 4 shows being built from the external reset and the keyboard's reset combo. The two <code>...</code> rows stand for the rest of the declarative region (lines 193–394: a hundred-plus more <code>SIGNAL</code> declarations plus Lesson 3's <code>COMPONENT</code> blocks) and the entire logic body (lines 396–928).</p>
 <div class="callout sv">There's no SystemVerilog equivalent to this two-part split (declare, then <code>BEGIN</code>, then logic) — in a <code>module</code>, declarations and logic can be interleaved freely. VHDL is stricter: all signals must be declared before the <code>BEGIN</code> that starts the architecture body.</div>
 
 <h2>2. <code>SIGNAL</code> — VHDL's internal wire</h2>
@@ -55,6 +56,7 @@
 <span class="ln">201</span>SIGNAL cpu_rw : STD_LOGIC;
 <span class="ln">194</span>SIGNAL delay_count : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');</pre>
 <p><code>SIGNAL name : type;</code> declares an internal connection — something that isn't a port (not visible outside this entity) but carries a value between different pieces of logic inside the architecture, exactly like a SystemVerilog <code>wire</code> or <code>reg</code> declared inside a module.</p>
+<p>The three examples by name: <code>cpu_ad</code> is the CPU's address bus — 24 bits because the T65 CPU core (Lesson 5) exposes a 24-bit address port, though the Oric only uses the low 16; <code>cpu_rw</code> is the CPU's one-bit read/write line; and <code>delay_count</code> is an 8-bit counter from the reset-management group shown in section 1.</p>
 <div class="callout sv">A VHDL <code>SIGNAL</code> covers what SystemVerilog splits into <code>wire</code> and <code>reg</code> — the same keyword is used whether the signal ends up driven continuously (like a <code>wire</code>) or from inside a clocked <code>PROCESS</code> (like a <code>reg</code>). VHDL decides which based on <em>how</em> it's assigned later, not by a different declaration keyword.</div>
 <p>Line 194 shows an initial-value aggregate: <code>(OTHERS => '0')</code> means "every bit of this vector starts at 0" — VHDL's way of writing a same-value fill across a whole bus without spelling out every bit.</p>
 <div class="callout gotcha">Just like SystemVerilog's initial value on a <code>reg</code> (Lesson 4 of the SV series), this is the FPGA's power-up/reset value, not a "default if never assigned" placeholder the way a software variable's initializer works.</div>
@@ -64,7 +66,7 @@
 <span class="ln">205</span>SIGNAL via_pa_out_oe : STD_LOGIC_VECTOR(7 DOWNTO 0);
 <span class="ln">227</span>-- PSG
 <span class="ln">228</span>SIGNAL psg_bdir : STD_LOGIC;</pre>
-<p>No new syntax here — just worth noticing the organizing convention: groups of related signals are clustered under a French-language <code>--</code> comment naming the subsystem (<code>via</code>, <code>psg</code>, <code>ula</code>, disk controller signals prefixed <code>md_</code> for Microdisc or <code>pravetz_</code>). This mirrors <code>Oric.sv</code>'s own <code>★</code>-section convention, just at a finer grain.</p>
+<p>No new syntax here — just worth noticing the organizing convention: groups of related signals are clustered under a French-language <code>--</code> comment naming the subsystem (<code>via</code>, <code>psg</code>, <code>ula</code>, disk controller signals prefixed <code>md_</code> for Microdisc or <code>pravetz_</code>). This mirrors <code>Oric.sv</code>'s own <code>★</code>-section convention, just at a finer grain. (The two examples shown: <code>via_pa_out_oe</code> is the VIA chip's port-A output-enable byte, <code>psg_bdir</code> the sound chip's bus-direction control — you don't need to know what those mean yet; the point is that the prefix tells you which chip's cluster a signal belongs to.)</p>
 
 <h2>Quick check</h2>
 <div class="quiz"><details><summary>Q1. What must come before the <code>BEGIN</code> keyword inside an <code>ARCHITECTURE</code> block?</summary>

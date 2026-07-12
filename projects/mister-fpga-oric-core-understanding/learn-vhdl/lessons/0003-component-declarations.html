@@ -44,11 +44,19 @@
 <span class="ln">328</span>		clk_sys : IN STD_LOGIC;
 <span class="ln">329</span>		reset : IN STD_LOGIC;
 <span class="ln">330</span>		key_pressed : IN STD_LOGIC;
-<span class="ln">...</span>
+<span class="ln">331</span>		key_extended : IN STD_LOGIC;
+<span class="ln">332</span>		key_strobe : IN STD_LOGIC;
+<span class="ln">333</span>		key_code : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+<span class="ln">334</span>		pravetz_layout : IN STD_LOGIC;
+<span class="ln">335</span>		col : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+<span class="ln">336</span>		row_mask : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+<span class="ln">337</span>		kbd_int : OUT STD_LOGIC;
+<span class="ln">338</span>		swnmi : OUT STD_LOGIC;
 <span class="ln">339</span>		swrst : OUT STD_LOGIC
 <span class="ln">340</span>	);
 <span class="ln">341</span>END COMPONENT;</pre>
 <p>Compare this to Lesson 1's <code>ENTITY oricatmos IS PORT (...) END;</code> — same shape (a name, a port list with direction/type per pin), wrapped in <code>COMPONENT ... END COMPONENT;</code> instead of <code>ENTITY ... END;</code>. This block doesn't *define* the keyboard's behavior — it just tells this file "there exists a module called <code>keyboard</code> with these exact pins," so the compiler can check instantiations of it later in this file for correctness.</p>
+<p>The pins themselves, since the whole block is shown: <code>clk_sys</code> and <code>reset</code> are the usual clock and reset inputs; <code>key_pressed</code>, <code>key_extended</code>, <code>key_strobe</code>, and <code>key_code</code> are the same four keyboard-event inputs the <code>oricatmos</code> entity itself receives (Lesson 1), passed through to this module; <code>pravetz_layout</code> selects the Bulgarian Pravetz key layout; <code>col</code> (3-bit) and <code>row_mask</code> (8-bit) are the Oric's keyboard-matrix scan interface — the machine picks one of eight columns and masks rows; <code>kbd_int</code> is the "a key in the scanned position is down" output back to the VIA; and <code>swnmi</code> / <code>swrst</code> are "software NMI" and "software reset" outputs fired by the keyboard's reset/NMI key combinations — Lesson 4's <code>KEYB_RESETn</code> is derived from <code>swrst</code> (line 706: <code>KEYB_RESETn &lt;= NOT swrst;</code>).</p>
 <div class="callout analogy">This is exactly a C function prototype (<code>int foo(int, char*);</code> in a header, with the real implementation in a separate <code>.c</code> file) or a TypeScript <code>interface</code> (an ambient declaration) — describing a shape without providing the body.</div>
 <div class="callout sv">SystemVerilog doesn't need this step at all — you can instantiate any module directly by name (as you did throughout <code>Oric.sv</code>, and as this same file does for its VHDL sub-modules via <code>ENTITY work.T65</code>, coming in Lesson 5) as long as the compiler can find its source. Here the <code>COMPONENT</code>-declared modules — <code>keyboard</code>, <code>joystick</code>, and <code>psg</code> — happen to be exactly the three written in <em>SystemVerilog/Verilog</em> (<code>keyboard.sv</code>, <code>joystick.sv</code>, <code>psg.v</code>). Direct <code>ENTITY work.X</code> instantiation of a foreign-language module is tool-dependent (not guaranteed by the VHDL standard), so the classic, most-portable way to instantiate across the language boundary is via a matching-named <code>COMPONENT</code> declaration — which is the style the author chose for these three.</div>
 

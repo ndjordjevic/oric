@@ -138,13 +138,18 @@
 <pre><span class="ln"> 28</span>assign USER_OUT = '1;
 <span class="ln"> 29</span>assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 <span class="ln"> 33</span>assign DDRAM_CLK = clk_sys;
-<span class="ln"> 35</span>assign LED_USER    = ioctl_download | fdd_busy | tape_adc_act | led_user_pokeable;</pre>
+<span class="ln"> 35</span>assign LED_USER    = ioctl_download | fdd_busy | tape_adc_act | led_user_pokeable;
+<span class="ln"> 36</span>assign LED_DISK    = led_disk;</pre>
 
 <p><code>assign left = right;</code> is a <strong>continuous assignment</strong>: it wires the right-hand expression directly to the left-hand signal, permanently. Whenever any input on the right changes, the output on the left updates immediately — there is no "moment" it runs, because it never stops running.</p>
 
 <div class="callout analogy">In JavaScript/React terms, this is closer to a computed/derived value (like a spreadsheet cell <code>=A1+B1</code>) than to a variable assignment <code>x = 5</code>. It's not "set x to 5 right now" — it's "x is now permanently defined as whatever the formula evaluates to." If <code>A1</code> changes, the cell updates on its own.</div>
 
-<p>Line 35 shows this doing real work: <code>LED_USER</code> lights whenever <em>any</em> of four conditions is true, via the bitwise-OR operator <code>|</code>. Because it's a continuous assignment, the LED reacts instantly and automatically as any of those four signals changes — no one has to "call" this logic.</p>
+<p>Line 35 shows this doing real work: <code>LED_USER</code> lights whenever <em>any</em> of four conditions is true, via the bitwise-OR operator <code>|</code>. Because it's a continuous assignment, the LED reacts instantly and automatically as any of those four signals changes — no one has to "call" this logic. Line 36 is the simplest possible case of the same idea: <code>LED_DISK</code> is just wired straight through to whatever <code>led_disk</code> is doing, with no logic in between — a continuous assignment can be a bare wire-to-wire connection just as easily as a whole expression.</p>
+
+<p>The other three lines of this excerpt get their right-hand sides explained in the next two sections, but their targets are worth naming now: <code>USER_OUT</code> (line 28) is the MiSTer USER I/O port's pin bundle, driven all-high because this core doesn't use it; line 29 ties off the three serial-port outputs <code>UART_RTS</code>, <code>UART_TXD</code>, <code>UART_DTR</code> — this core has no UART, so all three sit at 0; and line 33 wires <code>DDRAM_CLK</code>, the clock output of the DDR3 memory interface, straight to <code>clk_sys</code> — the master system clock, produced by a PLL further down the file (Lesson 5).</p>
+
+<div class="callout gotcha">Notice <code>ioctl_download</code>, <code>fdd_busy</code>, <code>tape_adc_act</code>, <code>led_user_pokeable</code>, and <code>led_disk</code> are all <em>used</em> here on lines 35–36 but not <em>declared</em> anywhere yet — their <code>wire</code>/<code>reg</code> declarations don't appear until lines 203, 387, 914, 727, and 386 respectively, much later in the file. (<code>led_disk</code> is declared just one line before <code>fdd_busy</code>, at line 386 — both come from the floppy-disk-controller section, which is why they sit next to each other.) In a sequential language like C or Python, using a name before it's defined is an error. In SystemVerilog it's completely normal: since everything in a module happens concurrently rather than top-to-bottom (the "spreadsheet, not a script" idea from earlier), a module's signals don't need to be declared before the point where they're first used — the compiler sees the whole file before anything "runs." Don't expect the meaning of an unfamiliar name to be explained where you first see it used; it may be declared (and its purpose explained) hundreds of lines later.</div>
 
 <h2>3. Curly braces <code>{ }</code> mean concatenation, not a block or an object</h2>
 <pre><span class="ln"> 29</span>assign {UART_RTS, UART_TXD, UART_DTR} = 0;
@@ -170,9 +175,31 @@
 
 <div class="callout analogy">There's no clean software analogy for <code>'Z</code> — it's a genuinely hardware-only idea. The closest mental model: imagine a shared bus where multiple devices could try to drive it, like several people who could each shout on a party line. <code>'Z</code> means "I'm hanging up — not saying anything, not even silence, just off the line" so someone else can drive that wire without a conflict.</div>
 
-<p>Line 31 sets a whole bundle of SDRAM pins to <code>'Z</code> because this core doesn't use external SDRAM — it releases those pins entirely rather than driving them to a meaningless 0.</p>
+<p>Line 30 does the same "release the pins" trick as line 31, just for a different peripheral: <code>assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;</code> puts the SD-card SPI pins into high-impedance because this particular build of the core doesn't drive an SD card itself. Line 31 sets a whole bundle of SDRAM pins to <code>'Z</code> because this core doesn't use external SDRAM — it releases those pins entirely rather than driving them to a meaningless 0. The comment directly above line 33 (<code>// DDRAM is used as the MiSTer Main savestate buffer</code>) is an ordinary <code>//</code> line comment — plain English, ignored by the compiler — explaining that unlike SD/SDRAM, <code>DDRAM_CLK</code> on line 33 is <em>not</em> tied off, because DDRAM is actually in use elsewhere in the file for save states.</p>
 
 <p>The plain <code>0</code> on line 37 is the odd one out of the three, and deliberately so: it's not special hardware syntax at all — it's the same ordinary decimal literal you already know from every other language. The only SystemVerilog-specific behavior is what happens to it when it's assigned to a wider target: <code>assign LED_POWER = 0;</code> zero-extends it to fill whatever width <code>LED_POWER</code> actually is. <code>'1</code> and <code>'Z</code> exist specifically because "ordinary" literals like <code>0</code> can't express "every bit set" or "electrically disconnected" without knowing the target's width in advance — they're the two special-purpose forms; plain <code>0</code> is the baseline everything else is contrasted against.</p>
+
+<h2>5. The rest of the tie-off block (lines 38–46): same pattern, different pins</h2>
+<pre><span class="ln"> 38</span>assign BUTTONS     = 0;
+<span class="ln"> 39</span>assign VGA_SCALER  = 0;
+<span class="ln"> 40</span>assign VGA_DISABLE = 0;
+<span class="ln"> 41</span>assign HDMI_FREEZE = 0;
+<span class="ln"> 42</span>assign HDMI_BLACKOUT = 0;
+<span class="ln"> 43</span>assign HDMI_BOB_DEINT = 0;
+<span class="ln"> 45</span>assign AUDIO_S   = 0;
+<span class="ln"> 46</span>assign AUDIO_MIX = 0;</pre>
+
+<p>Every one of these eight lines uses the exact same construct already covered above: a single-signal continuous assignment to the plain literal <code>0</code>, zero-extended to whatever width the target needs. There's no new syntax here — the reason to look at them individually is to know what each one <em>means</em>, since a decoder needs both the syntax and the intent:</p>
+
+<ul>
+<li><code>BUTTONS = 0</code> — per <code>core/sys/emu_ports.vh</code>'s own comment, this 2-bit output reports <code>b[1]: user button</code> and <code>b[0]: osd button</code> state back to the framework; tying both bits to <code>0</code> means this core never asserts either button itself.</li>
+<li><code>VGA_SCALER = 0</code> — per the same file, this output would <em>force</em> the framework's VGA scaler on if asserted; tying it to <code>0</code> leaves that choice to the framework's own default instead of forcing it. <code>VGA_DISABLE = 0</code> reports whether analog VGA output is off; <code>0</code> means it stays enabled.</li>
+<li><code>HDMI_FREEZE = 0</code>, <code>HDMI_BLACKOUT = 0</code>, <code>HDMI_BOB_DEINT = 0</code> — three more optional MiSTer HDMI-framework output flags (undocumented by inline comment in <code>emu_ports.vh</code>, but following the same "core never needs to assert this" pattern as the rest of the block) permanently held low.</li>
+<li><code>AUDIO_S = 0</code> — tells the framework this core's audio output is <strong>not</strong> signed (0 = unsigned format) rather than being an enable/disable flag.</li>
+<li><code>AUDIO_MIX = 0</code> — selects the "no extra mixing" mode (0 = off) out of several audio-mixing options the framework supports.</li>
+</ul>
+
+<div class="callout gotcha">Don't assume every <code>= 0</code> in this style of block means "disabled" or "off" — as with <code>AUDIO_S</code> above, sometimes <code>0</code> selects a specific mode (unsigned audio) rather than switching a feature off. The syntax (<code>assign x = 0;</code>) never tells you the intent by itself; only the target signal's name and its purpose elsewhere in the framework do. This is exactly why this lesson series is scoped to syntax, not function — you'll need <code>01a-Oric-sv-understanding.md</code> or the MiSTer framework's own port documentation to know what each <em>specific</em> tied-off signal actually controls, even once you fully understand the <code>assign</code> syntax itself.</div>
 
 <h2>Quick check</h2>
 

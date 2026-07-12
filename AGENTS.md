@@ -1,73 +1,55 @@
 # Oric learning — agent instructions
 
-This repo is a personal mono-repo for learning about the Oric retro computer. It contains:
+Personal mono-repo for learning about the Oric retro computer:
 
-- `wiki/` — a structured knowledge base of ingested sources (the LLM wiki)
-- `books/` — repo-wide book catalog at `books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
+- `wiki/` — knowledge base of ingested sources (the LLM wiki)
+- `books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
 - `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`)
-- `RESOURCES.md` — curated link catalog of Oric hardware, software, community, and FPGA/HDL references
+- `RESOURCES.md` — curated links: Oric hardware, software, community, FPGA/HDL
 - `build-journey/` — notes and decisions from the Metaphoric clone build
 
-**Related repo:** `../mister-fpga/` covers the MiSTer FPGA platform broadly (hardware setup, FPGA concepts, DE10-Nano). When working on `projects/mister-fpga-oric-core-understanding/`, consult that repo for platform-level context before diving into the Oric-specific core.
+**Related repo:** `../mister-fpga/` covers the MiSTer platform broadly (hardware setup, FPGA concepts, DE10-Nano). Consult it for platform-level context before diving into the Oric-specific core.
 
----
+## Answering Oric questions — wiki first
 
-## For AI agents working in this repo
+Before answering **any** Oric question: (1) read `wiki/index.md`, (2) follow `[[wikilinks]]` into relevant source pages, (3) for hardware/troubleshooting/community questions also search the Defence Force forum (below), (4) cite wiki page names. If the wiki doesn't cover it, say so, then search online — don't rely on training data alone.
 
-Before answering **any question** about the Oric retro computer, you MUST:
+## Defence Force forum — live search only, never scrape
 
-1. Read `wiki/index.md` to identify relevant pages.
-2. Follow `[[wikilinks]]` to drill into relevant source pages.
-3. For hardware, troubleshooting, or community questions, also search the **Defence Force forum** directly (see below).
-4. Cite wiki page names in your answer.
-5. If the answer is not in the wiki, say so clearly, then search/fetch current information online instead of relying on training data alone.
+`forum.defence-force.org` is the Oric community forum. Search it live: `WebSearch` with `allowed_domains: ["forum.defence-force.org"]`, then `WebFetch` the specific `viewtopic.php?t=<id>` URLs, and cite thread URL + title. Do **not** build or run a local scraper/digest — the retired `../oric-forum-digest/` attempt proved live search works better (no scrape time, API cost, or staleness); never revive it. (The forum's WAF 403s scripted requests from this machine; `WebSearch`/`WebFetch` go through Anthropic's fetch infra and are fine.)
 
-The wiki is the authoritative local source for this domain. Start there, use it whenever it covers the question, and go online for gaps or newer information.
+Search the forum for: hardware troubleshooting/repair/compatibility; clone boards (Metaphoric, OriClone-1, Oric Remix, Replic'Oric…); storage peripherals (Microdisc, Cumulus, LOCI, Erebus, Cumana…); video/ULA/signal questions; AY sound chip; sourcing period-correct components.
 
----
+## Audience — HDL walkthroughs
 
-## Defence Force forum (live search — do not scrape)
+The human is **not** experienced with VHDL/Verilog/SystemVerilog but knows digital electronics and general programming well. When explaining HDL:
 
-`forum.defence-force.org` is the Oric community forum. Search and read it live with `WebSearch`/`WebFetch` — do not build or run a local scraper/digest for it. A prior attempt at a bulk scrape-and-summarize pipeline (`../oric-forum-digest/`) turned out to be unnecessary overhead (scraping time, ongoing Claude API summarization cost, staleness) once live search was tested and found to work well; that project is retired and should not be revived or re-run.
+- Briefly explain each syntax construct on first appearance (1–2 sentences — unlock the code, don't teach HDL in depth).
+- Always include an analogy to a well-known language (C, Python, JS…).
+- End every explanation with 1–2 plain-English sentences on what the code does functionally.
 
-**When to search the forum:**
+## Lessons — full-coverage requirement
 
-- Hardware troubleshooting, repair, or component compatibility questions.
-- Clone board questions (Metaphoric, OriClone-1, Oric Remix, Replic'Oric, etc.).
-- Storage peripherals (Microdisc, Cumulus, LOCI, Erebus, Cumana, etc.).
-- Video output, ULA replacement, or signal questions.
-- AY sound chip programming or hardware audio questions.
-- Sourcing or identifying period-correct components.
+Any lesson (e.g. `projects/*/learn-*/lessons/`) showing a code excerpt must explain **every line and every token in that excerpt** — the reader must be able to open the same excerpt in the source and have nothing left silently unexplained. Concretely:
 
-**How to use:**
+- Explaining a construct once via representative lines is **not** enough — walk every line, even when several share the same form; name explicitly what each remaining line ties off/connects ("the remaining N lines tie off these unused ports: …", actually listing them).
+- Never silently truncate a block: either show it in full or state clearly what was omitted and why.
+- Before finalizing, diff excerpt against prose: every distinct signal name, operator, and literal must be referenced (by name, or via an explicit listed summary).
+- Same standard as `learn-*/NOTES.md` ("understand every line"), applied at the level of each excerpt, not just series-wide coverage.
 
-1. `WebSearch` with `allowed_domains: ["forum.defence-force.org"]` to find candidate threads for the topic.
-2. `WebFetch` the specific `viewtopic.php?t=<id>` URL(s) to read the actual thread content and extract facts/community consensus.
-3. Cite the thread URL (and title) in your answer.
+## `projects/mister-fpga-oric-core-understanding/` — study layers
 
-Note: the forum's WAF blocks scripted requests with browser-like User-Agents (a local `curl`/`requests` script gets 403'd) — `WebSearch`/`WebFetch` avoid this since they run through Anthropic's own fetch infrastructure, not a request from this machine.
+The project's `README.md` defines how its study materials are layered (lessons / annotated source / walkthrough docs / diagram) — read it before adding or editing material there. Rules that must hold:
 
----
-
-## Audience background — HDL code walkthroughs
-
-The human is **not** experienced with VHDL, Verilog, or SystemVerilog. When studying or explaining HDL source files (e.g. `Oric.sv`, any `.vhd`/`.v`/`.sv` file), agents must:
-
-- Briefly explain relevant **syntax** and **language constructs** the first time they appear (e.g. `always_ff`, `assign`, `logic`, port maps, generate blocks).
-- Assume solid knowledge of **digital electronics** (logic gates, flip-flops, clocks, buses, state machines) and **general programming** — no need to explain those concepts from scratch.
-- Keep syntax explanations short (1–2 sentences) — the goal is to unlock the code, not teach HDL in depth.
-- When explaining an HDL construct, always include an **analogy to a well-known programming language** (C, Python, JavaScript, etc.) to ground the concept in familiar terms.
-- End every explanation with **1–2 plain-English sentences** summarising what the code actually does at a functional level (no jargon).
-
----
+- `annotated/` holds study snapshots of the upstream `Oric_MiSTer` sources (`Oric.sv`, `rtl/oricatmos.vhd`) with `// ★` / `-- ★` section comments added; pinned to upstream commit `c4cf449` (provenance: `annotated/README.md`). The pristine `core/` clone is a gitignored sibling tracking upstream; its line numbers sit lower (no ★ comments).
+- **All lessons, reference cards, and walkthrough docs cite line numbers from `annotated/`** — quote from it, not `core/`, so line numbers match.
+- Treat `annotated/` as **frozen**: don't edit its code or re-sync from `core/` — lesson line attributions depend on it. If upstream moves and a refresh is truly needed, re-annotate a fresh copy and re-verify every lesson's line numbers.
+- **Each fact lives in exactly one layer** (anti-duplication): section summaries live only as `★` comments in `annotated/`; walkthrough docs (`01a`, `01b`, `04-modules/*`) never restate `★` text — they carry only background, cross-references, tables, and open questions, with a heading + `★` line pointer per section; lessons teach language syntax, never file architecture.
+- New modules studied later follow the same pattern: annotate a frozen copy in `annotated/rtl/`, write a thin walkthrough note, check the decoder card covers the module's tokens.
 
 ## Git — never auto-commit
 
-**Do not** run `git commit` or `git push` after any file change in this repo — ingest, refresh, lint, project edits, or anything else — **unless the human explicitly asked you to commit or push in this conversation.**
-
-When work is done, list what changed and stop. The human reviews diffs and commits when ready.
-
----
+Never `git commit` or `git push` after any change **unless the human explicitly asked in this conversation**. When done, list what changed and stop — the human reviews and commits.
 
 ## Wiki structure
 
@@ -78,16 +60,9 @@ wiki/
   log.md            ← append-only ingest/refresh history
   sources/          ← one page per ingested source (<slug>.md)
   .archive/         ← soft-deleted sources (ignore unless needed)
-
-raw/
-  github/           ← immutable GitHub repo captures
-  youtube/          ← immutable YouTube transcript captures
-  web/              ← immutable web page/site captures
-
-inbox.md            ← agents may add URLs to ## Pending via /pin-llm-wiki queue
+raw/                ← immutable captures: github/, youtube/, web/
+inbox.md            ← agents may queue URLs under ## Pending via /pin-llm-wiki
 .pin-llm-wiki.yml   ← wiki config (domain, detail level, source types, lint cadence)
 ```
 
-**Load order for any question:** `wiki/index.md` → relevant source pages → raw files only for direct citation.
-
-**Wiki management** (ingest, refresh, lint, remove) uses the `/pin-llm-wiki` skill. Invoke it via the Skill tool — all protocol details live in the skill files, not here.
+Load order for any question: `wiki/index.md` → relevant source pages → raw files only for direct citation. Wiki management (ingest, refresh, lint, remove) goes through the `/pin-llm-wiki` skill — invoke via the Skill tool; protocol details live in the skill files.

@@ -17,5 +17,5 @@ The user is studying the MiSTer FPGA Oric core (`projects/mister-fpga-oric-core-
 
 ## Out of scope
 - VHDL testbench-only constructs (`ASSERT`, simulation-only procedures) — this file is synthesizable RTL only.
-- Full digital-design/FPGA-toolchain theory (already covered in `../../00-dev-env.md` and the `../../../mister-fpga` sibling repo).
+- Full digital-design/FPGA-toolchain theory (already covered in `../00-dev-env.md` and the `../../../../mister-fpga` sibling repo).
 - The Verilog sub-modules instantiated as VHDL `COMPONENT`s (`keyboard.sv`, `joystick.sv`, `psg.v`) — their *internals* are SystemVerilog, already in scope of `../learn-systemverilog/`; here they only matter as VHDL component declarations/instantiations.

@@ -64,6 +64,7 @@
 <span class="ln">543</span>.G({4{g}}),
 <span class="ln">544</span>.B({4{b}}),</pre>
 <p><code>{4{r}}</code> repeats the single bit <code>r</code> four times, producing a 4-bit bus where every bit equals <code>r</code>. The Oric only has 1-bit-per-channel video (fully on or fully off), but HDMI wants 4 bits per channel — replication is the cheap way to expand a 1-bit signal to a wider bus without changing its meaning (all-1s if on, all-0s if off).</p>
+<p>For placement: these three lines sit inside the <code>video_mixer</code> instantiation (lines 539–546) — <code>.R</code>, <code>.G</code>, <code>.B</code> are its per-channel color input ports, and <code>r</code>, <code>g</code>, <code>b</code> are the core's 1-bit red, green, and blue video signals.</p>
 <div class="callout analogy">Equivalent to JS's <code>Array(4).fill(r).join('')</code> if you imagine bits as characters — repeat the same value <code>n</code> times to build a wider value. It's concatenation's close cousin: <code>{a, b}</code> glues different values together; <code>{n{x}}</code> glues <code>n</code> copies of the <em>same</em> value together.</div>
 
 <h2>Quick check</h2>

@@ -51,6 +51,7 @@
 <span class="ln">147</span>	.locked(locked)
 <span class="ln">148</span>);</pre>
 <p>This is the same instantiation pattern from Lesson 2 — nothing new in the shape. Two details worth calling out precisely: <code>.rst(0)</code> feeds a constant literal directly into a port (perfectly legal — an input port can be tied to a fixed value, not just a named wire), and <code>.outclk_2()</code> leaves an output completely unconnected because this design only needs two of the PLL's three output clocks.</p>
+<p>The other four lines, for completeness: <code>.refclk(CLK_50M)</code> feeds in the board's fixed 50&nbsp;MHz reference clock — the raw material the PLL multiplies/divides; <code>.outclk_0(clk_sys)</code> and <code>.outclk_1(CLK_VIDEO)</code> are the two generated clocks the design actually uses (the master system clock and the video clock); and <code>.locked(locked)</code> is a status output that goes high once the PLL's output has stabilized — the reset logic elsewhere waits for it before letting the core run.</p>
 <div class="callout analogy">Passing a literal into a port is like calling a function with a hardcoded argument: <code>makePLL({ rst: 0, outclk_2: undefined })</code> — you're allowed to not care about a return value (<code>outclk_2</code>) the same way you'd ignore an object's field you don't need.</div>
 
 <h2>2. Compile-time parameters: <code>#( .PARAM(value) )</code></h2>
@@ -60,14 +61,16 @@
 <span class="ln">219</span>	.HPS_BUS(HPS_BUS),
 <span class="ln">220</span>	...</pre>
 <p>The <code>#( ... )</code> block right after the module name — <em>before</em> the instance name and the port list — passes <strong>parameters</strong>: compile-time configuration values, distinct from the ports (which carry live signals at runtime). Here, <code>hps_io</code> is told its menu string (<code>CONF_STR</code>, the constant from Lesson 3) and that it should support 4 virtual disk drives (<code>VDNUM(4)</code>).</p>
-<div class="callout analogy">Think of a parameter as a generic/template argument — like TypeScript's <code>Array&lt;number&gt;</code> or a C++ template parameter — it configures the <em>shape</em ​of the module at compile time (how wide some internal buffer is, how many drives it supports), whereas a port carries a value that changes while the circuit runs.</div>
+<div class="callout analogy">Think of a parameter as a generic/template argument — like TypeScript's <code>Array&lt;number&gt;</code> or a C++ template parameter — it configures the <em>shape</em> of the module at compile time (how wide some internal buffer is, how many drives it supports), whereas a port carries a value that changes while the circuit runs.</div>
 <div class="callout gotcha">Don't confuse <code>#( .PARAM(value), ... )</code> (compile-time, comes right after the module name) with the port list <code>( .port(signal), ... )</code> (runtime, comes after the instance name). Same <code>.name(value)</code> visual syntax, completely different meaning and timing.</div>
+<p>Of the two port connections shown: <code>.clk_sys(clk_sys)</code> is the plain same-name convention, and <code>.HPS_BUS(HPS_BUS)</code> connects the wide bundled bus that links this module to the ARM (HPS) side of the chip. The <code>...</code> at line 220 elides the rest of the port list — lines 220–252 are thirty-odd more <code>.port(signal)</code> connections of exactly the same named form, nothing syntactically new.</p>
 
 <h2>3. Arrays of buses: <code>wire [31:0] sd_lba[4];</code></h2>
 <pre><span class="ln">187</span>wire  [31:0] sd_lba[4];
 <span class="ln">193</span>wire   [7:0] sd_buff_din[4];</pre>
 <p>Two sets of brackets, two different jobs. <code>[31:0]</code> (right after <code>wire</code>) is the bit-width of each element — 32 bits per entry. <code>[4]</code> (right after the name) says there are 4 <em>separate</em> 32-bit buses, indexed <code>sd_lba[0]</code> through <code>sd_lba[3]</code> — one per virtual disk drive.</p>
-<div class="callout analogy">This is exactly a fixed-size array of same-width values: <code>const sd_lba: number[4]</code> in a hardware-flavored TypeScript, or Python's <code>sd_lba = [0,0,0,0]</code> where each entry happens to be a 32-bit integer. You saw this used later: <code>.sd_lba_fd0(sd_lba[0])</code> picks out drive 0's bus specifically.</p>
+<div class="callout analogy">This is exactly a fixed-size array of same-width values: <code>const sd_lba: number[4]</code> in a hardware-flavored TypeScript, or Python's <code>sd_lba = [0,0,0,0]</code> where each entry happens to be a 32-bit integer. You saw this used later: <code>.sd_lba_fd0(sd_lba[0])</code> picks out drive 0's bus specifically.</div>
+<p>Line 193's <code>sd_buff_din</code> is the same two-bracket shape with different sizes: four separate 8-bit buses — the data each virtual drive sends back to the framework's sector buffer — again one array entry per drive.</p>
 
 <h2>Quick check</h2>
 <div class="quiz"><details><summary>Q1. In <code>hps_io #(.CONF_STR(CONF_STR), .VDNUM(4)) hps_io (...)</code>, which part configures the module at compile time, and which part wires it up at runtime?</summary>

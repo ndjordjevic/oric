@@ -47,17 +47,22 @@
 <span class="ln">67</span>	...
 <span class="ln">119</span>	"V,v",`BUILD_DATE
 <span class="ln">120</span>};</pre>
-<p><code>localparam</code> declares a constant scoped to this module — its value is fixed at compile time and can never change while the hardware runs, unlike a <code>wire</code> or <code>reg</code>.</p>
+<p><code>localparam</code> declares a constant scoped to this module — its value is fixed at compile time and can never change while the hardware runs, unlike a <code>wire</code> or <code>reg</code>. Here the constant is <code>CONF_STR</code>, the configuration string the MiSTer framework parses to build this core's on-screen menu. The <code>...</code> at line 67 stands for lines 67–118 — roughly fifty more quoted menu entries of exactly the same shape as lines 65–66, elided here because they add no new syntax.</p>
 <div class="callout analogy">Directly equivalent to a top-level <code>const</code> in JS or a module-level constant in Python — except here the compiler can use it to size other things (widths, loop bounds) at build time, not just as a convenient name for a fixed value.</div>
 <p>Notice <code>{ "a", "b", "c" }</code> here is the <em>same</em> concatenation operator from Lesson 1 — it glues multiple string literals end-to-end into one long string, which the MiSTer framework later parses to build the on-screen menu. <code>`BUILD_DATE</code> (backtick) is a preprocessor macro, defined by the <code>`include "build_id.v"</code> just above it — textual substitution again, same idea as Lesson 1's <code>`include</code>.</p>
 <div class="callout gotcha">You don't need to learn the mini-language <em>inside</em> the string (the <code>P1O[6:5],FDD Controller,...</code> syntax) — that's the MiSTer OSD menu format, not SystemVerilog. Only the concatenation and macro-substitution around it are language syntax.</div>
 
 <h2>2. Turning status bits into named signals</h2>
-<pre><span class="ln">123</span>wire [1:0] tapeVolume  = status[51:50];
+<pre><span class="ln">123</span>wire [1:0] tapeVolume = status[51:50];
 <span class="ln">124</span>wire       tapeUseADC = status[52];
-<span class="ln">127</span>wire       tap_autorun_en   = ~status[57];  // menu shows On (default) / Off
-<span class="ln">129</span>wire       tape_mode_fast   = (tape_load_mode == 2'd0);
-<span class="ln">131</span>wire       tape_mode_off    = (tape_load_mode >= 2'd2);</pre>
+<span class="ln">125</span>wire       tapeRewind = status[53];
+<span class="ln">126</span>wire [1:0] joystick_adapter = status[55:54];
+<span class="ln">127</span>wire       tap_autorun_en = ~status[57]; // menu shows On (default) / Off
+<span class="ln">128</span>wire [1:0] tape_load_mode = status[59:58];
+<span class="ln">129</span>wire       tape_mode_fast = (tape_load_mode == 2'd0);
+<span class="ln">130</span>wire       tape_mode_ultra = (tape_load_mode == 2'd1);
+<span class="ln">131</span>wire       tape_mode_off = (tape_load_mode >= 2'd2);
+<span class="ln">132</span>wire named_cload_rewind_en = ~status[60]; // menu shows On (default) / Off</pre>
 <p>Four operators do all the work here:</p>
 <table>
 <tr><th>Operator</th><th>Meaning</th><th>Familiar equivalent</th></tr>
@@ -67,6 +72,7 @@
 <tr><td>(no width on <code>wire</code>)</td><td>a plain <code>wire foo = ...;</code> with no <code>[n:0]</code> is exactly 1 bit wide</td><td>a boolean</td></tr>
 </table>
 <div class="callout analogy">Line 127 reads exactly like <code>const tapAutorunEn = !status.bit(57);</code> — a named boolean, computed once as a live formula, with a comment explaining the polarity (why "on" is bit value 0, not 1) because that inversion isn't obvious from the name alone.</div>
+<p>Walking the whole block: lines 123–126 are plain slices with no operator at all — <code>tapeVolume</code> (2-bit tape volume), <code>tapeUseADC</code>, <code>tapeRewind</code>, and <code>joystick_adapter</code> (2-bit adapter choice) just pull their bits straight out of <code>status</code>. Line 132's <code>named_cload_rewind_en</code> repeats line 127's <code>~</code>-inversion trick, polarity comment and all. Line 128 declares <code>tape_load_mode</code>, the 2-bit slice that lines 129–131 then decode into three one-bit mode flags: <code>tape_mode_fast</code> (<code>==</code> value <code>2'd0</code>), <code>tape_mode_ultra</code> (<code>==</code> value <code>2'd1</code>), and <code>tape_mode_off</code> (<code>&gt;=</code> value <code>2'd2</code>, i.e. either of the two remaining values) — the <code>2'd0</code>/<code>2'd1</code>/<code>2'd2</code> literals use Lesson 2's <code>&lt;width&gt;'&lt;base&gt;&lt;value&gt;</code> sizing form.</p>
 <div class="callout gotcha"><code>~</code> (bitwise NOT, works bit-by-bit across a whole bus) and <code>!</code> (logical NOT, treats the whole value as one true/false) look similar but differ once you're not dealing with single bits — you saw <code>!ar</code> in Lesson 2 used exactly because "is this whole 2-bit value zero?" is a logical question, while <code>~status[57]</code> is a single-bit flip.</div>
 
 <h2>Quick check</h2>

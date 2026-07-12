@@ -59,7 +59,9 @@
 <span class="ln">57</span>		CLK_IN : IN STD_LOGIC;
 <span class="ln">58</span>		RESET : IN STD_LOGIC;
 <span class="ln">59</span>		key_pressed : IN STD_LOGIC;
+<span class="ln">60</span>		key_extended : IN STD_LOGIC;
 <span class="ln">61</span>		key_code : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+<span class="ln">62</span>		key_strobe : IN STD_LOGIC;
 <span class="ln">63</span>		pravetz_layout : IN STD_LOGIC := '0';
 <span class="ln">64</span>		K7_TAPEIN : IN STD_LOGIC;
 <span class="ln">65</span>		K7_TAPEOUT : OUT STD_LOGIC;
@@ -68,6 +70,7 @@
 <p><code>ENTITY name IS PORT ( ... ); END;</code> is VHDL's version of SystemVerilog's <code>module name ( ... ); ... endmodule</code> — it declares the component's *interface*, i.e. its pins, without yet saying how it works internally (that's the separate <code>ARCHITECTURE</code> block, Lesson 2).</p>
 <div class="callout sv">SystemVerilog fuses the port list and the implementation into one <code>module ... endmodule</code>. VHDL deliberately splits them: <code>ENTITY</code> is the interface (the "what"), <code>ARCHITECTURE</code> is a separate block holding the implementation (the "how"). One entity can even have multiple different architectures — not used in this file, but the split exists for that reason.</div>
 <p>Each port line reads: <code>name : direction type;</code> — for example <code>CLK_IN : IN STD_LOGIC;</code> declares an input pin named <code>CLK_IN</code>, one bit wide. <code>IN</code>/<code>OUT</code> correspond directly to SystemVerilog's <code>input</code>/<code>output</code> port directions (implicit via context in the `.sv` file's included port list).</p>
+<p>Naming the rest of what's shown: <code>RESET</code> is the external reset line; <code>key_pressed</code>, <code>key_extended</code>, <code>key_code</code>, and <code>key_strobe</code> together carry one keyboard event (pressed/released flag, extended-key flag, the scan-code byte, and a "new event" strobe — the first three are the <code>kbd_ps2_key</code> slices <code>Oric.sv</code> wired in per SV Lesson 7, the strobe comes from SV Lesson 6's edge detector); <code>pravetz_layout</code> is covered in section 5 below; and <code>K7_TAPEIN</code> / <code>K7_TAPEOUT</code> are the cassette in/out lines ("K7" is French shorthand for <em>cassette</em> — this core's original author is French). Lines 66–180, elided here, are about 115 more port declarations covering video, sound, disk, joystick, and save-state buses — every one of them uses exactly the two shapes on this page (<code>STD_LOGIC</code> or <code>STD_LOGIC_VECTOR(n DOWNTO 0)</code>, direction <code>IN</code> or <code>OUT</code>), so nothing in them is syntactically new.</p>
 
 <h2>4. <code>STD_LOGIC</code> vs. <code>STD_LOGIC_VECTOR(n DOWNTO 0)</code></h2>
 <table>

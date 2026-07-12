@@ -18,4 +18,4 @@ The user is studying the MiSTer FPGA Oric core (`projects/mister-fpga-oric-core-
 ## Out of scope
 - Verification/testbench SystemVerilog (classes, interfaces, `assert`, UVM) — this core is synthesizable RTL only; testbench SV is a different, later topic if ever needed.
 - VHDL syntax in depth — covered separately via the existing `01b-oricatmos-vhd-understanding.md` walkthrough; this mission is SystemVerilog-first, with VHDL cross-references only where useful for comparison.
-- Full digital-design/FPGA-toolchain theory (already covered in `../../00-dev-env.md` and the `../../../mister-fpga` sibling repo).
+- Full digital-design/FPGA-toolchain theory (already covered in `../00-dev-env.md` and the `../../../../mister-fpga` sibling repo).

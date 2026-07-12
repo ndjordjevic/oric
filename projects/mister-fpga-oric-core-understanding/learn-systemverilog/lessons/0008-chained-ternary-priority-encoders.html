@@ -55,6 +55,7 @@
   (biosLoaded ? 3 : 0);</pre>
 Same top-to-bottom priority reading, same "first match wins" semantics — just written as nested ternaries instead of an <code>if</code> chain, because this whole thing has to be one continuously-live <code>wire</code> expression, not a procedural statement.</div>
 <div class="callout gotcha">This particular chain is a lookup-table remap: the menu's ROM option order (0,1,2,3) doesn't match the internal ROM numbering, so this translates one numbering into the other. The logic itself isn't complicated once you read it as a priority list — the only trap is trying to parse all four lines "at once" instead of top-to-bottom.</div>
+<p>The two names in play: <code>rom</code> is the 2-bit register holding the OSD's ROM choice (declared at line 498, <code>reg [1:0] rom = 0;</code> — Lesson 4 showed its one-line <code>always</code> updater copying <code>status[4:3]</code>), and <code>bios_loaded</code> (line 551) is a flag that goes high once a user-supplied BIOS file finishes downloading. So line 504 handles the one remaining value (<code>rom == 2'd3</code>, the "loadable ROM" menu choice): use ROM slot <code>2'd3</code> if a BIOS file is actually present, else fall back to slot <code>2'd0</code>.</p>
 
 <h2>2. The same pattern used for muxing an address, not just a constant</h2>
 <pre><span class="ln">616</span>wire [FILE_CACHE_ADDR_WIDTH-1:0] file_selected_addr =
@@ -64,7 +65,8 @@ Same top-to-bottom priority reading, same "first match wins" semantics — just 
 <span class="ln">620</span>  tap_active           ? tap_cache_addr :
 <span class="ln">621</span>  tap_byte_active      ? tap_byte_cache_addr :
 <span class="ln">622</span>                         tape_addr;</pre>
-<p>Identical shape to the ROM-select chain, just picking between five different <em>address buses</em> instead of five constants — whichever subsystem is currently "active" gets to drive the shared file-cache address, in a fixed priority order (download > save-state load > snapshot restore > tape segment loader > tape byte streamer > default cassette playback).</p>
+<p>Identical shape to the ROM-select chain, just picking between five different <em>address buses</em> instead of five constants — whichever subsystem is currently "active" gets to drive the shared file-cache address, in a fixed priority order — by signal name: <code>file_download_active</code>/<code>file_download_addr</code> (a file download from the framework), then <code>ss_load_active</code>/<code>ss_fc_addr</code> (save-state load), <code>snap_active</code>/<code>snap_cache_addr</code> (snapshot restore), <code>tap_active</code>/<code>tap_cache_addr</code> (tape segment loader), <code>tap_byte_active</code>/<code>tap_byte_cache_addr</code> (tape byte streamer), and finally <code>tape_addr</code> (default cassette playback).</p>
+<p>One new-looking detail on line 616: the width <code>[FILE_CACHE_ADDR_WIDTH-1:0]</code> uses an <em>expression</em> as the upper bound — <code>FILE_CACHE_ADDR_WIDTH</code> is a named compile-time constant (a <code>localparam</code>, Lesson 3), and <code>W-1:0</code> is the standard way of writing "exactly W bits wide" without hardcoding the number.</p>
 <div class="callout gotcha">Notice there's no explicit final condition on line 622 — <code>tape_addr</code> is the unconditional fallback if none of the five <code>_active</code> flags are set, exactly like a final bare <code>else</code> at the end of an if/else-if ladder.</div>
 
 <h2>Quick check</h2>
