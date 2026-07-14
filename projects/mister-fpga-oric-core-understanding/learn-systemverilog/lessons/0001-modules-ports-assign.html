@@ -126,7 +126,7 @@
 <span class="ln"> 27</span>// ★ MODULE SETUP...
 <span class="ln"> 28</span>assign USER_OUT = '1;</pre>
 
-<p><code>module emu ( ... );</code> declares a hardware block named <code>emu</code> with a fixed set of pins listed between the parentheses. Everything from this line to the matching <code>endmodule</code> (at the very end of the file) is that block's internals.</p>
+<p><code>module emu ( ... );</code> declares a hardware block named <code>emu</code> with a fixed set of ports listed between the parentheses — "port" is the language term for one of these, "pin" is just the physical-hardware picture of the same thing; the two words are used interchangeably from here on. Everything from this line to the matching <code>endmodule</code> (at the very end of the file) is that block's internals.</p>
 
 <div class="callout analogy">Think of <code>module</code> like a <code>class</code> declaration in Python or a <code>struct</code> with fixed fields in C — it defines a <em>shape</em>. But unlike a function, nothing inside it "runs in order" from top to bottom. Every statement inside describes a piece of wiring or a piece of behavior that exists <strong>all the time, simultaneously</strong> — more like a spreadsheet of formulas than a script.</div>
 
@@ -229,7 +229,7 @@
 </div>
 
 <h2>Primary source</h2>
-<p>Recommended companion reading for these exact constructs: <a href="https://chipverify.com/verilog/verilog-assign-statement" target="_blank" rel="noopener">ChipVerify — Verilog assign statement</a> (continuous assignment semantics) and <a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (module/port declaration, literal formats). See <a href="../RESOURCES.md">RESOURCES.md</a> for the full curated list.</p>
+<p>Recommended companion reading for these exact constructs: <a href="https://chipverify.com/verilog/verilog-assign-statement" target="_blank" rel="noopener">ChipVerify — Verilog assign statement</a> (continuous assignment semantics) and <a href="https://chipverify.com/verilog/verilog-ports" target="_blank" rel="noopener">ChipVerify — Verilog Ports</a> (module/port declaration). See <a href="../RESOURCES.md">RESOURCES.md</a> for the full curated list.</p>
 
 <div class="callout">Got stuck on anything above, or want to see one more real example from further down <code>Oric.sv</code>? Just ask — I'm your teacher here, not just a document generator.</div>
 

@@ -6,7 +6,7 @@
 
 **Annotated source:** [`annotated/Oric.sv`](annotated/Oric.sv) — a frozen copy carrying a `// ★` headline comment at the top of each section (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](annotated/README.md)).
 
-> **How to read this doc:** each section's one-line summary lives as the `// ★` comment at the cited line in the annotated source — that comment is the canonical headline and is *not* repeated here. Below each heading is only the context the inline comment doesn't carry: background, cross-section connections, and tables.
+> **How to read this doc:** each `// ★` comment in the annotated source is a one-line headline for its section. Under each heading below, the opening sentences are a plain-English explanation of **what that block of code actually does** — read start to finish, this doc is a guided tour of the whole file. (That plain-English lead intentionally overlaps the terse `★` headline; everything after it — background, cross-section connections, tables — is context the inline comment can't carry.)
 
 ---
 
@@ -40,7 +40,7 @@ The DE10-Nano has a single 50 MHz crystal. The PLL multiplies/divides it into `c
 Three sources can trigger reset: the MiSTer framework, the OSD "Reset & Apply" button, or the physical board button. On any reset, `clr_addr` counts from 0 to 131071 (all of RAM), then `reset` is de-asserted. A simple `tape_clk` divider (toggles every cycle) is also initialised here.
 
 ### 6 · HPS FRAMEWORK INTERFACE _(line 177)_
-`hps_io` is a standard MiSTer black-box: plug in `CONF_STR` and `VDNUM(4)` (four virtual drives) and it handles everything. The `ioctl_*` signals stream file bytes into the core (TAP, SNA, ROM). The `sd_*` signals manage raw sector reads/writes for floppy drives.
+This connects the FPGA to the board's small ARM computer, which is what actually reads files off the SD card and listens to the USB keyboard/joystick. **HPS** = Hard Processor System: the ARM CPU cores built into the DE10-Nano's Cyclone V chip, running Linux, separate from the FPGA fabric — they drive the OSD menu, load ROM/disk/tape files, and forward USB input. `hps_io` is the standard MiSTer black-box bridge to it: plug in `CONF_STR` and `VDNUM(4)` (four virtual drives) and it handles everything. The `ioctl_*` signals stream file bytes into the core (TAP, SNA, ROM); the `sd_*` signals manage raw sector reads/writes for floppy drives.
 
 ### 7 · DISK IMAGE MANAGEMENT _(line 257)_
 Uses classic edge-detection (compare `img_mounted` to a delayed copy) to catch the exact clock cycle an image is inserted. At that moment it checks: is the file marked read-only AND does it have content? If yes, the drive's write-protect flag is set.
@@ -72,19 +72,19 @@ The `oricatmos` module (defined in `rtl/oricatmos.vhd`) contains the 6502 CPU, U
 ROM choice is latched only on reset (no hot-swap). The OSD menu order doesn't match the internal ROM numbering, so a lookup table translates between them. Selecting the Pravetz ROM automatically activates the Bulgarian keyboard layout.
 
 ### 13 · VIDEO OUTPUT PIPELINE _(line 512)_
-The Oric outputs pure 1-bit RGB (fully on or fully off per channel). This pipeline: (1) safely hands the pixel clock from `clk_sys` to `CLK_VIDEO` domain, (2) inverts active-low sync to active-high for VGA/HDMI, (3) expands 1-bit colour to 4-bit via bit replication `{4{r}}`, (4) feeds into `video_mixer` which applies scanlines or HQ2x per OSD choice.
+This turns the Oric's crude video into a signal a modern HDMI screen accepts. The Oric outputs pure 1-bit RGB (each of red/green/blue is simply fully on or fully off), so the pipeline: (1) safely hands the pixel clock from the `clk_sys` domain to the `CLK_VIDEO` domain, (2) inverts active-low sync to active-high for VGA/HDMI, (3) expands each 1-bit colour to 4 bits by replication `{4{r}}`, (4) feeds into `video_mixer`, which adds scanlines or HQ2x smoothing per the OSD choice.
 
 ### 14 · BIOS & TAPE ROM PATCHES _(line 549)_
 An `altbios` SPRAM (2¹⁴ = 16 KB) can receive a custom ROM streamed via `ioctl`. The `cload_patch_rom` module watches the address the CPU is reading from ROM and silently substitutes patched bytes when fast/ultra tape mode is active — the CPU has no idea it's being given different instructions.
 
 ### 15 · AUDIO MIXING _(line 581)_
-`tapeAudio` is the 1-bit tape signal scaled to 11 bits at low or high volume (bit-shifting). The three AY channels are summed into three stereo combinations (AB, AC, BC). Output assignment depends on the stereo mode: mono sends all channels equal to both sides; ABC/ACB modes pan channels differently (Western vs Eastern European convention).
+This blends every sound source in the machine into the final stereo signal sent out over HDMI. `tapeAudio` is the 1-bit tape signal scaled up to 11 bits at low or high volume (bit-shifting). The three AY sound-chip channels are summed into three stereo combinations (AB, AC, BC), and how they're assigned to left/right depends on the stereo mode: mono sends all channels equally to both sides; ABC/ACB modes pan channels differently (Western vs Eastern European convention).
 
 ### 16 · FILE CACHE & CASSETTE PLAYER _(line 594)_
 The `filecache` SPRAM holds whichever file is currently loaded. A priority mux decides whose address reaches it each cycle (file download > save-state DMA > snapshot restore > tape segment loader > byte streamer > cassette player). The `cassette` module reads bytes sequentially and converts them back to 1-bit audio — exactly what a real tape player sends to the Oric's EAR socket.
 
 ### 17 · TAPE SPEED LOADERS _(line 667)_
-Three sub-systems:
+These make loading from tape almost instant instead of the real Oric's several minutes. The trick: instead of playing the tape audio in real time, the FPGA watches for the ROM's load routines and feeds data straight into memory. Three sub-systems do this:
 
 | Sub-system | Mode | How it works |
 |---|---|---|
@@ -93,7 +93,7 @@ Three sub-systems:
 | `$C000` mailbox + LED | Both | Watches CPU writes to `$C000`; value `1` triggers the segment loader and optionally lights the USER LED; value `0` clears it |
 
 ### 18 · SNAPSHOT & SAVE-STATES _(line 736)_
-Two paths:
+This saves and restores the entire state of the machine — every chip's registers and all of RAM — so you can freeze the Oric and pick up exactly where you left off. Two paths:
 - **Load `.sna`** (`snap_loader`): reads the SNA file from the shared file cache and writes each field to the right chip via dedicated `_we`/`_addr`/`_data` ports. CPU is halted throughout.
 - **Save-state hotkeys** (`snap_ss` + `savestate_hotkeys`): F1–F4 halt the CPU, stream a full Oricutron-format snapshot into DDR RAM, then release. F5–F8 copy the slot back into the file cache and re-run `snap_loader`. The `ddram` module abstracts the DE10-Nano's external 800 MB DDR3 RAM where slots are stored.
 

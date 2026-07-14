@@ -61,9 +61,10 @@
 <span class="ln">219</span>	.HPS_BUS(HPS_BUS),
 <span class="ln">220</span>	...</pre>
 <p>The <code>#( ... )</code> block right after the module name — <em>before</em> the instance name and the port list — passes <strong>parameters</strong>: compile-time configuration values, distinct from the ports (which carry live signals at runtime). Here, <code>hps_io</code> is told its menu string (<code>CONF_STR</code>, the constant from Lesson 3) and that it should support 4 virtual disk drives (<code>VDNUM(4)</code>).</p>
+<p><code>hps_io</code> is another shared-framework module (like <code>video_freak</code> in Lesson 2), instantiated here purely as a second, larger example of the same <code>#(...)</code>-parameter syntax. What it is and does in the machine — HPS stands for Hard Processor System — is architecture, covered in <a href="../../01a-Oric-sv-understanding.md">01a §6</a>.</p>
 <div class="callout analogy">Think of a parameter as a generic/template argument — like TypeScript's <code>Array&lt;number&gt;</code> or a C++ template parameter — it configures the <em>shape</em> of the module at compile time (how wide some internal buffer is, how many drives it supports), whereas a port carries a value that changes while the circuit runs.</div>
 <div class="callout gotcha">Don't confuse <code>#( .PARAM(value), ... )</code> (compile-time, comes right after the module name) with the port list <code>( .port(signal), ... )</code> (runtime, comes after the instance name). Same <code>.name(value)</code> visual syntax, completely different meaning and timing.</div>
-<p>Of the two port connections shown: <code>.clk_sys(clk_sys)</code> is the plain same-name convention, and <code>.HPS_BUS(HPS_BUS)</code> connects the wide bundled bus that links this module to the ARM (HPS) side of the chip. The <code>...</code> at line 220 elides the rest of the port list — lines 220–252 are thirty-odd more <code>.port(signal)</code> connections of exactly the same named form, nothing syntactically new.</p>
+<p>Of the two port connections shown: <code>.clk_sys(clk_sys)</code> is the plain same-name convention, and <code>.HPS_BUS(HPS_BUS)</code> connects a wide bundled bus of the same name (what it carries is 01a §6's territory). The <code>...</code> at line 220 elides the rest of the port list — lines 220–252 are thirty-odd more <code>.port(signal)</code> connections of exactly the same named form, nothing syntactically new.</p>
 
 <h2>3. Arrays of buses: <code>wire [31:0] sd_lba[4];</code></h2>
 <pre><span class="ln">187</span>wire  [31:0] sd_lba[4];
@@ -81,7 +82,7 @@
 <div class="win"><strong>You now have this in hand:</strong> tying a literal directly into a port, leaving a port deliberately unconnected, compile-time parameters via <code>#(...)</code> versus runtime ports, and array-of-buses declarations with two independent bracket dimensions.</div>
 
 <h2>Primary source</h2>
-<p><a href="https://systemverilog.dev/3.html" target="_blank" rel="noopener">systemverilog.dev — Modules, Controls, and Interfaces</a> (parameterized instantiation) and <a href="https://www.asic-world.com/systemverilog/tutorial.html" target="_blank" rel="noopener">ASIC World — SystemVerilog Tutorial</a> (unpacked arrays). See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+<p><a href="https://systemverilog.dev/3.html" target="_blank" rel="noopener">systemverilog.dev — Modules, Controls, and Interfaces</a> (parameterized instantiation) and <a href="https://chipverify.com/systemverilog/systemverilog-unpacked-arrays" target="_blank" rel="noopener">ChipVerify — SystemVerilog Unpacked Arrays</a>. See <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
 
 <div class="callout">Ask me anytime something doesn't click — that's what I'm here for.</div>
 
