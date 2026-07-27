@@ -50,7 +50,7 @@ was not underserved; the tools are just obscure and now hard to find, not absent
   memory dump, breakpoints, register display, symbol-file loading. This is *emulator*
   tooling, not something that runs on real hardware, but it's the easiest way to learn what a
   6502 monitor's feature set looks like before touching any of the above.
-- The [OSDK](https://osdk.org) toolchain (XA assembler; see `RESOURCES.md` §8 and
+- The [OSDK](https://osdk.org) toolchain (XA assembler; see `oric-docs/RESOURCES.md` §8 and
   `oric-docs/books/INDEX.md`) is the natural choice for any new 6502 assembly work here.
 - Other forum threads worth reading if this idea gets picked up, not yet in the local digest:
   [Assembler / disassembler](https://forum.defence-force.org/viewtopic.php?t=1765),
@@ -119,7 +119,7 @@ competing for time.
 - **Idea #1** (above) is directly complementary — a working machine-code monitor/debugger
   (Oricutron's built-in F2 monitor is the zero-setup option) is what actually drives the
   disassembly and single-stepping.
-- The [OSDK](https://osdk.org) XA assembler (`RESOURCES.md` §8) is the natural tool for
+- The [OSDK](https://osdk.org) XA assembler (`oric-docs/RESOURCES.md` §8) is the natural tool for
   reassembling/annotating extracted code, if the goal extends to modifying or rebuilding parts
   of the game.
 - Reference material for reading the disassembly: `oric.free.fr`'s Hardware Programming How-To
@@ -157,7 +157,7 @@ reimplementing one on genuinely different graphics/sound hardware.
 **Why this game, and why it's a real gap:** Choplifter was ported the same year to Atari 8-bit,
 and later to the VIC-20, Commodore 64, Atari 5200, ColecoVision, MSX, and Thomson computers — it
 was even ported *backward* to arcade hardware by Sega in 1985 (unusually, home-computer-first).
-Checked `oric.org`, the forum digest, `RESOURCES.md`, and `oric-docs/books/INDEX.md`: no evidence it was
+Checked `oric.org`, the forum digest, `oric-docs/RESOURCES.md`, and `oric-docs/books/INDEX.md`: no evidence it was
 ever ported to the Oric. Every contemporary got a Choplifter except this one.
 
 **Confirmed exhaustively (2026-07-16 research session):** there is no Oric Choplifter — not
@@ -196,7 +196,7 @@ and adapt, not a raw binary to disassemble from scratch.
 - **Timing** — the Oric's CPU/video RAM contention (`PHI2` timesharing, same doc §8) is a
   real-time constraint the Apple II doesn't share in the same form; frame-timing assumptions in
   the original source likely won't just carry over.
-- [OSDK](https://osdk.org)'s XA assembler (`RESOURCES.md` §8) is the natural toolchain for the
+- [OSDK](https://osdk.org)'s XA assembler (`oric-docs/RESOURCES.md` §8) is the natural toolchain for the
   new 6502 code; Oricutron for iteration before deploying to the MiSTer core + joystick.
 
 **Difficulty analysis (2026-07-16 session) — where the cost actually sits:**

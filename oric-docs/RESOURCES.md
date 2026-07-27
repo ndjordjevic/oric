@@ -4,8 +4,8 @@ Repo-wide catalog of Oric hardware, software, build, and learning links, assembl
 user's Brave bookmarks (`Retro/` → **Oric**). Categorized by topic; duplicates merged.
 
 > Related: deep-dive source pages ingested into the wiki live under
-> [`wiki/sources/`](oric-docs/oric-llm-wiki/wiki/sources/); the overview synthesis is in
-> [`wiki/overview.md`](oric-docs/oric-llm-wiki/wiki/overview.md).
+> [`wiki/sources/`](oric-llm-wiki/wiki/sources/); the overview synthesis is in
+> [`wiki/overview.md`](oric-llm-wiki/wiki/overview.md).
 >
 > *Filtered out from the raw bookmarks: bare Google/eBay search pages, cart pages,
 > British Library catalogue searches, an ephemeral Grok conversation link, and
@@ -66,7 +66,7 @@ Assembled 2026-06-21.
 
 ## 8. FPGA / HDL learning (VHDL · Verilog · SystemVerilog)
 
-For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the repo-wide book catalog at [`books/INDEX.md`](oric-docs/books/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
+For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the repo-wide book catalog at [`books/INDEX.md`](books/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../../mister-fpga/RESOURCES.md).
 
 **VHDL**
 - [Nandland — VHDL & FPGA](https://nandland.com/) — beginner-friendly, hardware-first; covers both VHDL and Verilog
@@ -113,7 +113,7 @@ Local files in the pCloud library (`iCloud-Migration/Programming/Retro/Oric/`), 
 
 ## 13. Machine-code monitors, assemblers & debuggers
 
-Found while researching [`projects/ideas.md`](projects/ideas.md) idea #1 — three period commercial tools existed (contrary to the initial assumption that none did), plus a modern homebrew debugger port.
+Found while researching [`projects/ideas.md`](../projects/ideas.md) idea #1 — three period commercial tools existed (contrary to the initial assumption that none did), plus a modern homebrew debugger port.
 
 - [The Oric Site — software archive (oric.org)](https://www.oric.org/) — community-maintained Oric software database with scanned manuals and cassette/disk dumps; not previously catalogued in this file
 - [ORICMON (oric.org)](https://www.oric.org/software/oric_mon-145.html) — Tansoft, 1983 (Geoff M. Phillips & Paul Kaufman); machine code monitor + block move + mnemonic assembler/disassembler, Oric-1/Atmos

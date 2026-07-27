@@ -10,9 +10,9 @@ oric-docs/                 ← reference material, not project output
   oric-llm-wiki/raw/       ← immutable source captures backing the wiki
   oric-llm-wiki/inbox.md   ← drop new URLs here for wiki ingestion
   books/                   ← 35 Oric + FPGA/HDL book TOC indexes
+  RESOURCES.md             ← curated link catalog (hardware, software, community)
 projects/                  ← hands-on learning projects, one per subdirectory
   build-journey/           ← notes and decisions from the Metaphoric clone build
-RESOURCES.md                ← curated link catalog (hardware, software, community)
 AGENTS.md                   ← instructions for AI agents working in this repo
 ```
 
@@ -35,7 +35,7 @@ To refresh a source, add `<!-- refresh -->` to its `## Completed` line in `oric-
 
 Each subdirectory under `projects/` is a focused study. Current:
 
-- [`projects/mister-fpga-oric-core-understanding/`](projects/mister-fpga-oric-core-understanding/) — studying the MiSTer FPGA Oric core. See its [`plan.md`](projects/mister-fpga-oric-core-understanding/plan.md) and the repo-wide [book catalog](oric-docs/books/INDEX.md) (35 FPGA/HDL + Oric book TOCs). Online VHDL/Verilog/SystemVerilog references are in [`RESOURCES.md`](RESOURCES.md) §8.
+- [`projects/mister-fpga-oric-core-understanding/`](projects/mister-fpga-oric-core-understanding/) — studying the MiSTer FPGA Oric core. See its [`plan.md`](projects/mister-fpga-oric-core-understanding/plan.md) and the repo-wide [book catalog](oric-docs/books/INDEX.md) (35 FPGA/HDL + Oric book TOCs). Online VHDL/Verilog/SystemVerilog references are in [`RESOURCES.md`](oric-docs/RESOURCES.md) §8.
 - [`projects/build-journey/`](projects/build-journey/) — notes and decisions from the Metaphoric clone build. Not actively worked, kept for reference.
 
 ## Related repos
