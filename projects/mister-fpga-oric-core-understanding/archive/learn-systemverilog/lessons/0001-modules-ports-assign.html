@@ -112,7 +112,7 @@
 
 <div class="kicker">Learn SystemVerilog · Lesson 0001</div>
 <h1>Modules, ports &amp; continuous assignment</h1>
-<p class="source-link">Source: <code>annotated/Oric.sv</code>, lines 22–46 (the <strong>★ MODULE SETUP</strong> section) — same lines summarized functionally in <a href="../../01a-Oric-sv-understanding.md">01a-Oric-sv-understanding.md §1</a>. This lesson covers the <em>syntax</em> only. All lessons cite line numbers from <code>annotated/Oric.sv</code> (the frozen study copy with ★ section comments); the pristine <code>core/Oric.sv</code> is the same code minus those comments, so its line numbers sit slightly lower.</p>
+<p class="source-link">Source: <code>annotated/Oric.sv</code>, lines 22–46 (the <strong>★ MODULE SETUP</strong> section) — same lines summarized functionally in <a href="../../../reference/understanding-Oric-sv.md">reference/understanding-Oric-sv.md §1</a>. This lesson covers the <em>syntax</em> only. All lessons cite line numbers from <code>annotated/Oric.sv</code> (the frozen study copy with ★ section comments); the pristine <code>core/Oric.sv</code> is the same code minus those comments, so its line numbers sit slightly lower.</p>
 
 <h2>The win for today</h2>
 <p>By the end of this lesson you'll be able to read the opening lines of any SystemVerilog file — the <code>module ... endmodule</code> skeleton with its port list, and a block of <code>assign</code> statements — and know exactly what's being declared versus what's happening every clock cycle. (Note: <code>module</code> is a literal keyword you'll see in the code; "port" is just the concept — SystemVerilog has no <code>port</code> keyword.)</p>
@@ -199,7 +199,7 @@
 <li><code>AUDIO_MIX = 0</code> — selects the "no extra mixing" mode (0 = off) out of several audio-mixing options the framework supports.</li>
 </ul>
 
-<div class="callout gotcha">Don't assume every <code>= 0</code> in this style of block means "disabled" or "off" — as with <code>AUDIO_S</code> above, sometimes <code>0</code> selects a specific mode (unsigned audio) rather than switching a feature off. The syntax (<code>assign x = 0;</code>) never tells you the intent by itself; only the target signal's name and its purpose elsewhere in the framework do. This is exactly why this lesson series is scoped to syntax, not function — you'll need <code>01a-Oric-sv-understanding.md</code> or the MiSTer framework's own port documentation to know what each <em>specific</em> tied-off signal actually controls, even once you fully understand the <code>assign</code> syntax itself.</div>
+<div class="callout gotcha">Don't assume every <code>= 0</code> in this style of block means "disabled" or "off" — as with <code>AUDIO_S</code> above, sometimes <code>0</code> selects a specific mode (unsigned audio) rather than switching a feature off. The syntax (<code>assign x = 0;</code>) never tells you the intent by itself; only the target signal's name and its purpose elsewhere in the framework do. This is exactly why this lesson series is scoped to syntax, not function — you'll need <code>reference/understanding-Oric-sv.md</code> or the MiSTer framework's own port documentation to know what each <em>specific</em> tied-off signal actually controls, even once you fully understand the <code>assign</code> syntax itself.</div>
 
 <h2>Quick check</h2>
 

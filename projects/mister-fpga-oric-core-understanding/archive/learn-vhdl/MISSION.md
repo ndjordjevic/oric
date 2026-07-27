@@ -1,7 +1,7 @@
 # Mission: VHDL (learned through the MiSTer Oric core)
 
 ## Why
-The user is studying the MiSTer FPGA Oric core (`projects/mister-fpga-oric-core-understanding/`) to understand how the Oric Atmos — their first personal computer — actually works at the hardware level, as groundwork for the Metaphoric clone build. `Oric.sv` (SystemVerilog, covered in the sibling [`../learn-systemverilog/`](../learn-systemverilog/) workspace) is only the glue layer; the actual computer — CPU wiring, ULA, VIA, PSG, ROM banking, disk controllers — is `rtl/oricatmos.vhd`, written in VHDL. The user has already read a prose-level architectural walkthrough of that file ([`01b-oricatmos-vhd-understanding.md`](../01b-oricatmos-vhd-understanding.md)) but cannot yet read the VHDL itself.
+The user is studying the MiSTer FPGA Oric core (`projects/mister-fpga-oric-core-understanding/`) to understand how the Oric Atmos — their first personal computer — actually works at the hardware level, as groundwork for the Metaphoric clone build. `Oric.sv` (SystemVerilog, covered in the sibling [`../learn-systemverilog/`](../learn-systemverilog/) workspace) is only the glue layer; the actual computer — CPU wiring, ULA, VIA, PSG, ROM banking, disk controllers — is `rtl/oricatmos.vhd`, written in VHDL. The user has already read a prose-level architectural walkthrough of that file ([`reference/understanding-oricatmos-vhd.md`](../../reference/understanding-oricatmos-vhd.md)) but cannot yet read the VHDL itself.
 
 ## Success looks like
 - Read a real block from `oricatmos.vhd` cold and explain what it does, without a prior English walkthrough.
@@ -17,5 +17,5 @@ The user is studying the MiSTer FPGA Oric core (`projects/mister-fpga-oric-core-
 
 ## Out of scope
 - VHDL testbench-only constructs (`ASSERT`, simulation-only procedures) — this file is synthesizable RTL only.
-- Full digital-design/FPGA-toolchain theory (already covered in `../00-dev-env.md` and the `../../../../mister-fpga` sibling repo).
+- Full digital-design/FPGA-toolchain theory (already covered in `../reference/dev-env.md` and the `../../../../mister-fpga` sibling repo).
 - The Verilog sub-modules instantiated as VHDL `COMPONENT`s (`keyboard.sv`, `joystick.sv`, `psg.v`) — their *internals* are SystemVerilog, already in scope of `../learn-systemverilog/`; here they only matter as VHDL component declarations/instantiations.

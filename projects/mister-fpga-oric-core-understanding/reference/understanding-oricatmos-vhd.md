@@ -2,9 +2,9 @@
 
 **Date:** 2026-07-09  
 **File studied:** `core/rtl/oricatmos.vhd`  
-**Role:** The Oric Atmos computer itself — CPU, ULA, VIA, PSG, keyboard, ROMs, and both floppy controllers, wired together into one machine. This is what `Oric.sv` instantiates (see [`01a-Oric-sv-understanding.md`](01a-Oric-sv-understanding.md), Section 11).
+**Role:** The Oric Atmos computer itself — CPU, ULA, VIA, PSG, keyboard, ROMs, and both floppy controllers, wired together into one machine. This is what `Oric.sv` instantiates (see [`understanding-Oric-sv.md`](understanding-Oric-sv.md), Section 11).
 
-**Annotated source:** [`annotated/rtl/oricatmos.vhd`](annotated/rtl/oricatmos.vhd) — a frozen copy carrying a `-- ★` summary comment block at the top of each section (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](annotated/README.md)).
+**Annotated source:** [`annotated/rtl/oricatmos.vhd`](../annotated/rtl/oricatmos.vhd) — a frozen copy carrying a `-- ★` summary comment block at the top of each section (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](../annotated/README.md)).
 
 > **How to read this doc:** each section's summary lives as the `-- ★` comment block at the cited line in the annotated source — that block is the canonical description and is *not* repeated here. Below each heading is only the context the inline comments don't carry: historical background, real-hardware comparisons, and cross-section connections.
 
@@ -14,7 +14,7 @@
 
 Where `Oric.sv` is scaffolding, `oricatmos.vhd` **is** the Oric — it descends from a 2006 hobbyist VHDL simulation model of the real hardware (SEILEBOST, see Section 1), later extended for MiSTer with snapshot save/restore, a live ROM-patch intercept for fast tape loading, a `$C000` mailbox for host↔core signalling, and Pravetz-8D (Bulgarian Apple II clone) support bolted alongside the original Microdisc floppy path.
 
-Unlike `Oric.sv` (SystemVerilog), this file is **VHDL** — a different HDL with its own syntax. Since this is the first pure-VHDL file walked through in this project, a short primer follows before the section-by-section notes. (For the full language treatment, see the [`learn-vhdl`](learn-vhdl/) lesson series.)
+Unlike `Oric.sv` (SystemVerilog), this file is **VHDL** — a different HDL with its own syntax. Since this is the first pure-VHDL file walked through in this project, a short primer follows before the section-by-section notes. (For the full language treatment, see the [`learn-vhdl`](../archive/learn-vhdl/) lesson series.)
 
 ---
 
@@ -31,7 +31,7 @@ Unlike `Oric.sv` (SystemVerilog), this file is **VHDL** — a different HDL with
 
 ---
 
-## Logical sections (summaries at the `-- ★` comment blocks in [`annotated/rtl/oricatmos.vhd`](annotated/rtl/oricatmos.vhd))
+## Logical sections (summaries at the `-- ★` comment blocks in [`annotated/rtl/oricatmos.vhd`](../annotated/rtl/oricatmos.vhd))
 
 ### 1 · License & origin _(line 1)_
 The header is a BSD-style license from the original 2006 author. Everything from Section 6 onward that deals with snapshots, save-states, ROM patching, or Pravetz mode is MiSTer-era addition on top of that base model.
@@ -108,4 +108,4 @@ This is the payoff for Section 9's "instantiate every ROM at once" approach — 
 
 ## How this fits with `Oric.sv`
 
-`Oric.sv` (see [`01a`](01a-Oric-sv-understanding.md), Section 11) instantiates this whole file as a single black box named `oricatmos`. Everything MiSTer-specific that `oricatmos.vhd` exposes — snapshot save/restore ports, the ROM patch intercept, the `$C000` mailbox, the tape byte-streamer snoops — exists solely so `Oric.sv`'s tape-loading, snapshot, and save-state logic (`Oric.sv` Sections 14, 17, 18) can reach *into* the machine without altering how the emulated hardware itself behaves.
+`Oric.sv` (see [`understanding-Oric-sv`](understanding-Oric-sv.md), Section 11) instantiates this whole file as a single black box named `oricatmos`. Everything MiSTer-specific that `oricatmos.vhd` exposes — snapshot save/restore ports, the ROM patch intercept, the `$C000` mailbox, the tape byte-streamer snoops — exists solely so `Oric.sv`'s tape-loading, snapshot, and save-state logic (`Oric.sv` Sections 14, 17, 18) can reach *into* the machine without altering how the emulated hardware itself behaves.

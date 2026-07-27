@@ -75,7 +75,7 @@ Open questions to resolve before starting:
   studying the period BASIC listings vs. writing something new from scratch.
 - If extending NoICE or building a native on-hardware monitor: what feature set, and what
   triggers a break — the keyboard NMI key (`swnmi`, wired straight to the 6502's `NMI_n` — see
-  [`mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md`](mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md)
+  [`mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
   §13) is an obvious real-hardware breakpoint mechanism.
 - What interface: keyboard command line (like Oricutron's F2 monitor or the period tools) vs.
   a serial link out via Microdisc/LOCI (like the NoICE port) for a host-side debugger.
@@ -102,7 +102,7 @@ competing for time.
 
 **Tools already in hand, from work already done in this repo:**
 
-- [`mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md`](mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md)
+- [`mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
   already documents exactly how joystick input reaches the game: `joystick.sv` maps the MiSTer
   USB gamepad to VIA Port A bits via `via_pa_joy_value`/`via_pa_joy_mask`, selected by
   `joystick_adapter` (see §13). Useful for
@@ -191,7 +191,7 @@ and adapt, not a raw binary to disassemble from scratch.
   version could sound better than the original ever did.
 - **Input** — Apple II paddle/joystick port vs. the Oric's VIA-based joystick interface — ties
   directly into Idea #2's research on `joystick.sv`/VIA PA mapping
-  ([`01b-oricatmos-vhd-understanding.md`](mister-fpga-oric-core-understanding/01b-oricatmos-vhd-understanding.md)
+  ([`reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
   §13).
 - **Timing** — the Oric's CPU/video RAM contention (`PHI2` timesharing, same doc §8) is a
   real-time constraint the Apple II doesn't share in the same form; frame-timing assumptions in

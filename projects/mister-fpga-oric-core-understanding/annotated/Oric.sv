@@ -147,7 +147,7 @@ pll pll
 	.locked(locked)
 );
 
-// ★ RESET & RAM CLEAR: holds the machine in reset while a counter walks through all 64KB of RAM zeroing it out, then releases.
+// ★ RESET & RAM CLEAR: holds the machine in reset while a counter walks all 64KB of RAM filling it with 0x01 (not 0 — see line 349), then releases.
 reg        reset = 0;
 reg [16:0] clr_addr = 0;
 wire       tap_autorun_reset_req;

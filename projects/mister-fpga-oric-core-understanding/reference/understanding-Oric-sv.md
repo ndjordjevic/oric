@@ -4,7 +4,7 @@
 **File studied:** `core/Oric.sv`  
 **Role:** Top-level MiSTer `emu` module — the wiring harness that connects the MiSTer platform (ARM CPU, SD card, OSD, HDMI) to the Oric Atmos computer core.
 
-**Annotated source:** [`annotated/Oric.sv`](annotated/Oric.sv) — a frozen copy carrying a `// ★` headline comment at the top of each section (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](annotated/README.md)).
+**Annotated source:** [`annotated/Oric.sv`](../annotated/Oric.sv) — a frozen copy carrying a `// ★` headline comment at the top of each section (`core/` itself is kept pristine so it can track upstream cleanly; see [`annotated/README.md`](../annotated/README.md)).
 
 > **How to read this doc:** each `// ★` comment in the annotated source is a one-line headline for its section. Under each heading below, the opening sentences are a plain-English explanation of **what that block of code actually does** — read start to finish, this doc is a guided tour of the whole file. (That plain-English lead intentionally overlaps the terse `★` headline; everything after it — background, cross-section connections, tables — is context the inline comment can't carry.)
 
@@ -22,7 +22,7 @@ The real computer lives in `rtl/oricatmos.vhd`. Everything in `Oric.sv` is scaff
 
 ---
 
-## Logical sections (headlines at the `// ★` comments in [`annotated/Oric.sv`](annotated/Oric.sv))
+## Logical sections (headlines at the `// ★` comments in [`annotated/Oric.sv`](../annotated/Oric.sv))
 
 ### 1 · MODULE SETUP _(line 27)_
 Unused SDRAM/UART/SD pins are set to high-impedance (`'Z`) so they don't interfere with anything. The USER LED lights up during file downloads, floppy activity, tape ADC, or software-controlled pokes.

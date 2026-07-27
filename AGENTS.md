@@ -30,22 +30,30 @@ The human is **not** experienced with VHDL/Verilog/SystemVerilog but knows digit
 
 ## Lessons — full-coverage requirement
 
-Any lesson (e.g. `projects/*/learn-*/lessons/`) showing a code excerpt must explain **every line and every token in that excerpt** — the reader must be able to open the same excerpt in the source and have nothing left silently unexplained. Concretely:
+> **Scope note (2026-07-27):** the HDL lesson series is **complete and archived** to
+> `projects/mister-fpga-oric-core-understanding/archive/learn-systemverilog/` and
+> `.../archive/learn-vhdl/`. This rule still governs those files (and any new lesson), but it does
+> **not** apply to `annotated/rtl/*` block comments, which are deliberately block-level — see that
+> project's `plan.md` → "Gear change". Don't apply line-and-token coverage to annotation work.
+
+Any lesson (e.g. `projects/*/**/learn-*/lessons/`) showing a code excerpt must explain **every line and every token in that excerpt** — the reader must be able to open the same excerpt in the source and have nothing left silently unexplained. Concretely:
 
 - Explaining a construct once via representative lines is **not** enough — walk every line, even when several share the same form; name explicitly what each remaining line ties off/connects ("the remaining N lines tie off these unused ports: …", actually listing them).
 - Never silently truncate a block: either show it in full or state clearly what was omitted and why.
 - Before finalizing, diff excerpt against prose: every distinct signal name, operator, and literal must be referenced (by name, or via an explicit listed summary).
-- Same standard as `learn-*/NOTES.md` ("understand every line"), applied at the level of each excerpt, not just series-wide coverage.
+- Same standard as `archive/learn-*/NOTES.md` ("understand every line"), applied at the level of each excerpt, not just series-wide coverage.
 
 ## `projects/mister-fpga-oric-core-understanding/` — study layers
 
 The project's `README.md` defines how its study materials are layered (lessons / annotated source / walkthrough docs / diagram) — read it before adding or editing material there. Rules that must hold:
 
-- `annotated/` holds study snapshots of the upstream `Oric_MiSTer` sources (`Oric.sv`, `rtl/oricatmos.vhd`) with `// ★` / `-- ★` section comments added; pinned to upstream commit `c4cf449` (provenance: `annotated/README.md`). The pristine `core/` clone is a gitignored sibling tracking upstream; its line numbers sit lower (no ★ comments).
+- `annotated/` holds study snapshots of the upstream `Oric_MiSTer` sources with `// ★` / `-- ★` comments added; pinned to upstream commit `c4cf449` (provenance: `annotated/README.md`). Currently `Oric.sv`, `rtl/oricatmos.vhd`, `rtl/spram.v`, `rtl/T65/T65.vhd`, plus `rtl/rom/README.md`; the 7-day sprint adds the rest of the Oric-proper modules. The pristine `core/` clone is a gitignored sibling tracking upstream; its line numbers sit lower (no ★ comments).
 - **All lessons, reference cards, and walkthrough docs cite line numbers from `annotated/`** — quote from it, not `core/`, so line numbers match.
-- Treat `annotated/` as **frozen**: don't edit its code or re-sync from `core/` — lesson line attributions depend on it. If upstream moves and a refresh is truly needed, re-annotate a fresh copy and re-verify every lesson's line numbers.
-- **Each fact lives in exactly one layer** (anti-duplication): section summaries live only as `★` comments in `annotated/`; walkthrough docs (`01a`, `01b`, `04-modules/*`) never restate `★` text — they carry only background, cross-references, tables, and open questions, with a heading + `★` line pointer per section; lessons teach language syntax, never file architecture.
-- New modules studied later follow the same pattern: annotate a frozen copy in `annotated/rtl/`, write a thin walkthrough note, check the decoder card covers the module's tokens.
+- Treat `annotated/` as **frozen**: never edit its *code*, and never re-sync from `core/` — line attributions depend on it. If upstream moves and a refresh is truly needed, re-annotate a fresh copy and re-verify every citation.
+  - **One permitted exception: a line-count-neutral comment correction.** If an `★`/block comment is factually *wrong*, it may be fixed in place provided the edit adds and removes no lines (verify with `git diff --stat` → `1 insertion, 1 deletion`) so no citation can move. Log it under "Corrections to frozen files" in `annotated/README.md`. Precedent: `Oric.sv:150` said reset zeroed RAM; it fills with `0x01` (2026-07-27).
+  - Adding annotation to a **new** file is not an edit to a frozen one — annotate freely until it's committed, then it's frozen too.
+- **Each fact lives in exactly one layer** (anti-duplication): section summaries live only as `★` comments in `annotated/`; walkthrough docs (`understanding-Oric-sv`, `understanding-oricatmos-vhd`, `modules/*`) never restate `★` text — they carry only background, cross-references, tables, and open questions, with a heading + `★` line pointer per section; lessons teach language syntax, never file architecture.
+- New modules studied later follow the same pattern: annotate a frozen copy in `annotated/rtl/` (file-header block + `★` sections + **a plain-English comment per logic block**), then write a thin walkthrough note. ~~check the decoder card covers the module's tokens~~ — **dropped 2026-07-27** with the gear change to block-level understanding.
 
 ## Git — never auto-commit
 

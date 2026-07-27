@@ -22,4 +22,4 @@
 
 ## Gaps
 
-- No resource yet found that walks through a *complete real MiSTer-style top-level `.sv` file* end-to-end the way `01a-Oric-sv-understanding.md` does in prose — lessons here fill that gap directly using `Oric.sv` itself as the primary text, with the tutorials above as syntax backup only.
+- No resource yet found that walks through a *complete real MiSTer-style top-level `.sv` file* end-to-end the way `reference/understanding-Oric-sv.md` does in prose — lessons here fill that gap directly using `Oric.sv` itself as the primary text, with the tutorials above as syntax backup only.
