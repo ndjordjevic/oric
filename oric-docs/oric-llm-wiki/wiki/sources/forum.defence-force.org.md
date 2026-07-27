@@ -52,7 +52,7 @@ Use the forum when the other wiki sources do not answer a specific, practical qu
 
 ## Key threads — the Oric-clone build (curated 2026-05-17)
 
-A targeted, logged-in read of the threads most relevant to building a Metaphoric clone. (Note: the thread IDs originally recorded in `build-journey/00-build-vs-buy-research.md` §13 were inaccurate; the corrected `t=` values are below.)
+A targeted, logged-in read of the threads most relevant to building a Metaphoric clone. (Note: the thread IDs originally recorded in `projects/build-journey/00-build-vs-buy-research.md` §13 were inaccurate; the corrected `t=` values are below.)
 
 ### Metaphoric — a new Oric clone — `t=2675` (Dec 2024)
 
@@ -68,7 +68,7 @@ A LOCI user-experience thread. Most relevant finding for a clone build: a user r
 
 ### OCULA — a ULA replacement concept — `t=2709`
 
-The canonical OCULA development thread (18 pages, active into 2026). Read in detail for `build-journey/01-decision-bom-order.md` §3: OCULA only became reliable on *genuine* Oric boards around late-2025/early-2026 firmware, and the single attempt on record to run it on an Oric *clone* (an unknown homebrew board) never booted past a garbage screen. No one has tried OCULA in a Metaphoric.
+The canonical OCULA development thread (18 pages, active into 2026). Read in detail for `projects/build-journey/01-decision-bom-order.md` §3: OCULA only became reliable on *genuine* Oric boards around late-2025/early-2026 firmware, and the single attempt on record to run it on an Oric *clone* (an unknown homebrew board) never booted past a garbage screen. No one has tried OCULA in a Metaphoric.
 
 ### Other-forum Metaphoric threads (non-Defence-Force)
 

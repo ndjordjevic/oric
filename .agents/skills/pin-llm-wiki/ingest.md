@@ -1,6 +1,6 @@
 # ingest — process inbox or ingest a single URL
 
-(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md` — they apply here.)
+(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md` — they apply here. Every bare `wiki/`, `raw/`, and `inbox.md` path below is relative to the **wiki root** — see `SKILL.md` → "Wiki root".)
 
 ## Invocation forms
 

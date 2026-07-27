@@ -109,9 +109,9 @@ same 16 KB shape, but writable because it is loaded rather than compiled in.
 The ROM *contents* — as opposed to this wrapper — are the Oric's operating system and BASIC
 interpreter, and they are well documented elsewhere in this repo:
 
-- `books/oric/oric-advanced-user-guide-rom-disassembly.md` — commented `$C000`–`$FFFF` listing
-- `books/oric/oric-advanced-user-guide.md` — hardware + ROM reference
-- `books/oric/machine-code-for-the-atmos-and-oric-1.md` — Oric-flavoured 6502
+- `oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md` — commented `$C000`–`$FFFF` listing
+- `oric-docs/books/oric/oric-advanced-user-guide.md` — hardware + ROM reference
+- `oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md` — Oric-flavoured 6502
 - [[oric.free.fr]] — register-level Hardware Programming How-To
 
 Relevant later: Idea #3/#4's tape speed-loaders work by **patching ROM reads on the fly**

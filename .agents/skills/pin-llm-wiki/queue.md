@@ -1,6 +1,6 @@
 # queue — add URLs to the pending inbox without ingesting
 
-(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`.)
+(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`. `inbox.md` below is relative to the **wiki root** — see `SKILL.md` → "Wiki root".)
 
 ## Purpose
 

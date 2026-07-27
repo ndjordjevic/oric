@@ -43,7 +43,7 @@ archive/                         ← finished tracks kept for reference:
 > the number pointed at the wrong thing). Now Day 2's output is `modules/02-ula.md`, and the number
 > always tells you when it was written.
 
-**Why this repo:** the [wiki](../../wiki/index.md) already documents the *real* Oric hardware (register-level manual, ULA reverse-engineering, memory map) and the [core itself](../../wiki/sources/MiSTer-devel-Oric_MiSTer.md). You cannot read `ula.vhd` without knowing what the ULA does — so each code-reading step below is paired with required wiki reading.
+**Why this repo:** the [wiki](../../oric-docs/oric-llm-wiki/wiki/index.md) already documents the *real* Oric hardware (register-level manual, ULA reverse-engineering, memory map) and the [core itself](../../oric-docs/oric-llm-wiki/wiki/sources/MiSTer-devel-Oric_MiSTer.md). You cannot read `ula.vhd` without knowing what the ULA does — so each code-reading step below is paired with required wiki reading.
 
 ---
 
@@ -232,10 +232,10 @@ deliberately rather than read exhaustively:**
 Two local collections make this week much easier than reading RTL cold. **Check these before
 searching online** — the answer is usually already here.
 
-- **[`../../books/INDEX.md`](../../books/INDEX.md)** — 30 Oric titles, 9 of them hardware/CPU/ROM
-- **[`../../wiki/`](../../wiki/index.md)** — 20 ingested sources; start at `wiki/index.md`, follow `[[wikilinks]]`
+- **[`../../oric-docs/books/INDEX.md`](../../oric-docs/books/INDEX.md)** — 30 Oric titles, 9 of them hardware/CPU/ROM
+- **[`../../oric-docs/oric-llm-wiki/wiki/`](../../oric-docs/oric-llm-wiki/wiki/index.md)** — 20 ingested sources; start at `wiki/index.md`, follow `[[wikilinks]]`
 
-| Day | Books (`books/oric/…`) | Wiki |
+| Day | Books (`oric-docs/books/oric/…`) | Wiki |
 |---|---|---|
 | 1 · memory/CPU | `getting-more-from-your-oric` (6502/6522/memory-map/OS chapters) · `6502-users-manual` (Carr — the CPU T65 implements) · `oric-advanced-user-guide` + its `-rom-disassembly` (commented `$C000–$FFFF`) | [[oric.free.fr]] Hardware Programming How-To |
 | 2–3 · ULA/video | `oric-atmos-and-oric-1-graphics-and-machine-code-techniques` (Phillips — the serial-attribute bible) · `oric-service-manual` (schematics) | [[oric.signal11.org.uk]] (Mike Brown / Lance Ewing ULA reverse-engineering, decapped die) · [[sodiumlb-ocula-hardware]] + [[sodiumlb-ocula-pivic-firmware]] — a *modern open-hardware ULA reimplementation*, i.e. someone else's answer to "what does the ULA actually do" |
@@ -375,7 +375,7 @@ Pair with the wiki — this is required reading, not optional:
 The core is mixed-language, so you need reading fluency in **both** VHDL and Verilog (not authoring mastery).
 
 - [ ] Skim a VHDL primer and a Verilog primer focused on *reading* synthesizable RTL (processes/`always` blocks, signals vs variables, clocked vs combinational). Use the misterfpga.org pinned lists: [Learning to dev a core](https://misterfpga.org/viewtopic.php?t=78) · [Verilog/HDL books & tutorials](https://misterfpga.org/viewtopic.php?t=136).
-- [ ] Use the repo-wide `books/` **catalog** (`[../../books/INDEX.md](../../books/INDEX.md)`) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in `[../../RESOURCES.md](../../RESOURCES.md)` §8.
+- [ ] Use the repo-wide `books/` **catalog** (`[../../oric-docs/books/INDEX.md](../../oric-docs/books/INDEX.md)`) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in `[../../RESOURCES.md](../../RESOURCES.md)` §8.
 - [ ] Optional sandbox: re-type a tiny module into [EDA Playground](https://www.edaplayground.com) and watch it simulate.
 
 - **Deliverable:** ✅ fulfilled (2026-07-09/12) by the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series plus their token decoder cards (`learn-*/reference/*-decoder.html`) — a per-language, per-token reading reference built from this core's own lines. No separate `03-hdl-cheatsheet.md` is needed; the decoder cards are the living cheatsheet (see `README.md` layers).

@@ -2,6 +2,8 @@
 
 Called by `add`, `ingest`, and `refresh`. Execute steps in order.
 
+Every bare `wiki/`, `raw/`, and `inbox.md` path below is relative to the **wiki root** — see `SKILL.md` → "Wiki root". Paths written as `../../raw/...` are relative *from a wiki source page*, not from the wiki root, and need no adjustment.
+
 **Context passed in by the caller:**
 
 | Variable | Value |

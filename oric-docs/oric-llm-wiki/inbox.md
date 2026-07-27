@@ -17,7 +17,7 @@ Drop URLs below under `## Pending`. Run `/pin-llm-wiki run <url>` to ingest a si
        note: <text>        — freeform note for human review (ignored by ingest)
 -->
 
-<!-- Curated 2026-05-17 against the build decision in build-journey/01-decision-bom-order.md:
+<!-- Curated 2026-05-17 against the build decision in ../../projects/build-journey/01-decision-bom-order.md:
      board = Metaphoric V2, original HCS10017 ULA, LOCI storage, OCULA as a later open experiment.
      Items are grouped: ingest the first two groups; the `skip`-tagged group is kept for the
      record but excluded from the next run. Flip a `skip` tag to re-include an item. -->

@@ -2,17 +2,16 @@
 
 Personal mono-repo for learning about the Oric retro computer:
 
-- `wiki/` — knowledge base of ingested sources (the LLM wiki)
-- `books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
-- `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`)
+- `oric-docs/oric-llm-wiki/wiki/` — knowledge base of ingested sources (the LLM wiki)
+- `oric-docs/books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
+- `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`, `build-journey/`)
 - `RESOURCES.md` — curated links: Oric hardware, software, community, FPGA/HDL
-- `build-journey/` — notes and decisions from the Metaphoric clone build
 
 **Related repo:** `../mister-fpga/` covers the MiSTer platform broadly (hardware setup, FPGA concepts, DE10-Nano). Consult it for platform-level context before diving into the Oric-specific core.
 
 ## Answering Oric questions — wiki first
 
-Before answering **any** Oric question: (1) read `wiki/index.md`, (2) follow `[[wikilinks]]` into relevant source pages, (3) for hardware/troubleshooting/community questions also search the Defence Force forum (below), (4) cite wiki page names. If the wiki doesn't cover it, say so, then search online — don't rely on training data alone.
+Before answering **any** Oric question: (1) read `oric-docs/oric-llm-wiki/wiki/index.md`, (2) follow `[[wikilinks]]` into relevant source pages, (3) for hardware/troubleshooting/community questions also search the Defence Force forum (below), (4) cite wiki page names. If the wiki doesn't cover it, say so, then search online — don't rely on training data alone.
 
 ## Defence Force forum — live search only, never scrape
 
@@ -62,15 +61,16 @@ Never `git commit` or `git push` after any change **unless the human explicitly 
 ## Wiki structure
 
 ```
-wiki/
-  index.md          ← start here; lists every ingested source
-  overview.md       ← rolling cross-source synthesis (cites [[source pages]])
-  log.md            ← append-only ingest/refresh history
-  sources/          ← one page per ingested source (<slug>.md)
-  .archive/         ← soft-deleted sources (ignore unless needed)
-raw/                ← immutable captures: github/, youtube/, web/
-inbox.md            ← agents may queue URLs under ## Pending via /pin-llm-wiki
-.pin-llm-wiki.yml   ← wiki config (domain, detail level, source types, lint cadence)
+oric-docs/oric-llm-wiki/
+  wiki/
+    index.md          ← start here; lists every ingested source
+    overview.md       ← rolling cross-source synthesis (cites [[source pages]])
+    log.md            ← append-only ingest/refresh history
+    sources/          ← one page per ingested source (<slug>.md)
+    .archive/         ← soft-deleted sources (ignore unless needed)
+  raw/                ← immutable captures: github/, youtube/, web/
+  inbox.md            ← agents may queue URLs under ## Pending via /pin-llm-wiki
+  .pin-llm-wiki.yml   ← wiki config (domain, detail level, source types, lint cadence)
 ```
 
-Load order for any question: `wiki/index.md` → relevant source pages → raw files only for direct citation. Wiki management (ingest, refresh, lint, remove) goes through the `/pin-llm-wiki` skill — invoke via the Skill tool; protocol details live in the skill files.
+Load order for any question: `oric-docs/oric-llm-wiki/wiki/index.md` → relevant source pages → raw files only for direct citation. Wiki management (ingest, refresh, lint, remove) goes through the `/pin-llm-wiki` skill — invoke via the Skill tool; protocol details live in the skill files.

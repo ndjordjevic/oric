@@ -7,7 +7,7 @@
 > VIA on Day 4, the PSG and keyboard on Day 5, tape on Day 6. Writing them earlier would just be
 > copying a manual; writing them after means they're in your own words, which is the point.
 >
-> Sources: [`../../books/INDEX.md`](../../books/INDEX.md) (esp. `getting-more-from-your-oric`,
+> Sources: [`../../oric-docs/books/INDEX.md`](../../oric-docs/books/INDEX.md) (esp. `getting-more-from-your-oric`,
 > `oric-advanced-user-guide`, `6502-users-manual`) and the wiki ([[oric.free.fr]] for
 > register-level detail, [[oric.signal11.org.uk]] for the ULA).
 

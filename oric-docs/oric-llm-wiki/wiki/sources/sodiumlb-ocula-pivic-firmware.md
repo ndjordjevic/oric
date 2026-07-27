@@ -34,7 +34,7 @@ Per [[sodiumlb-ocula-docs]], the firmware currently implements **only OCULA-is-t
 
 ## Relevance to the build
 
-This is the open firmware behind the OCULA hardware in [[sodiumlb-ocula-hardware]]. For the Metaphoric build it is part of the optional OCULA experiment (`build-journey/01-decision-bom-order.md` §3): the firmware's reliability on genuine Orics improved through late-2025/2026 releases, but it was buggy earlier and has no confirmed clone support.
+This is the open firmware behind the OCULA hardware in [[sodiumlb-ocula-hardware]]. For the Metaphoric build it is part of the optional OCULA experiment (`projects/build-journey/01-decision-bom-order.md` §3): the firmware's reliability on genuine Orics improved through late-2025/2026 releases, but it was buggy earlier and has no confirmed clone support.
 
 ## Ecosystem
 

@@ -4,8 +4,8 @@ Repo-wide catalog of Oric hardware, software, build, and learning links, assembl
 user's Brave bookmarks (`Retro/` → **Oric**). Categorized by topic; duplicates merged.
 
 > Related: deep-dive source pages ingested into the wiki live under
-> [`wiki/sources/`](wiki/sources/); the overview synthesis is in
-> [`wiki/overview.md`](wiki/overview.md).
+> [`wiki/sources/`](oric-docs/oric-llm-wiki/wiki/sources/); the overview synthesis is in
+> [`wiki/overview.md`](oric-docs/oric-llm-wiki/wiki/overview.md).
 >
 > *Filtered out from the raw bookmarks: bare Google/eBay search pages, cart pages,
 > British Library catalogue searches, an ephemeral Grok conversation link, and
@@ -66,7 +66,7 @@ Assembled 2026-06-21.
 
 ## 8. FPGA / HDL learning (VHDL · Verilog · SystemVerilog)
 
-For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the repo-wide book catalog at [`books/INDEX.md`](books/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
+For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also the repo-wide book catalog at [`books/INDEX.md`](oric-docs/books/INDEX.md) and the broader platform notes in [`../mister-fpga/RESOURCES.md`](../mister-fpga/RESOURCES.md).
 
 **VHDL**
 - [Nandland — VHDL & FPGA](https://nandland.com/) — beginner-friendly, hardware-first; covers both VHDL and Verilog

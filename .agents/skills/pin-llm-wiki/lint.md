@@ -1,6 +1,6 @@
 # lint — wiki health checks (12 checks; #2 and #6 deferred)
 
-(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`.)
+(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`. Every bare `wiki/` and `raw/` path below is relative to the **wiki root** — see `SKILL.md` → "Wiki root".)
 
 ## Setup
 

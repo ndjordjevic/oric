@@ -34,7 +34,7 @@ OCULA is a DIP-40-shaped board that drops into the original ULA socket. The repo
 
 ## Relevance to the build
 
-For the Metaphoric build (see `build-journey/01-decision-bom-order.md` §3), OCULA is the *open* alternative to the proprietary HCS10017 — the design files here are exactly what makes "understand every piece" possible for the ULA. The caveats: OCULA must be ordered assembled (SMD), and OCULA-in-Metaphoric compatibility is unverified — the mux-bridge pin mapping documented in [[sodiumlb-ocula-docs]] is stated to apply to *original* Oric motherboards, and Metaphoric has a redesigned memory subsystem.
+For the Metaphoric build (see `projects/build-journey/01-decision-bom-order.md` §3), OCULA is the *open* alternative to the proprietary HCS10017 — the design files here are exactly what makes "understand every piece" possible for the ULA. The caveats: OCULA must be ordered assembled (SMD), and OCULA-in-Metaphoric compatibility is unverified — the mux-bridge pin mapping documented in [[sodiumlb-ocula-docs]] is stated to apply to *original* Oric motherboards, and Metaphoric has a redesigned memory subsystem.
 
 ## Ecosystem
 

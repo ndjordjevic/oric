@@ -35,9 +35,9 @@ was not underserved; the tools are just obscure and now hard to find, not absent
   seen only via a GameFAQs listing, not independently verified).
 - **Period type-in listings** (already catalogued in this repo, still worth typing in as a
   simpler study artifact): *The Oric-1 Program Book* (Vince Apps, 1983) p.117 — catalogued at
-  [`../books/oric/the-oric-1-program-book.md`](../books/oric/the-oric-1-program-book.md); and
+  [`../oric-docs/books/oric/the-oric-1-program-book.md`](../oric-docs/books/oric/the-oric-1-program-book.md); and
   *Machine Code for the Atmos and Oric-1* (Bruce Smith, Shiva, 1984) — catalogued at
-  [`../books/oric/machine-code-for-the-atmos-and-oric-1.md`](../books/oric/machine-code-for-the-atmos-and-oric-1.md).
+  [`../oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md`](../oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md).
 - **Modern homebrew:** a real, *native* on-Oric 6502 resident-monitor program exists — a Oric
   port of **NoICE** (a PC-hosted 6502 debugger). The resident monitor (`mon6502.dsk`/`.tap`)
   runs as ordinary Oric machine code and talks to PC-hosted NoICE over a serial link; the
@@ -51,7 +51,7 @@ was not underserved; the tools are just obscure and now hard to find, not absent
   tooling, not something that runs on real hardware, but it's the easiest way to learn what a
   6502 monitor's feature set looks like before touching any of the above.
 - The [OSDK](https://osdk.org) toolchain (XA assembler; see `RESOURCES.md` §8 and
-  `books/INDEX.md`) is the natural choice for any new 6502 assembly work here.
+  `oric-docs/books/INDEX.md`) is the natural choice for any new 6502 assembly work here.
 - Other forum threads worth reading if this idea gets picked up, not yet in the local digest:
   [Assembler / disassembler](https://forum.defence-force.org/viewtopic.php?t=1765),
   ["Towards an onboard Oric Assembler/Editor Development environment"](https://forum.defence-force.org/viewtopic.php?t=2430)
@@ -124,7 +124,7 @@ competing for time.
   of the game.
 - Reference material for reading the disassembly: `oric.free.fr`'s Hardware Programming How-To
   (register-level VIA/PSG/ULA reference) and the *Oric Advanced User Guide: ROM Disassembly*
-  (catalogued at [`../books/oric/oric-advanced-user-guide-rom-disassembly.md`](../books/oric/oric-advanced-user-guide-rom-disassembly.md))
+  (catalogued at [`../oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md`](../oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md))
   for cross-checking ROM routine calls the game makes.
 - One forum thread not yet in the local digest looks relevant: ["Disassemblies"](https://forum.defence-force.org/viewtopic.php?t=584)
   (technical-questions subforum) — worth checking before starting in case the chosen game (or
@@ -157,7 +157,7 @@ reimplementing one on genuinely different graphics/sound hardware.
 **Why this game, and why it's a real gap:** Choplifter was ported the same year to Atari 8-bit,
 and later to the VIC-20, Commodore 64, Atari 5200, ColecoVision, MSX, and Thomson computers — it
 was even ported *backward* to arcade hardware by Sega in 1985 (unusually, home-computer-first).
-Checked `oric.org`, the forum digest, `RESOURCES.md`, and `books/INDEX.md`: no evidence it was
+Checked `oric.org`, the forum digest, `RESOURCES.md`, and `oric-docs/books/INDEX.md`: no evidence it was
 ever ported to the Oric. Every contemporary got a Choplifter except this one.
 
 **Confirmed exhaustively (2026-07-16 research session):** there is no Oric Choplifter — not
@@ -523,3 +523,10 @@ Apple-II→Oric projects. Grouped by source:
 friendly candidates (Lode Runner, Ali Baba, Zork + Scott Adams interpreters, Space Eggs, Bomber);
 vector/3D ones (Stellar 7, Elite) are a *different* challenge (line-drawing math rather than
 attribute wrangling); free-scrolling coloured ones (Choplifter) are hardest.
+
+## Related: the Metaphoric clone build
+
+[`build-journey/`](build-journey/) is a separate, non-software track — research, BOM decisions, and
+build notes for assembling a physical Metaphoric (Oric Atmos clone) board. Not one of the numbered
+ideas above and not necessarily going to happen, but kept here for reference since it overlaps this
+list's hardware context (ULA sourcing, OCULA, Microdisc/storage options).

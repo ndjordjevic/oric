@@ -1,6 +1,6 @@
 # remove — soft-delete a source
 
-(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`.)
+(Skill-directory paths and the `.pin-llm-wiki.yml` Guard are defined in `SKILL.md`. **Wiki root:** every bare `wiki/`, `raw/`, `inbox.md`, and `.pin-llm-wiki.yml` path in this file is relative to `oric-docs/oric-llm-wiki/` — read `SKILL.md`'s "Wiki root" section if you haven't already.)
 
 ## Setup
 

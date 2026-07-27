@@ -29,7 +29,7 @@ trigger: "/pin-llm-wiki"
 
 # /pin-llm-wiki
 
-Automates Karpathy's LLM wiki pattern: drop URLs in `inbox.md`, the skill fetches, ingests, and maintains a cited, agent-readable knowledge base.
+Automates Karpathy's LLM wiki pattern: drop URLs in `inbox.md` (at the wiki root — see below), the skill fetches, ingests, and maintains a cited, agent-readable knowledge base.
 
 ## Trigger phrases
 
@@ -64,6 +64,10 @@ a healthy, queryable knowledge base
 
 This SKILL.md and all sibling files (`ingest.md`, `init.md`, `lint.md`, `remove.md`, `queue.md`, `ingest-protocol.md`, `templates/...`) live inside the skill directory: `~/.claude/skills/pin-llm-wiki/`, `~/.copilot/skills/pin-llm-wiki/`, `~/.cursor/skills/pin-llm-wiki/`, or the project-local `.claude/skills/` / `.copilot/skills/` / `.cursor/skills/` equivalents. In this repository the canonical copy is **`skills/pin-llm-wiki/`**. All `templates/...` and sibling-file paths in this skill are relative to whichever skill directory the loading tool used.
 
+## Wiki root
+
+Every bare `wiki/`, `raw/`, `inbox.md`, and `.pin-llm-wiki.yml` path anywhere in this skill's sibling files (`ingest.md`, `ingest-protocol.md`, `init.md`, `lint.md`, `remove.md`, `queue.md`) is relative to the **wiki root**, not the current working directory. In this repository the wiki root is **`oric-docs/oric-llm-wiki/`** — so `wiki/index.md` means `oric-docs/oric-llm-wiki/wiki/index.md`, `raw/github/` means `oric-docs/oric-llm-wiki/raw/github/`, and so on, including nested paths like `wiki/.archive/raw/<type>/`. (For a fresh repo with no such subfolder, the wiki root is the repository root — `init.md` creates `wiki/`, `raw/`, `inbox.md`, and `.pin-llm-wiki.yml` directly there unless told otherwise.)
+
 ## Dispatch
 
 1. Identify the subcommand from the invocation args (the first word after `/pin-llm-wiki`).
@@ -73,7 +77,7 @@ This SKILL.md and all sibling files (`ingest.md`, `init.md`, `lint.md`, `remove.
    - **`lint`** → `lint.md`
    - **`remove`** → `remove.md`
    - **`queue`** → `queue.md`
-3. **Guard (every subcommand except `init`):** confirm `.pin-llm-wiki.yml` exists in the current working directory. If absent, stop with: *"No wiki found here (`.pin-llm-wiki.yml` missing). Run `/pin-llm-wiki init` to scaffold one first."* Subcommand files repeat this check by reference; you only need to enforce it once per invocation.
+3. **Guard (every subcommand except `init`):** confirm `.pin-llm-wiki.yml` exists at the wiki root (see above). If absent, stop with: *"No wiki found here (`.pin-llm-wiki.yml` missing at the wiki root). Run `/pin-llm-wiki init` to scaffold one first."* Subcommand files repeat this check by reference; you only need to enforce it once per invocation.
 4. Do not proceed beyond this dispatch step before reading the target file.
 
 ## Git policy (canonical)

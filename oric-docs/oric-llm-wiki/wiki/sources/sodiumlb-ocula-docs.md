@@ -40,7 +40,7 @@ No in-device configuration UI yet. Settings are changed via OCULA's USB CDC seri
 
 ## Relevance to the build
 
-This manual is the practical reference for the OCULA experiment in `build-journey/01-decision-bom-order.md` §3. Its most important takeaway for a Metaphoric builder: OCULA today is **not** a pure drop-in (DRAM-is-the-RAM mode is unimplemented), it needs the mux-bridge modification, and the documented mux pin mapping is for original Oric boards — Metaphoric's redesigned memory subsystem may not match.
+This manual is the practical reference for the OCULA experiment in `projects/build-journey/01-decision-bom-order.md` §3. Its most important takeaway for a Metaphoric builder: OCULA today is **not** a pure drop-in (DRAM-is-the-RAM mode is unimplemented), it needs the mux-bridge modification, and the documented mux pin mapping is for original Oric boards — Metaphoric's redesigned memory subsystem may not match.
 
 ## Ecosystem
 
