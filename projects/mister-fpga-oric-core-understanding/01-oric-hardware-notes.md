@@ -1,6 +1,6 @@
-# 02 — The real Oric hardware, in my own words
+# 01 — The real Oric hardware, in my own words
 
-**Started:** sprint Day 1 · **Status: skeleton — accretes all week.**
+**Day 1 deliverable · Status: tables filled in; prose to be written in your own words. Accretes all week.**
 
 > **How this document is built.** Day 1 owns the memory map and the CPU. Each later day adds the
 > paragraph for the chip it just read, *after* reading that chip's RTL — the ULA on Days 2–3, the
@@ -25,23 +25,66 @@ this core switches between them by swapping one ROM image.
 
 ## Memory map
 
-Verified against the core on Day 1; cross-check against [[oric.free.fr]] when reading it.
+> **Source of truth: `core/docs/oric_memory_map.md` §1**, which is itself consolidated from the AUG
+> ROM disassembly, the Defence Force wiki, OSDK, cc65's `atmos.inc`, and [[oric.free.fr]]. The tables
+> below follow it. An earlier draft of this file had page 4 folded into free RAM and omitted the two
+> character-set regions entirely — corrected on Day 1.
 
-| Range | Size | What | Confirmed by |
+The 6502 sees a **flat 64 KB space with no banking** on the base machine. The ULA generates the chip
+selects: page 3 is I/O, `$C000`–`$FFFF` is internal ROM, everything else is the 48 KB DRAM. (A
+Microdisc/Jasmin/Telestrat can enable 16 KB of "overlay RAM" hidden *under* the ROM — Day 6 territory.)
+
+### TEXT mode (the power-on default)
+
+| Range | Size | What |
+|---|---|---|
+| `$0000`–`$00FF` | 256 B | Page 0 — zero page: BASIC + OS variables, and the 6502's fast-addressing scratch |
+| `$0100`–`$01FF` | 256 B | Page 1 — the 6502 hardware stack (fixed by the CPU, not a design choice) |
+| `$0200`–`$02FF` | 256 B | Page 2 — OS / BASIC system variables (**incl. the IRQ/NMI `JMP`s** — see vectors below) |
+| `$0300`–`$03FF` | 256 B | Page 3 — **I/O**: the VIA, plus expansion devices (Microdisc, Jasmin, Pravetz) |
+| `$0400`–`$04FF` | 256 B | Page 4 — `$0400`–`$041F` free for user machine code, the rest is DOS workspace |
+| `$0500`–`$97FF` | ~37 KB | **Free RAM** — BASIC program + variables, growing upward |
+| `$9800`–`$B3FF` | 7 KB | Reserved for HIRES; released to BASIC by `GRAB`, reclaimed by `RELEASE` |
+| `$B400`–`$B7FF` | 1 KB | Standard character set (redefinable, ASCII ≥ 32) |
+| `$B800`–`$BB7F` | 896 B | Alternate (semi-graphics) character set |
+| `$BB80`–`$BFDF` | 1120 B | **TEXT screen** — 28 rows × 40 cols (row 0 is the status line) |
+| `$BFE0`–`$BFFF` | 32 B | Spare |
+| `$C000`–`$FFFF` | 16 KB | **ROM** — BASIC at `$C000`–`$ECC3`, OS at `$ECC4`–`$FFFF` |
+
+### HIRES mode (after the `HIRES` command)
+
+| Range | Size | What |
+|---|---|---|
+| `$0000`–`$04FF` | 1280 B | The same five system pages as TEXT mode |
+| `$0500`–`$97FF` | ~37 KB | Free RAM |
+| `$9800`–`$9BFF` | 1 KB | Standard character set *(moved down from `$B400`)* |
+| `$9C00`–`$9FFF` | 896 B | Alternate character set (with a 128-byte gap) |
+| `$A000`–`$BF67` | 8000 B | **HIRES bitmap** — 200 lines × 40 bytes, 6 pixels per byte |
+| `$BF68`–`$BFDF` | 120 B | Three rows × 40 bytes of TEXT at the bottom of the HIRES screen |
+| `$BFE0`–`$BFFF` | 32 B | Spare |
+| `$C000`–`$FFFF` | 16 KB | ROM (as above) |
+
+**Two boundary facts worth knowing cold**, because they explain otherwise-arbitrary numbers:
+- The HIRES bitmap stops at `$BF67`, not `$BFDF`, because **the ULA always fetches the bottom three
+  text rows from `$BF68` regardless of mode**. The bitmap gets what's left: 8000 bytes.
+- `6 pixels per byte` is the same 6-pixel cell that one serial-attribute byte occupies — the two
+  numbers are the same fact seen from different sides (Day 3).
+
+**Why the top of RAM matters for later projects:** in TEXT mode the `$9800`–`$B3FF` HIRES reservation
+isn't being scanned by the ULA, so a machine-code program that takes over the machine can reclaim it
+— see `ideas.md`'s appendix (relevant to Ideas #5/#6).
+
+### CPU vectors (`$FFFA`–`$FFFF`)
+
+| Vector | At | Points to | Note |
 |---|---|---|---|
-| `$0000`–`$00FF` | 256 B | Zero page — the 6502's fast-addressing scratch | 6502 architecture |
-| `$0100`–`$01FF` | 256 B | Hardware stack (fixed by the 6502) | 6502 architecture |
-| `$0200`–`$02FF` | 256 B | System variables | — |
-| `$0300`–`$03FF` | 256 B | **I/O page** — the VIA lives here | [[oric.free.fr]]: "IO at page 3" |
-| `$0400`–`$97FF` | ~37 KB | Free RAM — BASIC program + variables | — |
-| `$9800`–`$BB7F` | ~9 KB | HIRES screen RAM *(when in HIRES)* | — |
-| `$A000` | — | HIRES bitmap base | `understanding-Oric-sv` §13 |
-| `$BB80`–`$BFDF` | 1 KB | TEXT screen RAM (40×28) | `understanding-Oric-sv`, `plan.md` Day 0 |
-| `$C000`–`$FFFF` | 16 KB | **ROM** — BASIC + OS + I/O routines | ROM tables are 16384 B (`addr` = 14 bits) |
+| NMI | `$FFFA` | `$0247` | Indirected through a `JMP` in **page 2 RAM** |
+| RESET | `$FFFC` | `$F88F` | Straight into ROM — cold start |
+| IRQ/BRK | `$FFFE` | `$0244` | Indirected through a `JMP` in **page 2 RAM** |
 
-**Why the top of RAM matters for later projects:** in TEXT mode the HIRES region isn't being
-scanned by the ULA, so a machine-code program that takes over the machine can reclaim it — see
-`ideas.md`'s appendix (relevant to Ideas #5/#6).
+That RAM indirection is the whole reason ROM behaviour is extensible: tape fast-loaders, debuggers,
+Sedoric, and this core's own TAP-segment loader all hook the machine by overwriting the `JMP` at
+`$0244` / `$0247`. Worth remembering for Ideas #1 (monitor) and #6 (DOS).
 
 **A core-specific detail that surprised me:** on reset the core doesn't zero RAM — it fills all
 64 KB with **`0x01`** (`Oric.sv:349`, `spram_d <= 1`). Open question: whether that mimics real DRAM
@@ -98,7 +141,13 @@ bit 7**), the printer port, and the PSG control lines.
 
 ## Open questions
 
-- [ ] Why does reset fill RAM with `0x01` rather than `0x00`?
-- [ ] Exact TEXT/HIRES screen-RAM boundaries — the table above is assembled from the core; confirm
-      against [[oric.free.fr]]'s memory map and note any disagreement.
-- [ ] Oric-1 vs Atmos: differences beyond the ROM image?
+- [ ] Why does reset fill RAM with `0x01` rather than `0x00`? (`Oric.sv:349`.) Check the reset
+      routine at `$F88F` in `oric-advanced-user-guide-rom-disassembly` — does the ROM's RAM-sizing
+      code depend on a non-zero fill?
+- [x] ~~Exact TEXT/HIRES screen-RAM boundaries~~ — **answered on Day 1** from
+      `core/docs/oric_memory_map.md` §1; both layouts are tabulated above, including the two
+      character-set regions and the `$BF68` bottom-text-rows quirk that caps the bitmap at 8000 bytes.
+- [ ] Oric-1 vs Atmos: differences beyond the ROM image? (The core swaps BASIC10 ↔ BASIC11A — is
+      anything else conditional on the machine type?)
+- [ ] The 48 KB Atmos vs. the 16 KB Oric-1 "hole" between `$4000` and `$BFFF` — does this core model
+      the 16 KB variant at all, or is it always 48 KB?
