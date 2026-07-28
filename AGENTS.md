@@ -9,6 +9,19 @@ Personal mono-repo for learning about the Oric retro computer:
 
 **Related repo:** `../mister-fpga/` covers the MiSTer platform broadly (hardware setup, FPGA concepts, DE10-Nano). Consult it for platform-level context before diving into the Oric-specific core.
 
+## Writing style — Simplified Technical English (STE)
+
+Use ASD-STE100 Simplified Technical English for explanations and for docs written in this repo
+(plan files, hardware notes, module docs, chat answers). Rules:
+
+- Write short sentences. One idea per sentence.
+- Use active voice, not passive voice.
+- Use simple, common words. Avoid jargon. Define a needed technical term in plain words on first use.
+- Keep noun groups short — about 3 words max.
+- Use lists and tables, not long paragraphs, where possible.
+- Code identifiers, addresses, and technical names stay as-is (`$C000`, `spram.v`) — STE controls
+  the surrounding prose, not code or data tokens.
+
 ## Answering Oric questions — wiki first
 
 Before answering **any** Oric question: (1) read `oric-docs/oric-llm-wiki/wiki/index.md`, (2) follow `[[wikilinks]]` into relevant source pages, (3) for hardware/troubleshooting/community questions also search the Defence Force forum (below), (4) cite wiki page names. If the wiki doesn't cover it, say so, then search online — don't rely on training data alone.
