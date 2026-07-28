@@ -1,8 +1,8 @@
 # Understanding the MiSTer FPGA Oric core — study plan
 
-**Goal:** Be able to read the [MiSTer-devel/Oric_MiSTer](https://github.com/MiSTer-devel/Oric_MiSTer) source and explain, module by module, how the Oric-1 / Atmos is reconstructed in FPGA logic — CPU, ULA video, VIA, PSG sound, storage, and the MiSTer-specific glue (tape/snapshot/savestate). Stretch goal: simulate a module and (optionally) build the core.
+**Goal:** Be able to read the [MiSTer-devel/Oric_MiSTer](https://github.com/MiSTer-devel/Oric_MiSTer) source and explain, module by module, how the Oric-1 / Atmos is reconstructed in FPGA logic — CPU, ULA video, VIA, PSG sound, storage, and the MiSTer-specific glue (tape/snapshot/savestate). Day 8 adds a hands-on simulation/visualization pass to *concretely confirm* that understanding — no Quartus build, no real hardware needed.
 
-**Definition of done:** you can explain **end-to-end how the Oric Atmos works as a machine**, and open any Oric-relevant core file and say **what each code block does** — without needing to parse every line of HDL syntax. Concretely: `annotated/rtl/` carries block-commented copies of every Oric-proper module, `01-oric-hardware-notes.md` describes the real hardware in your own words, and `07-how-the-oric-works.md` ties the two together in one narrative. Simulation (Phase 5) and building (Phase 6) are explicitly *after* that, not part of it.
+**Definition of done:** you can explain **end-to-end how the Oric Atmos works as a machine**, and open any Oric-relevant core file and say **what each code block does** — without needing to parse every line of HDL syntax. Concretely: `annotated/rtl/` carries block-commented copies of every Oric-proper module, `01-oric-hardware-notes.md` describes the real hardware in your own words, and `07-how-the-oric-works.md` ties the two together in one narrative. Day 8 (below) is a bonus verification pass, not a requirement of this definition — building/deploying to real hardware is explicitly out of scope for this project.
 
 **Project layout:**
 
@@ -21,14 +21,14 @@ modules/                         ← Days 2–6 · one note per subsystem, day-p
     05-psg.md, 05-keyboard-joystick.md Day 5 · sound & input
     06-tape.md                         Day 6 · cassette path
 07-how-the-oric-works.md         ← Day 7 · capstone: the end-to-end narrative
+08-simulation-and-visualization.md ← Day 8 · watch the CPU/ULA actually run
 
   ── REFERENCE — no day number: not produced by a sprint day ────────────────
 reference/understanding-Oric-sv.md         ← architecture of Oric.sv           (pre-sprint)
 reference/understanding-oricatmos-vhd.md   ← architecture of rtl/oricatmos.vhd (pre-sprint)
 reference/block-diagram.md                 ← data/clock-path diagrams (pre-sprint; refreshed Day 7)
-reference/dev-env.md                       ← toolchain setup (Phase 0; needed again for sim)
-sim/, simulation-notes.md        ← testbenches + waveforms (Phase 5, after the sprint)
-build-notes.md                   ← Quartus build (Phase 6, optional)
+reference/dev-env.md                       ← toolchain setup (Phase 0; extended Day 8 with SDL2)
+sim/                              ← Day 8 testbenches, waveforms, and captured frames
 
 annotated/                       ← ★-annotated frozen source copies (canonical line numbers)
 core/                            ← cloned Oric_MiSTer source (gitignored, kept pristine)
@@ -49,11 +49,12 @@ archive/                         ← finished tracks kept for reference:
 
 
 
-## ⭐ THIS WEEK — 7-day sprint to "I understand how the Oric works"
+## ⭐ THIS WEEK — 8-day sprint to "I understand how the Oric works"
 
-**Day 0 → Day 7** (Day 0 and Day 1 are the same day — Day 0 is a ~1 hour
-orientation pass, not a full day). This is the active plan; the phase list further down is the
-long-range map that this week executes the heart of (Phase 2 + Phase 4).
+**Day 0 → Day 8** (Day 0 and Day 1 are the same day — Day 0 is a ~1 hour
+orientation pass, not a full day; Day 8 is a bonus verification day, added after Day 7 to replace
+the old Phase 5/6 stretch goals — see below). This is the active plan; the phase list further down is the
+long-range map that Days 0–7 execute the heart of (Phase 2 + Phase 4).
 
 **Why now:** every project in `[../ideas.md](../ideas.md)` — reverse-engineer an Oric game, port
 Lode Runner / Choplifter, write the dBASE-class app, write the CP/M-inspired DOS — is gated on this.
@@ -121,6 +122,7 @@ full `understanding-Oric-sv`/`understanding-oricatmos-vhd` walkthroughs, and eve
 | 5   | Sound & input                                                       | `psg.v` (355), `keyboard.sv` (251), `joystick.sv` (66) |
 | 6   | Tape + buffer + floppy stretch                                      | `cassette.v` (184), `cas_sig_gen.v` (85)               |
 | 7   | Synthesis + proof                                                   | —                                                      |
+| 8   | *Bonus: simulate & visualize* — watch the CPU/ULA run for real       | GHDL/Verilator testbenches (no `sys/`, no Quartus)     |
 
 
 **Explicitly out of scope this week — MiSTer glue, not the Oric:** snapshots/savestates
@@ -268,6 +270,71 @@ deliberately rather than read exhaustively:**
 
 
 
+## Day 8 · Bonus: simulate & visualize — watch the CPU/ULA actually run
+
+**Replaces the old Phase 5/6 stretch goals.** Same underlying goal as the rest of the week —
+*understand how the Oric works* — but confirmed by watching real signals move instead of reading
+a narrative about them. **No Quartus, no `.rbf`, no real hardware:** everything below runs with the
+open-source stack from Day 0 (GHDL, Icarus/Verilator, GTKWave), plus SDL2 for the visual pieces.
+
+Researched three tiers, ordered by how realistically each fits in a day. Do Tier 1 always; Tier 2
+if Tier 1 goes well; treat Tier 3 as a possible future project, not today's target.
+
+**Tier 1 — watch the CPU run, no new toolchain (do this first)**
+- [ ] Load a small 6502 test program (reuse one of Day 1's memory-map self-checks, or a short
+  routine from `oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md`) into
+  [visual6502.org](http://visual6502.org/JSSim/) and step it cycle-by-cycle. This is the
+  **transistor-level simulation of the real 6502 die** — not `T65.vhd`, but the chip `T65`
+  stands in for. Watching an actual fetch/decode/execute cycle here is the cheapest way to make
+  Day 1's "clock/enable split" takeaway concrete.
+- [ ] Optional pairing: write a small GHDL testbench around `annotated/rtl/T65/T65.vhd` that loads
+  the same program into a mock ROM, dump a VCD, and compare `address`/`data`/`R_W_n` per cycle in
+  GTKWave against visual6502's trace for the same program — ties the real chip to the soft core
+  that emulates it.
+
+**Tier 2 — watch the ULA draw, scoped to `ula.vhd` + `video.vhd` only**
+- [ ] Set up Verilator + SDL2 natively (Homebrew: `brew install sdl2`; Verilator already installed
+  from Phase 0). Since `ula.vhd`/`video.vhd` are VHDL, GHDL is the simulator, not Verilator — GHDL
+  has no built-in SDL binding, so the realistic path for a single day is the **frame-dump**
+  pattern, not a live window: a GHDL testbench samples R/G/B + HSync/VSync every cycle and writes
+  completed frames out as PPM images (viewable directly, or stitched into a GIF with `ffmpeg`).
+  See [ktln2.org's VGA-simulation-with-Verilator writeup](https://ktln2.org/2020/05/24/vga-controller-simulation/)
+  for the exact buffering/vsync-detection pattern (Verilog there, same idea in VHDL/GHDL).
+  If a live window is wanted instead, [Project F's Verilator+SDL tutorial](https://projectf.io/posts/verilog-sim-verilator-sdl/)
+  is the reference (built for Verilog/Verilator, so only usable directly if `ula.vhd` is
+  cross-compiled or reimplemented — the frame-dump route avoids that problem entirely).
+- [ ] Feed the testbench a tiny synthetic "screen RAM" — a handful of known attribute + character
+  bytes, not a real boot — enough to render one line and *see* the serial-attribute model from
+  Day 3: one byte sets ink/paper/charset and holds until the next.
+
+**Tier 3 — the whole machine, boot and watch (stretch — likely its own future project, not Day 8)**
+- The actual "load a program and watch the whole Oric work" goal — CPU + RAM/ROM + ULA + VIA + PSG
+  together, booting a real `.tap`/`.dsk`, rendering a live screen — is exactly what
+  [JimmyStones' `Verilator_Template`](https://github.com/JimmyStones/Verilator_Template) is built
+  for: ROM/tape upload simulating the HPS `ioctl` path, live VGA output with zoom, continuous /
+  single-step / multi-step execution, `$display` routed to a debug console.
+  [alanswx/Colecovision-Verilator_MiSTer](https://github.com/alanswx/Colecovision-Verilator_MiSTer)
+  is a real example of this pattern applied to a similarly-scoped 8-bit system (6502-family CPU +
+  custom video chip) — the closest existing structural analogy to `Oric_MiSTer`.
+- **Caveat found during research:** `Verilator_Template` is **Windows/WSL + Visual Studio only** —
+  no native macOS support. Given this project's dev environment is macOS-native (Phase 0), this
+  tier needs either the same Windows/Linux VM route already flagged as optional for Quartus, or a
+  ground-up SDL2 port of the template's C++ harness — real, multi-day infrastructure work either way.
+- The "Intel PLL is a black box" caveat from the old Phase 5 write-up isn't actually a blocker here:
+  the standard practice in these templates is to **swap out `sys/` and `pll.v` for a
+  testbench-provided clock/reset**, keeping only `rtl/` (the actual Oric machine) instantiated —
+  the same MiSTer-glue-vs-Oric-proper scope cut Days 1–6 already use.
+- If pursued later, this is arguably its own `ideas.md`-shaped project ("build an interactive
+  Oric core debugger/visualizer"), not a one-day sprint task.
+
+- **Deliverables:** `08-simulation-and-visualization.md` — what was tried, what worked, captured
+  frames/waveforms (screenshots or the PPM/GTKWave output), and an honest note on whether Tier 3 is
+  worth a future project.
+- **Self-check:** pick one specific memory write, predict what changes on screen (or what T65 pins
+  do) *before* running the testbench, then verify against the actual simulation output.
+
+
+
 ## Sources per day — use the shelf you already have
 
 Three local collections make this week much easier than reading RTL cold. **Check these before
@@ -308,6 +375,7 @@ keyboard is a **passive matrix the CPU must poll**; tape is a **square wave on V
 4. Explain the serial-attribute colour model and the no-hardware-scroll constraint — the two facts every `ideas.md` game project depends on.
 5. Trace one full input→output path end-to-end (keypress → VIA → CPU → RAM → ULA → screen).
 6. `07-how-the-oric-works.md` exists and reads as a coherent story, not a pile of notes.
+7. *(Bonus, Day 8)* Watched real signals confirm the model above — a CPU trace or a rendered ULA frame, not just a narrative about them.
 
 ---
 
@@ -383,24 +451,13 @@ Kept as a record of what fed into the sprint and where each deliverable lives.
 
 
 
-## Phase 5 — Simulate a module (make it concrete)
+## Phases 5–6 — replaced by Day 8
 
-Honest scope: **you cannot simulate the whole core** with open-source tools — `sys/` is full of Intel primitives (PLL, HPS, megafunctions). Simulation must be **module-level**, isolating a pure-logic module from the framework.
-
-- [ ] Start with a **single-language, self-contained** module: `m6522.vhd` (GHDL) or `psg.v` / a `tap_*.v` (Icarus/Verilator). Avoid VHDL↔Verilog co-sim at first — it's painful.
-- [ ] Write a minimal testbench, dump a VCD, open in GTKWave, and confirm the module behaves as the datasheet/wiki says.
-- [ ] Then attempt the rewarding-but-harder `ula.vhd`/`video.vhd` (clock-dependent; needs a believable clock/reset harness).
-
-- **Deliverable:** `sim/<module>-tb` + a `simulation-notes.md` with annotated waveforms.
-
-
-
-## Phase 6 — (Optional / stretch) build & run
-
-- [ ] Stand up Quartus via Docker (`tools/oric-build`) or a Linux VM; open the project, use the **RTL Viewer** on a module you studied to compare your mental model to the elaborated netlist.
-- [ ] If hardware is available (see `[../../../mister-fpga/HARDWARE_SETUP.md](../../../mister-fpga/HARDWARE_SETUP.md)`): build a `.rbf`, deploy, and make one small visible change (e.g. tweak a border/video constant) to close the loop.
-
-- **Deliverable:** `build-notes.md`.
+The old "simulate a module" (5) and "optional build & run" (6) phases are **retired.** Simulation
+is now **Day 8** of the sprint (above) — same open-source-only, no-Quartus, no-hardware scope, just
+folded into the week instead of left as an untimed stretch goal. Building/deploying a `.rbf` to real
+hardware is dropped entirely — out of scope for this project, whose goal is understanding the
+machine, not building it.
 
 ---
 
