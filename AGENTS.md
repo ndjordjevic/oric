@@ -42,18 +42,17 @@ The human is **not** experienced with VHDL/Verilog/SystemVerilog but knows digit
 
 ## Lessons — full-coverage requirement
 
-> **Scope note (2026-07-27):** the HDL lesson series is **complete and archived** to
-> `projects/mister-fpga-oric-core-understanding/archive/learn-systemverilog/` and
-> `.../archive/learn-vhdl/`. This rule still governs those files (and any new lesson), but it does
-> **not** apply to `annotated/rtl/*` block comments, which are deliberately block-level — see that
-> project's `plan.md` → "Gear change". Don't apply line-and-token coverage to annotation work.
+Scope: `projects/*/**/learn-*/lessons/` only. The HDL lesson series is done and archived to
+`projects/mister-fpga-oric-core-understanding/archive/learn-systemverilog/` and `.../archive/learn-vhdl/`.
+This rule still applies there, and to any new lesson.
 
-Any lesson (e.g. `projects/*/**/learn-*/lessons/`) showing a code excerpt must explain **every line and every token in that excerpt** — the reader must be able to open the same excerpt in the source and have nothing left silently unexplained. Concretely:
+**This rule does not apply to `annotated/rtl/*` block comments.** Those are block-level by design —
+see `plan.md` → "Gear change" in the core-understanding project.
 
-- Explaining a construct once via representative lines is **not** enough — walk every line, even when several share the same form; name explicitly what each remaining line ties off/connects ("the remaining N lines tie off these unused ports: …", actually listing them).
-- Never silently truncate a block: either show it in full or state clearly what was omitted and why.
-- Before finalizing, diff excerpt against prose: every distinct signal name, operator, and literal must be referenced (by name, or via an explicit listed summary).
-- Same standard as `archive/learn-*/NOTES.md` ("understand every line"), applied at the level of each excerpt, not just series-wide coverage.
+The rule itself: a lesson's code excerpt must explain every line and every token in it. Show the
+excerpt in full, or state clearly what was cut. Name what each unexplained line does, even repeated
+forms. Check the excerpt against the prose before finishing — every signal name, operator, and
+literal needs a mention.
 
 ## `projects/mister-fpga-oric-core-understanding/` — study layers
 
