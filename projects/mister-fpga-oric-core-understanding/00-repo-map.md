@@ -1,6 +1,6 @@
 # 00 — Repo map (`core/`)
 
-**Day 0 · 2026-07-27.** Lookup table only. Path = pristine upstream clone (gitignored sibling of `annotated/`).
+**Day 0.** Lookup table only. Path = pristine upstream clone (gitignored sibling of `annotated/`).
 
 **Structural fact:** Quartus top entity is **`sys_top`** (`sys/sys_top.v`), not `Oric.sv`. Confirmed in `Oric.qsf`: `TOP_LEVEL_ENTITY = sys_top`. Framework instantiates your `module emu` (defined in `Oric.sv`).
 
@@ -37,7 +37,7 @@
 > **`docs/`, `games/`, `_Games/` are not in official `MiSTer-devel/Oric_MiSTer`.**
 > README mentions them, but they live on the maintainer fork
 > ([nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer)).
-> Copied locally from that fork on 2026-07-27 (Day 0) — local-only extras, not from `git pull` upstream.
+> Copied locally from that fork on Day 0 — local-only extras, not from `git pull` upstream.
 
 ### `tools/` detail
 

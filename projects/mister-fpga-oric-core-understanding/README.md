@@ -6,8 +6,8 @@ Goal and phase plan: [`plan.md`](plan.md). This README explains how the study ma
 
 | Layer | Where | Question it answers |
 |---|---|---|
-| **Lessons + decoder cards** | [`archive/learn-systemverilog/`](archive/learn-systemverilog/), [`archive/learn-vhdl/`](archive/learn-vhdl/) | "How do I read this *language* at all?" — syntax only, taught from real lines of this core. **Complete (2026-07-14/16) — a finished reference, not an active track** |
-| **Annotated source** | [`annotated/`](annotated/README.md) | "What is this code doing, right where I'm reading it?" — frozen study copies with a file-header block, `★` section comments, and (from 2026-07-27) **a plain-English comment per logic block**. The project's primary artifact |
+| **Lessons + decoder cards** | [`archive/learn-systemverilog/`](archive/learn-systemverilog/), [`archive/learn-vhdl/`](archive/learn-vhdl/) | "How do I read this *language* at all?" — syntax only, taught from real lines of this core. **Complete (pre-sprint) — a finished reference, not an active track** |
+| **Annotated source** | [`annotated/`](annotated/README.md) | "What is this code doing, right where I'm reading it?" — frozen study copies with a file-header block, `★` section comments, and (from sprint Day 1) **a plain-English comment per logic block**. The project's primary artifact |
 | **Walkthrough docs** | [`reference/understanding-Oric-sv.md`](reference/understanding-Oric-sv.md), [`reference/understanding-oricatmos-vhd.md`](reference/understanding-oricatmos-vhd.md) | "How is this file architected, and how do its parts connect?" — the map, not the territory |
 | **Block diagram** | [`reference/block-diagram.md`](reference/block-diagram.md) | "How do the files and subsystems relate?" |
 
@@ -25,7 +25,7 @@ Each fact lives in exactly one layer:
 - **Walkthrough docs** (`understanding-Oric-sv`, `understanding-oricatmos-vhd`, future `modules/*.md`) carry only what inline comments can't: background, real-hardware comparisons, cross-section/cross-file connections, tables, open questions. Per section: a heading with the `★` line number, plus that extra context.
 - **Lessons** teach language constructs, never file architecture; the decoder cards index tokens, not behavior.
 
-When the [7-day sprint](plan.md) walks the remaining `rtl/` modules, each follows the same pattern: annotate a frozen copy in `annotated/rtl/` (file header + `★` summaries + per-block comments), then write a thin `modules/<module>.md` for the connective context. The old per-module decoder-card token check was **dropped on 2026-07-27** — see the plan's "gear change" note: the project now targets block-level understanding, not line-and-token coverage.
+When the [7-day sprint](plan.md) walks the remaining `rtl/` modules, each follows the same pattern: annotate a frozen copy in `annotated/rtl/` (file header + `★` summaries + per-block comments), then write a thin `modules/<module>.md` for the connective context. The old per-module decoder-card token check was **dropped on sprint Day 0** — see the plan's "gear change" note: the project now targets block-level understanding, not line-and-token coverage.
 
 ## Directory map
 

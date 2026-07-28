@@ -1,6 +1,6 @@
 # 02 — The real Oric hardware, in my own words
 
-**Started:** 2026-07-27 (sprint Day 1) · **Status: skeleton — accretes all week.**
+**Started:** sprint Day 1 · **Status: skeleton — accretes all week.**
 
 > **How this document is built.** Day 1 owns the memory map and the CPU. Each later day adds the
 > paragraph for the chip it just read, *after* reading that chip's RTL — the ULA on Days 2–3, the

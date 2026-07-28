@@ -2,7 +2,7 @@
 
 **Goal:** Be able to read the [MiSTer-devel/Oric_MiSTer](https://github.com/MiSTer-devel/Oric_MiSTer) source and explain, module by module, how the Oric-1 / Atmos is reconstructed in FPGA logic — CPU, ULA video, VIA, PSG sound, storage, and the MiSTer-specific glue (tape/snapshot/savestate). Stretch goal: simulate a module and (optionally) build the core.
 
-**Definition of done (revised 2026-07-27):** you can explain **end-to-end how the Oric Atmos works as a machine**, and open any Oric-relevant core file and say **what each code block does** — without needing to parse every line of HDL syntax. Concretely: `annotated/rtl/` carries block-commented copies of every Oric-proper module, `01-oric-hardware-notes.md` describes the real hardware in your own words, and `07-how-the-oric-works.md` ties the two together in one narrative. Simulation (Phase 5) and building (Phase 6) are explicitly *after* that, not part of it.
+**Definition of done:** you can explain **end-to-end how the Oric Atmos works as a machine**, and open any Oric-relevant core file and say **what each code block does** — without needing to parse every line of HDL syntax. Concretely: `annotated/rtl/` carries block-commented copies of every Oric-proper module, `01-oric-hardware-notes.md` describes the real hardware in your own words, and `07-how-the-oric-works.md` ties the two together in one narrative. Simulation (Phase 5) and building (Phase 6) are explicitly *after* that, not part of it.
 
 **Project layout:**
 
@@ -36,7 +36,7 @@ archive/                         ← finished tracks kept for reference:
                                      learn-systemverilog/, learn-vhdl/ + decoder cards
 ```
 
-> **Naming rule (set 2026-07-27):** a leading `NN-` means **"deliverable of Day NN"** — nothing
+> **Naming rule:** a leading `NN-` means **"deliverable of Day NN"** — nothing
 > else. Files with no number aren't sprint output: they're pre-existing walkthroughs, reference,
 > or later-phase material. This replaced the old *phase*-numbered scheme, which broke once the
 > sprint existed (`02-oric-hardware-notes.md` was the Phase 2 deliverable, but Day 2 is the ULA —
@@ -51,7 +51,7 @@ archive/                         ← finished tracks kept for reference:
 
 ## ⭐ THIS WEEK — 7-day sprint to "I understand how the Oric works"
 
-**Mon 2026-07-27 → Sun 2026-08-02** (Day 0 and Day 1 both land on Monday — Day 0 is a ~1 hour
+**Day 0 → Day 7** (Day 0 and Day 1 are the same day — Day 0 is a ~1 hour
 orientation pass, not a full day). This is the active plan; the phase list further down is the
 long-range map that this week executes the heart of (Phase 2 + Phase 4).
 
@@ -60,7 +60,7 @@ Lode Runner / Choplifter, write the dBASE-class app, write the CP/M-inspired DOS
 That backlog's own *"goal 1 — understand the hardware to the point of low-level programming"* **is
 this week.** Nothing else starts until it's done.
 
-## Gear change (decided 2026-07-27) — read before Day 1
+## Gear change (decided Day 0) — read before Day 1
 
 
 | Until now                                       | This week                                                                             |
@@ -134,7 +134,7 @@ how all of this hangs off the top level, which is all that's needed.
 
 
 
-## Day 0 — Mon 27 Jul · Map the territory: what every folder and file in the repo is *for*
+## Day 0 · Map the territory: what every folder and file in the repo is *for*
 
 **Also today, before Day 1.** Pure orientation, no code reading — the goal is that opening the core
 repo never again produces "what even is all this?" You should be able to name any top-level item's
@@ -160,24 +160,24 @@ Everything below is *around* the Oric code, not the Oric code itself (that's Day
 | `releases/` | 11 prebuilt `.rbf` bitstreams, one per release date — the file you'd actually copy to a MiSTer SD card                                                                  | No, but good to know it's the *output*                       |
 | `dsk/`      | 6 sample disk images (games + `SEDO40u_DSK.dsk` = SEDORIC DOS)                                                                                                          | Yes if you reach floppy (Day 6) or Ideas #5/#6               |
 | `img/`      | 4 screenshots for the upstream README                                                                                                                                   | No                                                           |
-| `docs/`     | Maintainer technical notes — **not in official `MiSTer-devel`**; copied locally from [nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer) (2026-07-27). Index: `core/docs/docs.md` | Yes — Day 1 / Day 6 (see below) |
+| `docs/`     | Maintainer technical notes — **not in official `MiSTer-devel`**; copied locally from [nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer) (Day 0). Index: `core/docs/docs.md` | Yes — Day 1 / Day 6 (see below) |
 | `games/`, `_Games/` | Sample TAP/`.sna` + MGL launchers (same fork source)                                                                                                              | Optional                                                     |
 
 
 - [x] **Triage** `sys/` **so it stops being a 52-file wall.** Only a handful are ever touched from `Oric.sv`: `emu_ports.vh` (the port list `Oric.sv` includes), `hps_io.sv` (ARM bridge), `video_mixer.sv` + `video_freak.sv` (video output/aspect), `ltc2308.sv` (the ADC behind Day 6's tape input). Everything else — `ascal.vhd`, `sd_card.sv`, `spdif.v`, `yc_out.sv`, the `pll_`* variants, the `.tcl`/`.sdc` build scripts — is framework plumbing you can permanently ignore
 
-- **Deliverable:** `00-repo-map.md` ✅ (2026-07-27) — lookup table: top-level map, `files.qip` manifest, `sys/` triage, fork-only `docs/`/`games/`/`_Games/` note
+- **Deliverable:** `00-repo-map.md` ✅ (Day 0) — lookup table: top-level map, `files.qip` manifest, `sys/` triage, fork-only `docs/`/`games/`/`_Games/` note
 - **Self-check:** point at any top-level file or folder and say what it does — and, for each, whether you'll ever need to open it
 - **Time-box:** this is a ~1 hour task. If it's taking longer you're reading code, which is Day 1's job
 
 
 
-## Day 1 — Mon 27 Jul · Foundation: the real machine, memory map, CPU & memory
+## Day 1 · Foundation: the real machine, memory map, CPU & memory
 
 You cannot read `ula.vhd` without knowing what a ULA *is*, so the week starts on the hardware side.
 This is Phase 2, which has been skipped until now and is the real gap.
 
-> **Status 2026-07-27:** the three *code* items below are annotated and done ✅. The two **reading**
+> **Status (Day 1):** the three *code* items below are annotated and done ✅. The two **reading**
 > items are still open — and they're the half that matters most today, because Days 2–6 all assume
 > the hardware model. `01-oric-hardware-notes.md` exists as a skeleton with the memory map filled
 > in and per-chip sections stubbed; fill the CPU/memory parts as you read.
@@ -196,7 +196,7 @@ This is Phase 2, which has been skipped until now and is the real gap.
 
 
 
-## Day 2 — Tue 28 Jul · ULA part 1: timing & address generation (the heart)
+## Day 2 · ULA part 1: timing & address generation (the heart)
 
 The single highest-payoff module in the core, and the most Oric-specific silicon there is.
 
@@ -208,7 +208,7 @@ The single highest-payoff module in the core, and the most Oric-specific silicon
 
 
 
-## Day 3 — Wed 29 Jul · ULA part 2 + video: pixels & serial attributes
+## Day 3 · ULA part 2 + video: pixels & serial attributes
 
 - [ ] Rest of `ula.vhd` — attribute detection (`u_isattrib`), pixel shift register (`u_shf_reg`), hold/latch registers, `u_ld_reg`
 - [ ] `video.vhd` (215) — the output pipeline
@@ -220,7 +220,7 @@ The single highest-payoff module in the core, and the most Oric-specific silicon
 
 
 
-## Day 4 — Thu 30 Jul · VIA 6522: the I/O hub
+## Day 4 · VIA 6522: the I/O hub
 
 **The week's biggest file — 1,123 lines and 52 processes, ~4× the ULA's process count. Scoped
 deliberately rather than read exhaustively:**
@@ -233,7 +233,7 @@ deliberately rather than read exhaustively:**
 
 
 
-## Day 5 — Fri 31 Jul · Sound & input
+## Day 5 · Sound & input
 
 - [ ] `psg.v` (355) — AY-3-8912: register file, tone/noise/envelope generators, the three channels
 - [ ] `keyboard.sv` (251) — the Oric keyboard matrix (and the Pravetz layout switch)
@@ -244,7 +244,7 @@ deliberately rather than read exhaustively:**
 
 
 
-## Day 6 — Sat 1 Aug · Tape, buffer, and the floppy stretch
+## Day 6 · Tape, buffer, and the floppy stretch
 
 - [ ] `cassette.v` (184) + `cas_sig_gen.v` (85) — the real tape path (as opposed to the MiSTer speed-loaders, out of scope)
 - [ ] Read `core/docs/tape_loading.md` — ops view of Tape Load Fast/Ultra/Off (context for the real path vs speed-loaders)
@@ -257,7 +257,7 @@ deliberately rather than read exhaustively:**
 
 
 
-## Day 7 — Sun 2 Aug · Synthesis + proof
+## Day 7 · Synthesis + proof
 
 - [ ] Write `07-how-the-oric-works.md` — the capstone. One end-to-end narrative: power-on → reset → CPU fetches from ROM → ULA generates video while contending with the CPU for RAM → VIA scans the keyboard and drives the PSG → tape/disk I/O. Real hardware *and* how the core implements it, in a single story. (The `03-` slot is free — Phase 3's cheatsheet was fulfilled by the lesson series.)
 - [ ] Refresh `reference/block-diagram.md` with everything learned this week
@@ -346,7 +346,7 @@ sys/                    ← MiSTer framework — DO NOT EDIT; real top is sys/sy
 tools/                  ← Python tape/snapshot tools (stdlib only) + oric-build (Docker/Quartus)
 ```
 
-> **`docs/` status (updated 2026-07-27):** README references `docs/`, `games/`, `_Games/` — they are **not** in official `MiSTer-devel/Oric_MiSTer`, but live on the maintainer fork ([nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer)). Copied into local `core/` on Day 0. Use them per the Sources table above; primary study material remains annotated RTL + wiki + books.
+> **`docs/` status (updated Day 0):** README references `docs/`, `games/`, `_Games/` — they are **not** in official `MiSTer-devel/Oric_MiSTer`, but live on the maintainer fork ([nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer)). Copied into local `core/` on Day 0. Use them per the Sources table above; primary study material remains annotated RTL + wiki + books.
 
 ---
 
@@ -369,7 +369,7 @@ Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-d
 
 The stated goal is **reading and analyzing** code. The whole reading + simulation stack runs **natively on macOS**. Quartus does **not** run on macOS and is **not** needed to read code — defer it.
 
-### 0a. Native MVP ✅ (2026-06-21)
+### 0a. Native MVP ✅ (pre-sprint)
 
 - [x] Install the open-source HDL stack:
   `brew install ghdl icarus-verilog verilator gtkwave python3`
@@ -396,9 +396,9 @@ The stated goal is **reading and analyzing** code. The whole reading + simulatio
 
 ## Phase 1 — Orient in the codebase
 
-- [x] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine. → **Deliverable:** `reference/understanding-Oric-sv.md` **✅ (2026-06-22)**, since built out further than the initial read: completed the full `archive/learn-systemverilog/` 10-lesson syntax series (✅ 2026-07-14, all `learning-records/` filled in) to actually read the SystemVerilog rather than rely on prose summary, then did a line-by-line Q&A pass over every `★` section of `annotated/Oric.sv` cold (PLL, HPS, RAM arbiter, video pipeline, file cache, ADC tape input, etc. — ongoing).
-- [x] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable:** `reference/understanding-oricatmos-vhd.md` **✅ (2026-07-09)** — plus the `archive/learn-vhdl/` lesson series (Lessons 1–5 done, `learning-records/` filled in).
-- [x] **Deliverable:** `reference/block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases. ✅ (2026-07-09) — refreshed on sprint Day 7.
+- [x] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine. → **Deliverable:** `reference/understanding-Oric-sv.md` **✅ (pre-sprint)**, since built out further than the initial read: completed the full `archive/learn-systemverilog/` 10-lesson syntax series (✅ pre-sprint, all `learning-records/` filled in) to actually read the SystemVerilog rather than rely on prose summary, then did a line-by-line Q&A pass over every `★` section of `annotated/Oric.sv` cold (PLL, HPS, RAM arbiter, video pipeline, file cache, ADC tape input, etc. — ongoing).
+- [x] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable:** `reference/understanding-oricatmos-vhd.md` **✅ (pre-sprint)** — plus the `archive/learn-vhdl/` lesson series (Lessons 1–5 done, `learning-records/` filled in).
+- [x] **Deliverable:** `reference/block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases. ✅ (pre-sprint) — refreshed on sprint Day 7.
 
 
 
@@ -426,14 +426,14 @@ The core is mixed-language, so you need reading fluency in **both** VHDL and Ver
 - [ ] Use the repo-wide `books/` **catalog** (`[../../oric-docs/books/INDEX.md](../../oric-docs/books/INDEX.md)`) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in `[../../oric-docs/RESOURCES.md](../../oric-docs/RESOURCES.md)` §8.
 - [ ] Optional sandbox: re-type a tiny module into [EDA Playground](https://www.edaplayground.com) and watch it simulate.
 
-- **Deliverable:** ✅ fulfilled (2026-07-09/12) by the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series plus their token decoder cards (`learn-*/reference/*-decoder.html`) — a per-language, per-token reading reference built from this core's own lines. No separate `03-hdl-cheatsheet.md` is needed; the decoder cards are the living cheatsheet (see `README.md` layers).
+- **Deliverable:** ✅ fulfilled (pre-sprint) by the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series plus their token decoder cards (`learn-*/reference/*-decoder.html`) — a per-language, per-token reading reference built from this core's own lines. No separate `03-hdl-cheatsheet.md` is needed; the decoder cards are the living cheatsheet (see `README.md` layers).
 
 
 
 ## Phase 4 — Walk the core, module by module (the main event)
 
 > **→ Executed by the sprint above (Days 1–6), at block level rather than line level.** Two changes
-> from how this phase was originally written, per the 2026-07-27 gear change:
+> from how this phase was originally written, per the Day 0 gear change:
 > **(a)** the per-module decoder-card token check is **dropped** — it's line-level work;
 > **(b)** annotation granularity is now *per logic block* (see the sprint's annotation standard),
 > not just `★` section headers.
@@ -451,7 +451,7 @@ Follow the data path. For each: read the module, annotate against the Phase 1 di
 - [ ] **Storage** — `microdisc.vhd` + `wd1793.sv` (note `apple2_disk/` reuse) + `pravetz8d_fdc.vhd`.
 - [ ] **MiSTer glue** — the Verilog tape engine (`cload_patch_rom.v`, `tap_byte_streamer.v`, `tap_segment_loader.v`), then snapshots/savestates (`snap_loader.v`, `snap_ss.v`, `savestate_hotkeys.v`). Cross-reference the core's `tools/tool.md` (TAP/SNA format tools).
 
-- **Deliverable:** per subsystem, following the layer pattern from `README.md`: (1) a frozen annotated copy in `annotated/rtl/<module>` carrying the file-header block, `★` section summaries, **and a plain-English comment per logic block** (see the sprint's annotation standard), and (2) a thin `modules/<module>.md` with only what the inline comments can't hold — purpose, key signals, real-hardware mapping, cross-module connections, open questions — never re-narrating the inline text. ~~(3) decoder-card token check~~ — **dropped 2026-07-27** (line-level; superseded by the block-level gear change).
+- **Deliverable:** per subsystem, following the layer pattern from `README.md`: (1) a frozen annotated copy in `annotated/rtl/<module>` carrying the file-header block, `★` section summaries, **and a plain-English comment per logic block** (see the sprint's annotation standard), and (2) a thin `modules/<module>.md` with only what the inline comments can't hold — purpose, key signals, real-hardware mapping, cross-module connections, open questions — never re-narrating the inline text. ~~(3) decoder-card token check~~ — **dropped Day 0** (line-level; superseded by the block-level gear change).
 
 
 
@@ -497,7 +497,7 @@ Honest scope: **you cannot simulate the whole core** with open-source tools — 
 
 - [ ] Confirm clone location convention (`core/` gitignored sibling) and add to `.gitignore`.
 - [ ] Decide whether module notes from Phase 4 get promoted into the wiki as a derived overview once mature.
-- [x] Maintainer `core/docs/` (and `games/` / `_Games/`) — missing from official upstream; copied locally from nikiiv fork (2026-07-27). Referenced in Day 0/1/6 + Sources table. (Not to be confused with any project-level learning-PDF `docs/`.)
+- [x] Maintainer `core/docs/` (and `games/` / `_Games/`) — missing from official upstream; copied locally from nikiiv fork (Day 0). Referenced in Day 0/1/6 + Sources table. (Not to be confused with any project-level learning-PDF `docs/`.)
 - [ ] Decide whether the learning PDFs in `docs/` are committed or gitignored (size + copyright) — lean toward gitignoring large/copyrighted books and keeping only an index.
 - [ ] If/when `docs/` lands in official `MiSTer-devel/Oric_MiSTer`, drop the local fork copy and track upstream.
 
@@ -507,7 +507,7 @@ Honest scope: **you cannot simulate the whole core** with open-source tools — 
 
 ## First action item
 
-**→ Day 0, then Day 1 of the sprint** (top of this file, both Mon 2026-07-27). Day 0: ~1 hour
+**→ Day 0, then Day 1 of the sprint** (top of this file). Day 0: ~1 hour
 mapping what every folder/file in the core repo is for → `00-repo-map.md`. Day 1: read
 [[oric.free.fr]]'s memory map and register-level architecture, then start `01-oric-hardware-notes.md`.
 Phase 0a (dev environment) is long since ✅ done — see `reference/dev-env.md`.

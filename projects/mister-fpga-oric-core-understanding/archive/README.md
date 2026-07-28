@@ -3,7 +3,7 @@
 Nothing in here is abandoned or wrong. It is **completed** work that is no longer an active track,
 moved aside so the project root shows only what's currently being worked on.
 
-Archived **2026-07-27**, when the project changed gear (see [`../plan.md`](../plan.md) →
+Archived **on sprint Day 0**, when the project changed gear (see [`../plan.md`](../plan.md) →
 "Gear change"): the goal moved from *understand every line and token of HDL syntax* to
 *understand what each code block does*. That change retired the lesson series as an active
 track — not as a resource.
@@ -12,8 +12,8 @@ track — not as a resource.
 
 | Folder | What it is | Status |
 |---|---|---|
-| [`learn-systemverilog/`](learn-systemverilog/) | 10-lesson SystemVerilog syntax series taught from real lines of `Oric.sv`, + a token decoder card + learning records | **Complete** — all 10 lessons done 2026-07-14 |
-| [`learn-vhdl/`](learn-vhdl/) | 10-lesson VHDL series taught from `rtl/oricatmos.vhd`, + decoder card + learning records | **Lessons 1–5 done** (2026-07-16); 6–10 written but not worked through |
+| [`learn-systemverilog/`](learn-systemverilog/) | 10-lesson SystemVerilog syntax series taught from real lines of `Oric.sv`, + a token decoder card + learning records | **Complete** — all 10 lessons done (pre-sprint) |
+| [`learn-vhdl/`](learn-vhdl/) | 10-lesson VHDL series taught from `rtl/oricatmos.vhd`, + decoder card + learning records | **Lessons 1–5 done** (pre-sprint); 6–10 written but not worked through |
 
 ## When you'd still come back here
 
