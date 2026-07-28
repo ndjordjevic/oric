@@ -480,19 +480,5 @@ machine, not building it.
 
 ## Open items / decisions
 
-- [ ] Confirm clone location convention (`core/` gitignored sibling) and add to `.gitignore`.
-- [ ] Decide whether module notes from Phase 4 get promoted into the wiki as a derived overview once mature.
-- [x] Maintainer `core/docs/` (and `games/` / `_Games/`) — missing from official upstream; copied locally from nikiiv fork (Day 0). Referenced in Day 0/1/6 + Sources table. (Not to be confused with any project-level learning-PDF `docs/`.)
-- [ ] Decide whether the learning PDFs in `docs/` are committed or gitignored (size + copyright) — lean toward gitignoring large/copyrighted books and keeping only an index.
+- [ ] Decide whether module notes from Days 1–6 get promoted into the wiki as a derived overview once mature.
 - [ ] If/when `docs/` lands in official `MiSTer-devel/Oric_MiSTer`, drop the local fork copy and track upstream.
-
----
-
-
-
-## First action item
-
-**→ Day 0, then Day 1 of the sprint** (top of this file). Day 0: ~1 hour
-mapping what every folder/file in the core repo is for → `00-repo-map.md`. Day 1: read
-[[oric.free.fr]]'s memory map and register-level architecture, then start `01-oric-hardware-notes.md`.
-Phase 0a (dev environment) is long since ✅ done — see `reference/dev-env.md`.
