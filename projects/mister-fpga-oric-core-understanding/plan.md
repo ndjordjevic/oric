@@ -365,93 +365,21 @@ Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-d
 
 
 
-## Phase 0 — Dev environment ✅ (done — the sprint above is where to start now)
+## Phases 0–4 — superseded by the sprint
 
-The stated goal is **reading and analyzing** code. The whole reading + simulation stack runs **natively on macOS**. Quartus does **not** run on macOS and is **not** needed to read code — defer it.
+These were the plan's original long-range framing before the Day 0–7 sprint existed. All five are
+now either done pre-sprint or fully absorbed into the sprint above — nothing here is still open work.
+Kept as a record of what fed into the sprint and where each deliverable lives.
 
-### 0a. Native MVP ✅ (pre-sprint)
-
-- [x] Install the open-source HDL stack:
-  `brew install ghdl icarus-verilog verilator gtkwave python3`
-  (GHDL = VHDL sim; Icarus/Verilator = Verilog/SV sim; GTKWave = waveform viewer)
-- [x] VS Code + **TerosHDL** extension (bundles linting, simulation, and doc-gen for both VHDL and Verilog) — or standalone HDL LSP extensions (`VHDL LS`, `SystemVerilog`).
-- [x] Clone the core locally as a **gitignored sibling** so it stays a separate repo:
-  `git clone https://github.com/MiSTer-devel/Oric_MiSTer.git core/` inside this project folder, then add `projects/**/core/` to the repo `.gitignore`.
-- [x] Smoke-test the toolchain: run a repo Python tool (`python3 core/tools/tape-inspect.py --help`) and confirm GHDL/Verilator/gtkwave launch.
-
-- **Deliverable:** `reference/dev-env.md` ✅ — what was installed, versions, how to launch each tool, and the gitignore decision.
-
-
-
-### 0b. Quartus (DEFERRED — only when you want the RTL Viewer or to build a `.rbf`)
-
-- Quartus Prime Lite is Linux/Windows-only. Two routes:
-  - **Docker** (build only, no GUI): the core ships `tools/oric-build` targeting the `raetro/quartus:mister` image. Good for producing a `.rbf`.
-  - **Linux VM** (e.g. UTM/Parallels): needed if you want the **graphical RTL Viewer / netlist schematic**, which is genuinely useful for grasping how a module elaborates into hardware.
-- Not a prerequisite for any reading/simulation phase below. Revisit at Phase 6.
+| Phase | What it was | Status |
+|---|---|---|
+| **0 — Dev environment** | Install the open-source HDL stack (GHDL, Icarus, Verilator, GTKWave), clone `core/` as a gitignored sibling, smoke-test the toolchain. Quartus (0b) deferred — Linux/Windows-only, not needed for reading. | ✅ Done pre-sprint → `reference/dev-env.md` |
+| **1 — Orient in the codebase** | Read `Oric.sv` and `rtl/oricatmos.vhd` top-to-bottom; sketch how the sub-modules connect. | ✅ Done pre-sprint → `reference/understanding-Oric-sv.md`, `reference/understanding-oricatmos-vhd.md`, `reference/block-diagram.md` (refreshed sprint Day 7), plus the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series |
+| **2 — Learn the real Oric hardware** | Memory map, 6502/VIA/ULA/PSG architecture, paired with the wiki. | → **Executed by the sprint**, Day 1 (+ ULA half on Day 2). Deliverable: `01-oric-hardware-notes.md` |
+| **3 — Enough HDL to read fluently** | VHDL/Verilog reading fluency, not authoring mastery. | ✅ Done pre-sprint → the lesson series + decoder cards (`archive/learn-*/reference/*-decoder.html`); no separate cheatsheet needed |
+| **4 — Walk the core, module by module** | Read each module, annotate, write a short note — clocking → CPU → memory → ULA/video → VIA → sound → input → storage → MiSTer glue. | → **Executed by the sprint**, Days 1–6, at block level (per the Day 0 gear change) rather than the line-level decoder-card check this phase originally specified |
 
 ---
-
-
-
-## Phase 1 — Orient in the codebase
-
-- [x] Read `Oric.sv` (`emu`) top-to-bottom; map which `rtl/` modules it instantiates and how `hps_io` signals reach the machine. → **Deliverable:** `reference/understanding-Oric-sv.md` **✅ (pre-sprint)**, since built out further than the initial read: completed the full `archive/learn-systemverilog/` 10-lesson syntax series (✅ pre-sprint, all `learning-records/` filled in) to actually read the SystemVerilog rather than rely on prose summary, then did a line-by-line Q&A pass over every `★` section of `annotated/Oric.sv` cold (PLL, HPS, RAM arbiter, video pipeline, file cache, ADC tape input, etc. — ongoing).
-- [x] Read `rtl/oricatmos.vhd` — the machine wrapper. Sketch which sub-modules it connects (CPU ↔ RAM/ROM ↔ ULA ↔ VIA ↔ PSG) and the clock/reset distribution. → **Deliverable:** `reference/understanding-oricatmos-vhd.md` **✅ (pre-sprint)** — plus the `archive/learn-vhdl/` lesson series (Lessons 1–5 done, `learning-records/` filled in).
-- [x] **Deliverable:** `reference/block-diagram.md` — a data-path + clock-path block diagram of the whole core (boxes = modules, arrows = buses). This becomes the map you annotate in later phases. ✅ (pre-sprint) — refreshed on sprint Day 7.
-
-
-
-## Phase 2 — Learn the real Oric hardware (so the RTL means something)
-
-> **→ Executed by the sprint above (Day 1, with the ULA half on Day 2).** This phase was skipped
-> until now and is the single biggest gap in the project — you can't say what a code block *does*
-> without knowing what the chip it models is *for*.
-
-Pair with the wiki — this is required reading, not optional:
-
-- [ ] Memory map, 6502/VIA/ULA/PSG architecture → [[oric.free.fr]] (register-level hardware-programming manual).
-- [ ] What the ULA actually does + the decapped schematics → [[oric.signal11.org.uk]] (Mike Brown / Lance Ewing reverse-engineering). The core's `rtl/rom/DIAG10` + `TEST108J` ROMs **are** Mike Brown's diagnostic ROM.
-- [ ] Cross-check against the Defence Force forum digest and the misterfpga.org Oric thread: [https://misterfpga.org/viewtopic.php?t=4599](https://misterfpga.org/viewtopic.php?t=4599).
-
-- **Deliverable:** `01-oric-hardware-notes.md` — annotated memory map + one-paragraph-per-chip summary, in your own words.
-
-
-
-## Phase 3 — Enough HDL to read fluently
-
-The core is mixed-language, so you need reading fluency in **both** VHDL and Verilog (not authoring mastery).
-
-- [ ] Skim a VHDL primer and a Verilog primer focused on *reading* synthesizable RTL (processes/`always` blocks, signals vs variables, clocked vs combinational). Use the misterfpga.org pinned lists: [Learning to dev a core](https://misterfpga.org/viewtopic.php?t=78) · [Verilog/HDL books & tutorials](https://misterfpga.org/viewtopic.php?t=136).
-- [ ] Use the repo-wide `books/` **catalog** (`[../../oric-docs/books/INDEX.md](../../oric-docs/books/INDEX.md)`) — VHDL (Pedroni; Brown & Vranesic), Verilog (Palnitkar; Chu's *FPGA Prototyping by Verilog Examples*), and digital-design (Mano) for HDL fluency; plus the Oric hardware/machine-code titles (6502 User's Manual, *Machine Code for the Atmos and Oric-1*, *Oric Advanced User Guide* + ROM disassembly, Service Manual) for Phase 2/4. Online references are in `[../../oric-docs/RESOURCES.md](../../oric-docs/RESOURCES.md)` §8.
-- [ ] Optional sandbox: re-type a tiny module into [EDA Playground](https://www.edaplayground.com) and watch it simulate.
-
-- **Deliverable:** ✅ fulfilled (pre-sprint) by the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series plus their token decoder cards (`learn-*/reference/*-decoder.html`) — a per-language, per-token reading reference built from this core's own lines. No separate `03-hdl-cheatsheet.md` is needed; the decoder cards are the living cheatsheet (see `README.md` layers).
-
-
-
-## Phase 4 — Walk the core, module by module (the main event)
-
-> **→ Executed by the sprint above (Days 1–6), at block level rather than line level.** Two changes
-> from how this phase was originally written, per the Day 0 gear change:
-> **(a)** the per-module decoder-card token check is **dropped** — it's line-level work;
-> **(b)** annotation granularity is now *per logic block* (see the sprint's annotation standard),
-> not just `★` section headers.
-> The MiSTer-glue bullet below is **deferred past the week** — it isn't the Oric.
-
-Follow the data path. For each: read the module, annotate against the Phase 1 diagram, write a short note. Suggested order (simple → complex):
-
-- [ ] **Clocking** — `pll.v` + how `oricatmos.vhd` derives the ~1 MHz CPU clock / pixel clock (PLL internals are a black box; focus on the divide/enable scheme).
-- [ ] **CPU** — `T65/` (6502). Don't read every line; understand the interface (address/data/RW/IRQ/NMI) and how it ties to memory.
-- [ ] **Memory** — `spram.v`, `ddram.sv`, `rom/*.vhd` (ROMs are literally VHDL lookup tables; note BASIC10/11/22 = Oric-1/Atmos, DIAG10 = diagnostic).
-- [ ] **ULA + video** — `ula.vhd` then `video.vhd`. The payoff module. Re-read [[oric.signal11.org.uk]] alongside. Map text/HIRES modes, attributes, sync generation.
-- [ ] **VIA** — `m6522.vhd` (keyboard matrix, tape I/O, timers, PSG control lines).
-- [ ] **Sound** — `psg.v` (AY-3-8912: tone/noise/envelope channels).
-- [ ] **Input** — `keyboard.sv`, `joystick.sv`.
-- [ ] **Storage** — `microdisc.vhd` + `wd1793.sv` (note `apple2_disk/` reuse) + `pravetz8d_fdc.vhd`.
-- [ ] **MiSTer glue** — the Verilog tape engine (`cload_patch_rom.v`, `tap_byte_streamer.v`, `tap_segment_loader.v`), then snapshots/savestates (`snap_loader.v`, `snap_ss.v`, `savestate_hotkeys.v`). Cross-reference the core's `tools/tool.md` (TAP/SNA format tools).
-
-- **Deliverable:** per subsystem, following the layer pattern from `README.md`: (1) a frozen annotated copy in `annotated/rtl/<module>` carrying the file-header block, `★` section summaries, **and a plain-English comment per logic block** (see the sprint's annotation standard), and (2) a thin `modules/<module>.md` with only what the inline comments can't hold — purpose, key signals, real-hardware mapping, cross-module connections, open questions — never re-narrating the inline text. ~~(3) decoder-card token check~~ — **dropped Day 0** (line-level; superseded by the block-level gear change).
 
 
 
