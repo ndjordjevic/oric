@@ -42,7 +42,7 @@ Microdisc/Jasmin/Telestrat can enable 16 KB of "overlay RAM" hidden *under* the 
 | `$0100`–`$01FF` | 256 B | Page 1 — the 6502 hardware stack (fixed by the CPU, not a design choice) |
 | `$0200`–`$02FF` | 256 B | Page 2 — OS / BASIC system variables (**incl. the IRQ/NMI `JMP`s** — see vectors below) |
 | `$0300`–`$03FF` | 256 B | Page 3 — **I/O**: the VIA, plus expansion devices (Microdisc, Jasmin, Pravetz) |
-| `$0400`–`$04FF` | 256 B | Page 4 — `$0400`–`$041F` free for user machine code, the rest is DOS workspace |
+| `$0400`–`$04FF` | 256 B | Page 4 — `$0400`–`$0420` free for user machine code, the rest is DOS workspace (Sedoric/Microdisc/Jasmin/Pravetz all reuse it differently — see §6) |
 | `$0500`–`$97FF` | ~37 KB | **Free RAM** — BASIC program + variables, growing upward |
 | `$9800`–`$B3FF` | 7 KB | Reserved for HIRES; released to BASIC by `GRAB`, reclaimed by `RELEASE` |
 | `$B400`–`$B7FF` | 1 KB | Standard character set (redefinable, ASCII ≥ 32) |

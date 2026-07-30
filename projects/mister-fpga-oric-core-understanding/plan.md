@@ -209,25 +209,25 @@ is for, and where each sits in the address space. One sentence each is enough.
 
 ### Reading — in this order
 
-- [ ] **`core/docs/oric_memory_map.md` §1, §7, §8 — start here, ~30 min.** The single best Day 1
-  source and it's local. §1 is the whole-machine map (TEXT *and* HIRES tables), §7 is the ROM layout
-  + CPU hardware vectors, §8 is the one-paragraph-per-chip hardware overview. It's consolidated from
+- [x] **`core/docs/oric_memory_map.md` §1, §7, §8 — start here, ~30 min.** The single best Day 1
+  source and it's local. §1 is the whole-machine map (TEXT *and* HIRES tables). §7 is the ROM layout
+  and CPU hardware vectors. §8 is the one-paragraph-per-chip hardware overview. It's consolidated from
   the AUG ROM disassembly, the Defence Force wiki, OSDK, cc65's `atmos.inc`, and oric.free.fr.
   `01-oric-hardware-notes.md`'s tables are transcribed from this §1 — read the original first, then
   use those tables to check yourself rather than as the thing you learn from.
   - Optional deeper passes, same file, only if you want them: §2 (zero page), §3 (stack), §4 (page 2
     — where the IRQ/NMI `JMP`s live), §6 (page 4). **Skip §5 entirely** — that's the page-3 I/O
     region, i.e. VIA/Microdisc registers = Day 4/Day 6.
-- [ ] **[oric.free.fr Hardware Programming How-To](http://oric.free.fr/programming.html) — the
+- [x] **[oric.free.fr Hardware Programming How-To](http://oric.free.fr/programming.html) — the
   *Introduction* and *UAL* chapters only, ~20 min.** Read the UAL chapter for its **memory-management**
   role (chip selects, I/O at page 3, ROM at `$C000`), *not* its video role — video is Day 2. Skip the
   VIA, PSG, Keyboard, Screen, Floppy, Tape, Serial, RTC and Telestrat chapters; they belong to later
   days. This is the cross-check against the local doc, not a replacement for it.
-- [ ] **`core/docs/manual_atmos.md` chapter 5, "Down memory lane" — optional, ~10 min.** The Atmos
+- [x] **`core/docs/manual_atmos.md` chapter 5, "Down memory lane" — optional, ~10 min.** The Atmos
   manual's own plain-English tour of the memory map. Useful as a sanity check that you can explain
   it the way the machine's own documentation does. Ignore the rest of that file today (it's the
   full BASIC manual).
-- [ ] ~~Skim [[oric.signal11.org.uk]]~~ — **moved to Day 2.** It's ULA reverse-engineering; there's
+- [x] ~~Skim [[oric.signal11.org.uk]]~~ — **moved to Day 2.** It's ULA reverse-engineering; there's
   nothing in it Day 1 needs, and skimming it today just means reading it twice.
 
 ### Books — exact chapters, don't read whole books

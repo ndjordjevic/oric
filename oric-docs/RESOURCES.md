@@ -22,6 +22,7 @@ Assembled 2026-06-21.
 - [Dbug's Blog](https://blog.defence-force.org/index.php?page=main) — deep technical articles from the Defence Force dev; [all articles by year](https://blog.defence-force.org/index.php?year=2009)
 - [Welcome to Oric World (oric.free.fr)](http://oric.free.fr/) — reference site: history, hardware, programming
 - [Muso's Oric Site (48katmos.freeuk.com)](http://www.48katmos.freeuk.com/) — Atmos-focused; service manual, tips
+- [Defence Force Wiki (wiki.defence-force.org)](https://wiki.defence-force.org/) — structured reference pages (memory maps, software, hardware); see §3 for a direct deep link
 - [Peter's Oric-1 Page](https://homepages.uni-regensburg.de/~hep09515/oric.html) — personal reference page
 
 ## 2. Manuals, books & library
@@ -37,6 +38,11 @@ Assembled 2026-06-21.
 ## 3. Hardware reference & programming
 
 - [Hardware Programming How-To (oric.free.fr)](http://oric.free.fr/programming.html) — memory map, I/O, VIA, AY chip
+- [Defence Force Wiki — memory maps](https://wiki.defence-force.org/doku.php?id=oric:software:memory_maps) — page-by-page zero-page/stack/OS-variable tables; a primary source behind `core/docs/oric_memory_map.md`
+- [OSDK — documentation, memory map](https://www.osdk.org/index.php?page=documentation&subpage=memorymap) — the Oric Software Development Kit's own memory-map reference
+- [cc65 `atmos.inc`](https://github.com/cc65/cc65/blob/master/asminc/atmos.inc) — the C compiler toolchain's named labels for OS/BASIC zero-page and page-2 variables; a practical companion to reading `oric_memory_map.md`'s raw addresses
+- [48katmos — port reference](http://www.48katmos.freeuk.com/ports.htm) — VIA/port assignments
+- [Twilighte's VIA documentation](http://twilighte.oric.org/twinew/via.htm) — dedicated 6522 VIA reference
 - [Software for Oric (bannister.org)](https://www.bannister.org/software/oric.htm) — utilities and software catalog
 
 ## 4. Clones, replicas & open-hardware
@@ -125,3 +131,18 @@ Found while researching [`projects/ideas.md`](../projects/ideas.md) idea #1 — 
 - [Forum: Assembler / disassembler](https://forum.defence-force.org/viewtopic.php?t=1765)
 - [Forum: Towards an onboard Oric Assembler/Editor Development environment](https://forum.defence-force.org/viewtopic.php?t=2430) — brainstorming thread, mentions a tool called MONASM, no shipped result
 - [Forum: ASMOS recommendation thread](https://forum.defence-force.org/viewtopic.php?t=1199) — recommends ASMOS as an accessible on-machine assembler/monitor; notes poor documentation across these period tools generally
+
+## 14. 6502 CPU — build-from-scratch learning
+
+Not Oric-specific — generic 6502 hardware resources. Found while researching Day 1 of
+`projects/mister-fpga-oric-core-understanding/plan.md` (the CPU/memory-map foundation day).
+
+- [Build a 6502 computer (Ben Eater)](https://eater.net/6502) — video series wiring a 6502 to ROM,
+  RAM, and an address decoder on breadboards; already cited in `plan.md`'s Day 1 videos section
+- [Build a 6502 based computer (6502.co.uk)](https://6502.co.uk/course/build-a-6502-based-computer) — a written course, discrete-component build
+- [6502.org — Homebuilt Projects](https://6502.org/homebuilt) — curated list of other people's homebrew 6502 builds, with schematics and write-ups
+- **`how-to-build-a-microcomputer-creason-1979.pdf`** (local, `~/Downloads/`) — *How to Build a
+  Microcomputer … and Really Understand It*, Sam Creason, 1979. Vintage step-by-step 6502 hardware
+  build book (backplane system, ADC, DAC, 1K RAM, 6502 CPU); sourced from
+  [retro.hansotten.nl](http://retro.hansotten.nl/uploads/books/howtobuildamicrocomputer.pdf), not yet
+  filed into the pCloud library or `oric-docs/books/`
