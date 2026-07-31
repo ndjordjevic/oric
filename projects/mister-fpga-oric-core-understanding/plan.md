@@ -241,6 +241,15 @@ All in `oric-docs/books/oric/` (TOC indexes; PDFs in the pCloud library):
 | `6502-users-manual` | Ch. 2 (p. 19), Ch. 4 (p. 35), Ch. 10 (p. 121), Ch. 13 (p. 227) | Architecture, timing/control signals (R/W, RDY, IRQ/NMI, clock), interfacing memory, interrupts. **Skip Ch. 5/7/16** — addressing modes and the instruction set are *programming* the 6502, not understanding the machine |
 | `oric-advanced-user-guide-rom-disassembly` | Look up the reset vector only | Answers open question #1: what the reset routine does about RAM |
 
+**Optional — general 6502 background, not Oric-specific.** Read only if the CPU/vector material
+above doesn't click, or out of curiosity. Catalog: `oric-docs/books/6502-hardware/` (TOC indexes)
+and `oric-docs/RESOURCES.md` §14 (build-from-scratch links — reading/watching only, no building;
+see [../ideas.md](../ideas.md) discussion). Two worth calling out: `mcs6500-programming-manual-mos-1976`
+Ch. 9 ("Reset and Interrupt Considerations") is the chip manufacturer's own explanation of the
+fully-vectored-interrupt pattern behind the page-2 `JMP` vectors this project covers today; Ben
+Eater's ["Build a 6502 computer"](https://eater.net/6502) series (already tabled below) is the
+hands-on version of the same idea.
+
 ### Videos — optional, only if a topic won't click from text
 
 Channel, duration and upload date verified via `yt-dlp`; **spoken content not verified** (these have
@@ -328,6 +337,11 @@ The single highest-payoff module in the core, and the most Oric-specific silicon
 - [ ] Pair with [[oric.signal11.org.uk]] in full — the decapped-ULA reverse-engineering is what makes this readable (deferred here from Day 1: nothing in it Day 1 needed)
 - [ ] Read the [oric.free.fr](http://oric.free.fr/programming.html) **UAL chapter's video half** + the **Screen** chapter — deliberately skipped on Day 1
 - [ ] *Optional video:* [Oriclopedia: The Oric video chips — ULA HCS10017](https://www.youtube.com/watch?v=dnxDiXZD2nM) (Dbug's stuff, 46 min) — by a Defence Force dev, on exactly this chip
+- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/understanding-the-apple-ii-sather-1983` Ch. 3
+  ("Timing Generation and the Video Scanner") and `the-apple-ii-circuit-description-gayler-1983` Ch. 3–4
+  (clock generator + video timing) — the Apple II solves the *same* problem (clock division, per-line
+  video-address generation) with discrete TTL instead of one custom gate array; useful as a worked
+  example before or alongside `u_CPT_H`/`u_CPT_V`
 
 - **Deliverables:** `annotated/rtl/ula.vhd` (part-1 sections) · start `modules/02-ula.md`
 - **Self-check:** explain *why* the Oric physically cannot hardware-scroll — i.e. what the ULA recomputes every line. (This is the constraint behind Idea #3's difficulty in `ideas.md`.)
@@ -339,6 +353,11 @@ The single highest-payoff module in the core, and the most Oric-specific silicon
 - [ ] Rest of `ula.vhd` — attribute detection (`u_isattrib`), pixel shift register (`u_shf_reg`), hold/latch registers, `u_ld_reg`
 - [ ] `video.vhd` (215) — the output pipeline
 - [ ] **The serial-attribute model, in full.** The single most consequential Oric quirk: an attribute byte occupies a 6-pixel cell in screen data and holds until the next one; one byte sets ink *or* paper *or* charset, never two. Every game project in `ideas.md` lives or dies on this
+- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/cheap-video-cookbook-lancaster-1978`
+  and `tv-typewriter-cookbook-lancaster` — TTL-only character/graphics video generation from a
+  microcomputer; the same bandwidth/sync/RAM-contention constraints `video.vhd` and the
+  serial-attribute model exist to solve, worked from first principles with discrete chips instead
+  of an FPGA
 
 - **Deliverables:** finish `annotated/rtl/ula.vhd` · `annotated/rtl/video.vhd` · `modules/02-ula.md`, `modules/03-video.md`
 - **Buffer:** this day deliberately has slack to absorb Day 2 overflow — ULA is allowed to take 1.5 days
@@ -353,6 +372,9 @@ deliberately rather than read exhaustively:**
 
 - [ ] **In scope:** the CPU register interface (full register map), PA/PB port I/O, the four jobs the Oric actually gives it — keyboard-matrix column select, PSG bus control (`BDIR`/`BC1`), tape in/out, printer — plus T1/T2 timers at block level and the IFR/IER interrupt logic
 - [ ] **Out of scope (state it in the module doc):** shift-register (SR) internals and timer edge-case corner behaviour. Read the interface, skip the guts — the Oric barely exercises them
+- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/6502-applications-zaks-1979`
+  Ch. I/II and `programming-the-6502-zaks-1983` Ch. VII — hands-on 6522 (VIA) programming from a
+  generic 6502-system angle, before reading the Oric-specific register map in `m6522.vhd`
 
 - **Deliverables:** `annotated/rtl/m6522.vhd` · `modules/04-m6522.md`
 - **Self-check:** trace a single keypress end-to-end — matrix row/column → VIA port → IRQ → CPU
