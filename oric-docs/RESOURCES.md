@@ -146,3 +146,29 @@ Not Oric-specific — generic 6502 hardware resources. Found while researching D
   build book (backplane system, ADC, DAC, 1K RAM, 6502 CPU); sourced from
   [retro.hansotten.nl](http://retro.hansotten.nl/uploads/books/howtobuildamicrocomputer.pdf), not yet
   filed into the pCloud library or `oric-docs/books/`
+- [KiT — building a 6502 computer from scratch (Kiran Tomlinson, 7 parts)](https://www.cs.cornell.edu/~kt/post/6502-1/) —
+  Ben-Eater-inspired breadboard build, but goes further than Eater's design. Part 1: custom memory
+  map (28 KB RAM + 2 KB video RAM), simplified address decoding, LED-based debugging. Part 4: adds a
+  Motorola MC6847 video chip + MC1372 composite output, solved with async dual-port RAM so CPU and
+  video chip don't fight over the bus; demos include a Mandelbrot render and Snake. Part 7 (2022):
+  a from-scratch Java **cycle-accurate emulator** ("KiT 2") running at up to 35 MHz turbo — [source](https://github.com/tomlinsonk/kit-emu).
+  Parts 2/3/5/6 weren't individually fetched; follow the "next part" link at the bottom of each post
+- [6502 Home Computer (grappendorf.net, 17 parts)](https://www.grappendorf.net/projects/6502-home-computer/) —
+  a 2014–2015 build log: bare 6502 + separate RAM/ROM/IO chips, LCD display, LiPo-powered. Notable
+  parts: [clock generation](https://www.grappendorf.net/projects/6502-home-computer/clock-generation.html)
+  (74LS04 inverters as a quartz oscillator), [EEPROM + first program](https://www.grappendorf.net/projects/6502-home-computer/eeprom-and-a-first-program.html),
+  [PCB design](https://www.grappendorf.net/projects/6502-home-computer/printed-circuit-board.html),
+  [software development](https://www.grappendorf.net/projects/6502-home-computer/software-development.html),
+  and a C64-**SID sound chip** add-on (needs a 9V boost converter off the 5V rail) — 17-part index not
+  directly listable, this site returns 403 to automated fetches; browse from the project page above
+- [Building a 6502 Computer (David Hamann)](https://davidhamann.de/2024/01/10/building-6502-computer/) —
+  a single write-up following Ben Eater's series end to end: 6502/W65C02, 28C256 EEPROM, 62256 RAM,
+  W65C22 VIA, HD44780 LCD, plus an Arduino Mega used as a logic analyzer to watch the address/data
+  bus live. Good for the debugging-technique angle, not just the wiring
+- [6502 Primer (Garth Wilson, wilsonminesco.com)](https://wilsonminesco.com/6502primer/) — the
+  reference the community keeps citing (2003–2022): address decoding, IRQ/NMI wiring, clock/reset
+  circuits, SYNC/RDY pins, wire-wrap vs. PCB construction, expansion buses. Both a beginner
+  walkthrough and a lookup reference once building
+- [6502.org Forum](https://6502.org/forum/) — "The 6502 Microprocessor Resource" community forum,
+  ~7,100 topics / 115,000 posts. Sub-forums for programming, hardware, emulation, programmable logic
+  (PAL/CPLD/FPGA), vintage machines (KIM-1, SYM-1), and a dedicated newbie/first-build section

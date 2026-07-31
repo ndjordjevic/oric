@@ -2,9 +2,9 @@
 
 One `.md` file per book, each with title, author, year, source path, and extracted table of contents. The PDFs themselves live in the pCloud library (not committed); these files are the searchable index.
 
-Source library: `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/` (`FPGA/` and `Oric/`).
+Source library: `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/` (`FPGA/`, `Oric/`, and — for `6502-hardware/` — `Apple II/`, `C64/`, `Hardware/`, `Electornics/`).
 
-**Total: 35 books** — 5 FPGA/HDL + 30 Oric.
+**Total: 44 books** — 5 FPGA/HDL + 30 Oric + 9 general 6502/hardware background.
 
 ---
 
@@ -17,6 +17,26 @@ The core is mixed VHDL + Verilog/SystemVerilog. These cover both languages plus 
 - [`verilog-hdl-a-guide-to-digital-design-and-synthesis-palnitkar-1996.md`](fpga-hdl/verilog-hdl-a-guide-to-digital-design-and-synthesis-palnitkar-1996.md) — Verilog HDL: A Guide to Digital Design and Synthesis — Samir Palnitkar (SunSoft, 1996)
 - [`fpga-prototyping-by-verilog-examples-chu-2008.md`](fpga-hdl/fpga-prototyping-by-verilog-examples-chu-2008.md) — FPGA Prototyping by Verilog Examples — Pong P. Chu (Wiley, 2008)
 - [`digital-design-with-an-introduction-to-the-verilog-hdl-mano-2013.md`](fpga-hdl/digital-design-with-an-introduction-to-the-verilog-hdl-mano-2013.md) — Digital Design, 5th Ed. — Mano & Ciletti (Pearson, 2013)
+
+---
+
+## `6502-hardware/` — 6502 CPU & related hardware background, not Oric-specific (9)
+
+Found while surveying the pCloud library for material to support
+`projects/mister-fpga-oric-core-understanding/plan.md`. None of these are about the Oric; they're
+6502-family primary-source manuals and same-era 6502-machine hardware books that help ground Days
+1–3 of the sprint (CPU, memory map, and — via the Apple II / video-generation titles — the kind of
+discrete-logic circuit the Oric's ULA replaces with one custom chip).
+
+- [`mcs6500-hardware-manual-mos-1976.md`](6502-hardware/mcs6500-hardware-manual-mos-1976.md) — MCS6500 Microcomputer Family Hardware Manual — MOS Technology, Inc. (1976) — *the chip manufacturer's own manual; primary source behind `6502-users-manual.md`*
+- [`mcs6500-programming-manual-mos-1976.md`](6502-hardware/mcs6500-programming-manual-mos-1976.md) — MCS6500 Microcomputer Family Programming Manual — MOS Technology, Inc. (1976) — *Ch. 9 is the primary source on reset/NMI/IRQ vector mechanics*
+- [`programming-the-6502-zaks-1983.md`](6502-hardware/programming-the-6502-zaks-1983.md) — Programming the 6502 — Rodnay Zaks (Sybex, 1983) — *widely regarded as the best general 6502 text; covers the 6522 VIA too*
+- [`6502-applications-zaks-1979.md`](6502-hardware/6502-applications-zaks-1979.md) — 6502 Applications — Rodney Zaks (Sybex, 1979) — *hands-on 6522/VIA interfacing*
+- [`understanding-the-apple-ii-sather-1983.md`](6502-hardware/understanding-the-apple-ii-sather-1983.md) — Understanding the Apple II — Jim Sather (Quality Software, 1983) — *circuit-level bible for a 6502-based home computer; closest single-machine analog to this project*
+- [`the-apple-ii-circuit-description-gayler-1983.md`](6502-hardware/the-apple-ii-circuit-description-gayler-1983.md) — The Apple II Circuit Description — Winston Gayler (Sams, 1983) — *schematic-level clock/video-timing/address-decode reference*
+- [`an-introduction-to-microcomputers-vol1-osborne-1976.md`](6502-hardware/an-introduction-to-microcomputers-vol1-osborne-1976.md) — An Introduction to Microcomputers, Vol. 1: Basic Concepts — Adam Osborne (1976) — *architecture-agnostic microprocessor fundamentals*
+- [`cheap-video-cookbook-lancaster-1978.md`](6502-hardware/cheap-video-cookbook-lancaster-1978.md) — The Cheap Video Cookbook — Don Lancaster (Sams, 1978) — *TTL-logic video generation, the discrete-chip analog of a ULA*
+- [`tv-typewriter-cookbook-lancaster.md`](6502-hardware/tv-typewriter-cookbook-lancaster.md) — TV Typewriter Cookbook — Don Lancaster (Synergetics, 3rd ed. 2010; orig. 1976) — *character-display precursor to Cheap Video, analogous to TEXT-mode generation*
 
 ---
 
