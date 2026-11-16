@@ -443,9 +443,112 @@ Open questions:
 - Interaction with SEDORIC — coexist on separate disks, or read SEDORIC-format media?
 - Same storage-target fork as Idea #5 (tape / Microdisc / modern SD) — decide once, share the layer.
 
+## 7. Study 1337 (fan Elite for the Oric) — then polish it, or do an own Elite port
+
+Goal: read and understand **1337**, the Oric rewrite of Elite by Chema Enguita (Defence Force).
+Then pick one of two follow-ups:
+- **Polish 1337:** fix bugs, speed up the 3D renderer, or add features.
+- **Own port:** port the real Bell & Braben Elite code to the Oric, with 1337 as a reference for
+  Oric-specific solutions.
+
+Captured 2026-11-16 from a claude.ai chat about Oric vs BBC Micro, Elite and Spy vs Spy.
+
+**What 1337 is:**
+- A rewrite, not a port. It does not use the original Elite code. It shares the ship shapes and
+  the trading loop.
+- Full 3D flight (you control all 3 axes), power redirection, ship ID, Microdisc save/load, and a
+  tutorial.
+- The 3D engine comes from Stephen L. Judd's lib3d/obj3d (C64), documented at
+  [ffd2.com/fridge](http://www.ffd2.com/fridge/).
+- It won the 2010 Oldschool Gaming Game of the Year award. It is free on
+  [itch.io](https://itch.io) (search "1337 Elite Oric"). Bug-fix releases still appear.
+- Weak point: speed. Even its manual says it is not the fastest Elite. That is the 1 MHz CPU and
+  the HIRES screen.
+
+**Source code:**
+- Chema developed it in the open, in the Defence Force SVN (user area `users/chema/1337/`).
+- In 2020 the SVN came back online at `svn.defence-force.org`, hosted on OSDN. OSDN is not
+  reliable, so the repo may be offline. **Not confirmed.** If it is offline, ask Chema on
+  `forum.defence-force.org`.
+- No GitHub mirror found. No license stated — personal study is fine, but ask Chema before you
+  reuse code or publish changes.
+- Toolchain: [OSDK](https://osdk.org), which now builds on Linux.
+
+**Reference code for the "own port" path:**
+- [bbcelite.com](https://www.bbcelite.com) (Mark Moxon): fully annotated, buildable source for
+  almost every 6502 Elite (BBC cassette/disc, Electron, 6502 Second Processor, Master, C64,
+  Apple II, NES). Start with the **BBC cassette** version (smallest, most original). Then read the
+  **C64 or Apple II** version: they show how Bell & Braben moved the same code to non-Acorn
+  graphics. That is the closest model for an Oric port.
+- Recent fan ports from the same source show the path works: VIC-20 (Aleksi Eeben, 2025, from
+  the C64 source) and Atari 8-bit (reifsnyderb, 2025–26, from the BBC disc source).
+- Elite: The New Kind (Christian Pinder): a C reimplementation. Use it to follow program flow
+  without reading 6502.
+
+**Where the work is (Oric side):**
+- Line drawing and screen clear in HIRES (6 px per byte, `$A000`). Elite is wireframe, so serial
+  attributes matter less — run monochrome in the 3D view.
+- Speed: the BBC runs at 2 MHz; the Oric at 1 MHz. Expect a lower frame rate than BBC Elite.
+- Sound: the AY-3-8912 is better than the BBC's SN76489.
+- Memory: 1337 already needs a disk. A full Elite port will also need disk for the docked code.
+
+Open questions:
+- Polish 1337 or do an own port? Study first, then decide.
+- Can I get the 1337 source? Check the SVN first. This decides if "polish" is possible at all.
+
+## 8. Port Spy vs Spy (1984) to the Oric
+
+Goal: port the original First Star **Spy vs Spy** to the Oric. It is a split-screen game: two
+spies set traps for each other in a flip-screen embassy.
+
+**Why it is a real gap:** no Oric version exists, not official and not homebrew. The 1984 game
+came out on about 16 platforms. Of the 8-bit computers, only the Oric and the Dragon/CoCo never
+got any Spy vs Spy game. (Checked MobyGames, oric.org and the Defence Force forum.)
+
+**Source material:**
+- No original source was ever released for any version.
+- **C64 (Mike Riedel, the original):** full annotated disassembly by
+  [Games Explained](https://github.com/gamesexplained/gamesexplained) (PR #266, merged 2026-10-09).
+  It covers all code and data, with `symbols.json`/`listing.json` and a "how it works" page (map
+  drawing, music driver, the computer spy's route search). License: CC BY-SA 4.0 for write-ups,
+  MIT for code. Some of Riedel's original label names survive. Caveats: comments are partly
+  AI-written (spot checks found and fixed errors), and it is not confirmed that the listing
+  reassembles.
+- **Amiga sequels:** [`hitchhikr/spyvsspy2`](https://github.com/hitchhikr/spyvsspy2) and
+  `hitchhikr/spyvsspy3` — full disassemblies, BSD-2-Clause. Useful only for the II/III rules.
+- **No RE found** for Apple II, Atari 8-bit, BBC/Electron, Plus/4, Spectrum or CPC.
+
+**Which version to reverse-engineer: Apple II.**
+- Top-tier quality (with C64, Atari 8-bit and Plus/4), per the Finnish Retro Game Comparison Blog.
+- Same author as the C64 version (Mike Riedel), so the logic should match the C64 disassembly.
+- Same hardware situation as the Oric: 1 MHz 6502, software-drawn bitmap, **no hardware sprites**.
+  The C64 and Atari versions use hardware sprites, which the Oric does not have. So the Apple II
+  sprite and split-screen drawing code is the code to learn from.
+- Nobody has disassembled it. Use a clean crack (for example from the 4am archives) — the
+  original disk has copy protection.
+
+**Workflow:**
+1. Use the C64 disassembly as a map of the game logic.
+2. Disassemble the Apple II binary and match its routines to the C64 ones.
+3. Annotate the drawing and input code yourself — that is the part the Oric port replaces.
+4. Write the Oric renderer, input and sound. Keep the logic, trap rules and AI.
+
+**Oric fit:**
+- Flip-screen rooms, no scrolling — like Lode Runner (Idea #4), not Choplifter (Idea #3).
+- The split screen (one half per spy) is the main test for serial attributes. Plan colour per
+  attribute cell from day one, as in Idea #3's "Oric-native" decision.
+- Sound: the AY-3-8912 can do the theme music well. The C64 SID version is the reference.
+- Two players: the Oric needs two joysticks or a shared keyboard. Ties into Idea #2's joystick
+  research.
+
+Open questions:
+- Licensing: derivative of a commercial game (First Star / Mad Magazine's Spy vs Spy characters).
+  Personal study only; credit Mike Riedel, First Star and the RE authors.
+- Order vs Idea #4: Lode Runner first as the confidence builder, or Spy vs Spy first?
+
 ---
 
-## Appendix — shared platform notes (apply to Ideas #3, #4, #5, #6)
+## Appendix — shared platform notes (apply to Ideas #3, #4, #5, #6, #8)
 
 Captured 2026-07-16; these are cross-cutting, so they live here rather than being repeated per idea.
 
