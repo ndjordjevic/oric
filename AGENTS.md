@@ -3,7 +3,7 @@
 Personal mono-repo for learning about the Oric retro computer:
 
 - `oric-docs/oric-llm-wiki/wiki/` — knowledge base of ingested sources (the LLM wiki)
-- `oric-docs/books/INDEX.md` — TOC indexes of 35 Oric + FPGA/HDL books; consult it to find which book covers a topic
+- `oric-docs/books/INDEX.md` — TOC indexes of 44 books (30 Oric, 9 6502/hardware, 5 FPGA/HDL); consult it to find which book covers a topic
 - `oric-docs/RESOURCES.md` — curated links: Oric hardware, software, community, FPGA/HDL
 - `projects/` — hands-on learning projects (e.g. `mister-fpga-oric-core-understanding/`, `build-journey/`)
 
@@ -34,37 +34,20 @@ Search the forum for: hardware troubleshooting/repair/compatibility; clone board
 
 ## Audience — HDL walkthroughs
 
-The human is **not** experienced with VHDL/Verilog/SystemVerilog but knows digital electronics and general programming well. When explaining HDL:
+The human is **not** experienced with VHDL/Verilog/SystemVerilog but knows digital electronics and general programming well.
+They want to know **what each code section does**, not what every line or token means.
 
-- Briefly explain each syntax construct on first appearance (1–2 sentences — unlock the code, don't teach HDL in depth).
-- Always include an analogy to a well-known language (C, Python, JS…).
-- End every explanation with 1–2 plain-English sentences on what the code does functionally.
+- Explain code at section level, in plain English: what it does and why it is there.
+- Explain a syntax construct only when the human asks, or when the section makes no sense without it. Then keep it to 1–2 sentences, with an analogy to C, Python or JS.
 
-## Lessons — full-coverage requirement
+## `projects/mister-fpga-oric-core-understanding/` — rules
 
-Scope: `projects/*/**/learn-*/lessons/` only. The HDL lesson series is done and archived to
-`projects/mister-fpga-oric-core-understanding/archive/learn-systemverilog/` and `.../archive/learn-vhdl/`.
-This rule still applies there, and to any new lesson.
+Read the project's `README.md`, `plan.md` and `MAP.md` before adding or editing material there.
 
-**This rule does not apply to `annotated/rtl/*` block comments.** Those are block-level by design —
-see `plan.md` → "Gear change" in the core-understanding project.
-
-The rule itself: a lesson's code excerpt must explain every line and every token in it. Show the
-excerpt in full, or state clearly what was cut. Name what each unexplained line does, even repeated
-forms. Check the excerpt against the prose before finishing — every signal name, operator, and
-literal needs a mention.
-
-## `projects/mister-fpga-oric-core-understanding/` — study layers
-
-The project's `README.md` defines how its study materials are layered (lessons / annotated source / walkthrough docs / diagram) — read it before adding or editing material there. Rules that must hold:
-
-- `annotated/` holds study snapshots of the upstream `Oric_MiSTer` sources with `// ★` / `-- ★` comments added; pinned to upstream commit `c4cf449` (provenance: `annotated/README.md`). Currently `Oric.sv`, `rtl/oricatmos.vhd`, `rtl/spram.v`, `rtl/T65/T65.vhd`, plus `rtl/rom/README.md`; the 7-day sprint adds the rest of the Oric-proper modules. The pristine `core/` clone is a gitignored sibling tracking upstream; its line numbers sit lower (no ★ comments).
-- **All lessons, reference cards, and walkthrough docs cite line numbers from `annotated/`** — quote from it, not `core/`, so line numbers match.
-- Treat `annotated/` as **frozen**: never edit its *code*, and never re-sync from `core/` — line attributions depend on it. If upstream moves and a refresh is truly needed, re-annotate a fresh copy and re-verify every citation.
-  - **One permitted exception: a line-count-neutral comment correction.** If an `★`/block comment is factually *wrong*, it may be fixed in place provided the edit adds and removes no lines (verify with `git diff --stat` → `1 insertion, 1 deletion`) so no citation can move. Log it under "Corrections to frozen files" in `annotated/README.md`. Precedent: `Oric.sv:150` said reset zeroed RAM; it fills with `0x01` (2026-07-27).
-  - Adding annotation to a **new** file is not an edit to a frozen one — annotate freely until it's committed, then it's frozen too.
-- **Each fact lives in exactly one layer** (anti-duplication): section summaries live only as `★` comments in `annotated/`; walkthrough docs (`understanding-Oric-sv`, `understanding-oricatmos-vhd`, `modules/*`) never restate `★` text — they carry only background, cross-references, tables, and open questions, with a heading + `★` line pointer per section; lessons teach language syntax, never file architecture.
-- New modules studied later follow the same pattern: annotate a frozen copy in `annotated/rtl/` (file-header block + `★` sections + **a plain-English comment per logic block**), then write a thin walkthrough note. ~~check the decoder card covers the module's tokens~~ — **dropped 2026-07-27** with the gear change to block-level understanding.
+- `annotated/` holds copies of upstream `Oric_MiSTer` files (commit `c4cf449`) with plain-English `// ★ SECTION n —` / `-- ★ SECTION n —` comments above each section. Only comments are added; code is never changed (check: `diff <(tr -d '\r' < core/<f>) annotated/<f>` shows only added lines). `core/` is the clean upstream clone (gitignored) — never edit it.
+- Point to code by section name (`oricatmos.vhd ★ SECTION 8`), not line number. Where a doc does use a line number, fix it after adding or removing comment lines.
+- New files (plan Phase 4/5): copy `core/<file>` to `annotated/<file>`, add a short file header + one plain-English `★` comment per code section. Parts the Oric does not really use get one short comment for the whole span.
+- Say each fact once: "what this code does" lives in the `annotated/` comments. `MAP.md` and other docs link to it and add only tables and cross-links.
 
 ## Git — never auto-commit
 

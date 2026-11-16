@@ -3,7 +3,7 @@
 **Author:** Don Lancaster
 **Year:** 1978 (Howard W. Sams & Co.)
 **Category:** TTL-logic video generation — the discrete-logic analog of what a ULA does
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Electornics/Cheap_Video_Cookbook_Don_Lancaster 1978.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Electornics/Cheap_Video_Cookbook_Don_Lancaster 1978.pdf`
 
 Not Oric-specific. A period how-to for generating a character/graphics video signal from a
 microprocessor using a minimum of dedicated TTL hardware — the discrete-chip version of the job

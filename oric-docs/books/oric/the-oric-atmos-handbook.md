@@ -3,7 +3,7 @@
 **Author:** Peter Lupton & Frazer Robinson
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Century - The Oric Atmos Handbook.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Century - The Oric Atmos Handbook.pdf`
 
 Publisher: Century Communications Limited, London. ISBN 0 7126 0542 8.
 

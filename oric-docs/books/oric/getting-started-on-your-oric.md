@@ -3,7 +3,7 @@
 **Author:** Tim Hartnell & Peter Shaw
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Futura Publishing - Getting Started on Your Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Futura Publishing - Getting Started on Your Oric.pdf`
 
 ## Table of Contents
 

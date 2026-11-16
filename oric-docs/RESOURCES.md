@@ -114,7 +114,7 @@ For studying the MiSTer Oric core (mixed VHDL + Verilog/SystemVerilog). See also
 
 Local files in the pCloud library (`iCloud-Migration/Programming/Retro/Oric/`), not public URLs:
 
-- **`oric-183.zip`** — Oric v1.8.3, a native **macOS Oric-1 / Atmos emulator** (`Oric.app`), bundled with a "Mega Demo" tape. Useful for running Oric software and cross-checking behavior against the MiSTer core.
+- **`oric-183.zip`** — Oric v1.8.3, a native **macOS Oric-1 / Atmos emulator** (`Oric.app`), bundled with a "Mega Demo" tape. Useful for running Oric software and cross-checking behavior against the MiSTer core. macOS-only: on the current Linux machine use [Oricutron](https://github.com/pete-gordon/oricutron) instead.
 - **`ee-320.zip`** — Emulator Enhancer v3.2, a generic macOS emulation utility (not Oric-specific; misfiled in the Oric folder).
 
 ## 13. Machine-code monitors, assemblers & debuggers
@@ -134,11 +134,11 @@ Found while researching [`projects/ideas.md`](../projects/ideas.md) idea #1 — 
 
 ## 14. 6502 CPU — build-from-scratch learning
 
-Not Oric-specific — generic 6502 hardware resources. Found while researching Day 1 of
-`projects/mister-fpga-oric-core-understanding/plan.md` (the CPU/memory-map foundation day).
+Not Oric-specific — generic 6502 hardware resources. Useful background for Phase 2 (the real Oric: CPU and memory map) of
+`projects/mister-fpga-oric-core-understanding/plan.md`.
 
 - [Build a 6502 computer (Ben Eater)](https://eater.net/6502) — video series wiring a 6502 to ROM,
-  RAM, and an address decoder on breadboards; already cited in `plan.md`'s Day 1 videos section
+  RAM, and an address decoder on breadboards; best match for "why does the memory map look like this"
 - [Build a 6502 based computer (6502.co.uk)](https://6502.co.uk/course/build-a-6502-based-computer) — a written course, discrete-component build
 - [6502.org — Homebuilt Projects](https://6502.org/homebuilt) — curated list of other people's homebrew 6502 builds, with schematics and write-ups
 - **`how-to-build-a-microcomputer-creason-1979.pdf`** (local, `~/Downloads/`) — *How to Build a

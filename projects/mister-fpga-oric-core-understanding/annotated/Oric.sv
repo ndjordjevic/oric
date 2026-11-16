@@ -24,7 +24,9 @@ module emu
 	`include "sys/emu_ports.vh"
 );
 
-// ★ MODULE SETUP: drives all unused output ports to safe defaults and wires up the board LEDs.
+// ★ SECTION 1 — MODULE SETUP
+// Sets all unused MiSTer outputs (SDRAM, UART, …) to safe values.
+// Drives the board LEDs: the user LED lights for file loads, disk use and tape.
 assign USER_OUT = '1;
 assign {UART_RTS, UART_TXD, UART_DTR} = 0;
 assign {SD_SCK, SD_MOSI, SD_CS} = 'Z;
@@ -45,7 +47,10 @@ assign HDMI_BOB_DEINT = 0;
 assign AUDIO_S   = 0;
 assign AUDIO_MIX = 0;
 
-// ★ OSD MENU & ASPECT RATIO: defines the entire on-screen menu and wires the user's aspect ratio choice to the video scaler.
+// ★ SECTION 2 — MENU (OSD) AND ASPECT RATIO
+// CONF_STR is a text string that MiSTer turns into the on-screen menu.
+// Each menu option is stored as bits in the 128-bit `status` signal.
+// video_freak uses the aspect-ratio option to scale the picture (4:3 by default).
 wire [1:0] ar = status[122:121];
 video_freak video_freak
 (
@@ -119,7 +124,9 @@ localparam CONF_STR = {
 	"V,v",`BUILD_DATE
 };
 
-// ★ OSD SETTINGS DECODE: unpacks the user's menu choices from the 128-bit status register into human-readable named signals.
+// ★ SECTION 3 — MENU SETTINGS, NAMED
+// Gives each group of `status` bits a readable name (e.g. tape_load_mode).
+// No logic here — only names.
 wire [1:0] tapeVolume  = status[51:50];
 wire       tapeUseADC = status[52];
 wire       tapeRewind = status[53];
@@ -133,7 +140,9 @@ wire       named_cload_rewind_en = ~status[60]; // menu shows On (default) / Off
 
 ///////////////////////////////////////////////////
 
-// ★ CLOCK GENERATION: PLL takes the 50MHz board oscillator and synthesises the system clock and video clock.
+// ★ SECTION 4 — CLOCKS
+// The PLL turns the board's 50 MHz clock into clk_sys (24 MHz, runs the Oric)
+// and CLK_VIDEO (48 MHz, for the video output). `locked` = clocks are stable.
 wire locked;
 wire clk_sys;
 
@@ -147,7 +156,11 @@ pll pll
 	.locked(locked)
 );
 
-// ★ RESET & RAM CLEAR: holds the machine in reset while a counter walks all 64KB of RAM filling it with 0x01 (not 0 — see line 349), then releases.
+// ★ SECTION 5 — RESET AND RAM CLEAR
+// Reset comes from MiSTer, the menu's "Reset & Apply", or the board button.
+// During reset a counter (clr_addr) walks through RAM and fills it with 0x01,
+// not 0 (see `spram_d <= 1` in SECTION 10). It is 17 bits, so it walks the
+// 64 KB twice. Then reset is released.
 reg        reset = 0;
 reg [16:0] clr_addr = 0;
 wire       tap_autorun_reset_req;
@@ -174,7 +187,12 @@ end
 
 ///////////////////////////////////////////////////
 
-// ★ HPS FRAMEWORK INTERFACE: all wires and the module connecting the FPGA to the ARM CPU — keyboard, joysticks, SD card, OSD settings, and file transfers.
+// ★ SECTION 6 — LINK TO THE ARM COMPUTER (HPS)
+// HPS = the ARM computer on the DE10-Nano board, running Linux. It reads files
+// from the SD card, shows the menu, and reads the USB keyboard and joystick.
+// hps_io is the standard MiSTer bridge to it:
+//   ioctl_* = file bytes coming in (tape, snapshot, ROM)
+//   sd_*    = disk sectors read and written for the floppy drives
 wire  [10:0] ps2_key;
 
 wire  [15:0] joystick_0;
@@ -254,7 +272,8 @@ hps_io #(.CONF_STR(CONF_STR), .VDNUM(4)) hps_io
 
 ///////////////////////////////////////////////////
 
-// ★ DISK IMAGE MANAGEMENT: detects the moment a disk image is inserted into any drive and records whether it should be write-protected.
+// ★ SECTION 7 — DISK INSERTED
+// Notices the moment a disk image is inserted and sets write-protect if needed.
 reg    [3:0] img_mountedD;
 reg    [3:0] img_wp;
 
@@ -270,7 +289,9 @@ begin
 end
 ///////////////////////////////////////////////////
 
-// ★ KEYBOARD & TAPE AUTORUN: after a TAP file loads, automatically types the commands to start it; also generates clean one-cycle pulses for every key event.
+// ★ SECTION 8 — KEYBOARD AND TAPE AUTORUN
+// tap_autorun_keys types keys for you (e.g. CLOAD"" + Enter) so a tape starts
+// by itself. Also turns each PS/2 key event into a one-clock pulse.
 wire        tap_load_pulse = ioctl_downlD && ~ioctl_download && load_tape;
 wire        tap_autorun_active;
 wire [10:0] tap_autorun_ps2_key;
@@ -309,7 +330,9 @@ assign hps_key_strobe = old_keystb ^ ps2_key[10];
 assign tap_autorun_key_strobe = old_tap_autorun_keystb ^ tap_autorun_ps2_key[10];
 
 
-// ★ CORE SIGNAL DECLARATIONS: named wires for audio, video, tape I/O, file cache constants, and the RAM bus — the labelled cables before they are all plugged in.
+// ★ SECTION 9 — SIGNAL NAMES
+// Declares the wires used below: sound channels, 1-bit R/G/B video, sync,
+// tape in/out, file-cache bus, RAM bus. Also the file-cache size (192 KB).
 wire  [11:0] psg_a;
 wire  [11:0] psg_b;
 wire  [11:0] psg_c;
@@ -343,7 +366,11 @@ wire        ram_we;
 wire        spram_we;
 reg   [7:0] ram_q;
 
-// ★ RAM ARBITER + MAIN RAM: decides who gets to read or write the 64KB RAM each clock cycle — reset wipe, snapshot restore, save-state, tape loader, or the CPU.
+// ★ SECTION 10 — RAM ARBITER AND MAIN RAM
+// The 64 KB main RAM (spram) has only one port, so one user per clock.
+// This block picks the user. Priority, highest first:
+//   reset clear → snapshot load → savestate save → fast tape load → the Oric.
+// Inside the Oric, the ULA further shares the RAM between CPU and video.
 always @(posedge clk_sys) begin
 	if(reset) begin
 		spram_d <= 1;
@@ -382,7 +409,11 @@ spram #(.address_width(16)) ram (
   .q(ram_q)
 );
 
-// ★ ORIC ATMOS COMPUTER CORE: this single instantiation IS the Oric — CPU, video, sound, keyboard, tape, and floppy all in one module. Everything else feeds into or out of this.
+// ★ SECTION 11 — THE ORIC ITSELF
+// This one block IS the Oric computer: rtl/oricatmos.vhd. It holds the CPU,
+// ULA (video), VIA (I/O), sound chip, keyboard, ROMs and disk controllers.
+// Everything else in this file feeds it or takes its outputs.
+// cpu_halt pauses the CPU during snapshot and fast tape loads.
 wire        led_disk;
 reg         fdd_busy;
 
@@ -494,7 +525,10 @@ oricatmos oricatmos
 
 
 
-// ★ ROM SELECTION & FDD READY: locks in the ROM choice at reset, maps menu order to internal IDs, auto-enables Pravetz keyboard layout, marks drive ready when image has content.
+// ★ SECTION 12 — ROM CHOICE AND DRIVE READY
+// Reads the ROM choice from the menu, only at reset. Menu order and internal
+// ROM numbers differ, so it translates them. Pravetz ROM also switches on the
+// Bulgarian keyboard layout. Marks a drive ready when it has a disk image.
 reg [1:0] rom = 0;
 always @(posedge clk_sys) if(reset) rom <= status[4:3];
 wire [1:0] rom_sel =
@@ -509,7 +543,10 @@ always @(posedge clk_sys) if(img_mounted) fdd_ready <= |img_size;
 
 ///////////////////////////////////////////////////
 
-// ★ VIDEO OUTPUT PIPELINE: converts the Oric's raw 1-bit digital video to HDMI-ready output, crossing clock domains, fixing sync polarity, and optionally adding scanlines or HQ2x smoothing.
+// ★ SECTION 13 — VIDEO OUT
+// The Oric gives 1-bit colour (each of R, G, B is on or off). This block moves
+// it to the video clock, flips the sync signals the right way, makes each
+// colour 4 bits, and sends it to video_mixer (adds scanlines / smoothing).
 reg clk_pix2;
 always @(posedge clk_sys) clk_pix2 <= clk_pix;
 
@@ -546,7 +583,10 @@ video_mixer #(.LINE_LENGTH(250), .HALF_DEPTH(1), .GAMMA(1)) video_mixer
 );
 
 ///////////////////////////////////////////////////
-// ★ BIOS & TAPE ROM PATCHES: 16KB buffer for a custom ROM loaded from SD card; intercepts ROM reads on-the-fly to speed up tape loading without touching the real ROM chip.
+// ★ SECTION 14 — ALT BIOS AND TAPE ROM PATCH
+// altbios: a 16 KB RAM that holds a ROM you load from the SD card.
+// cload_patch_rom: for fast tape loading, it gives the CPU changed ROM bytes
+// for the tape routines. The real ROM is not changed.
 wire        load_alt_bios = ioctl_index==2;
 reg         bios_loaded = 1'b0;
 
@@ -578,7 +618,9 @@ cload_patch_rom cload_patch_rom (
 
 ///////////////////////////////////////////////////
 
-// ★ AUDIO MIXING: blends the three AY sound channels and optional tape audio, then routes the result to left and right outputs in mono or stereo.
+// ★ SECTION 15 — SOUND MIX
+// Mixes the 3 sound-chip channels (A, B, C) and the tape sound.
+// Sends them to left/right as mono or stereo (ABC or ACB order).
 wire [10:0] tapeAudio;
 assign tapeAudio = {|tapeVolume ? (tapeVolume == 2'd1 ? {1'b0,tape_in} : {tape_in,1'b0} ) : 2'b00,9'b00};
 
@@ -591,7 +633,11 @@ assign AUDIO_R = (stereo == 2'b00) ? {1'b0,psg_out+tapeAudio,1'b0} : (stereo == 
 
 
 
-// ★ FILE CACHE & CASSETTE PLAYER: 192KB shared buffer holding the loaded TAP or SNA file; virtual cassette deck reads bytes from it and plays back audio to the Oric.
+// ★ SECTION 16 — FILE CACHE AND TAPE PLAYER
+// filecache: a 192 KB RAM that holds the loaded tape (.tap) or snapshot file.
+// Several users share it; a selector picks one per clock.
+// cassette: plays the tape file as a 1-bit sound signal, like a real
+// tape recorder plugged into the Oric.
 wire casdout;
 wire cas_relay;
 
@@ -664,7 +710,13 @@ cassette cassette (
   .data(casdout)
 );
 
-// ★ TAPE SPEED LOADERS: ultra mode blasts whole tape segments directly into RAM; fast mode feeds bytes one-by-one into patched ROM routines; $C000 is the magic trigger address.
+// ★ SECTION 17 — FAST TAPE LOADING
+// Makes tape loads near-instant instead of minutes:
+//   Ultra (tap_segment_loader): the patched ROM writes 1 to $C000; the FPGA
+//         then copies the whole tape block straight into RAM.
+//   Fast  (tap_byte_streamer): the patched ROM reads tape bytes one by one,
+//         and the FPGA supplies each next byte at once.
+// Writes to $C000 also drive the user LED.
 // ---- Multi-stage TAP segment loader (rtl/tap_segment_loader.v) ----
 // Triggered by the patched BASIC CLOAD doing `LDA #$01 / STA $C000`.
 // Pulls one segment per trigger from the shared file cache into RAM, populates
@@ -733,7 +785,11 @@ always @(posedge clk_sys) begin
 	end
 end
 
-// ★ SNAPSHOT & SAVE-STATES: restores or saves complete machine state chip-by-chip (RAM, CPU, VIA, AY, ULA); F1–F4 save and F5–F8 restore to DDR RAM slots.
+// ★ SECTION 18 — SNAPSHOTS AND SAVESTATES
+// Saves or restores the whole machine: RAM plus every chip's registers.
+//   snap_loader: loads a .sna snapshot file from the file cache.
+//   snap_ss + savestate_hotkeys: F1–F4 save to a slot, F5–F8 restore.
+//   ddram: the board's DDR3 memory, where the save slots live.
 // ---- Snapshot LOAD .sna (rtl/snap_loader.v) ----
 // Block format and field-level mapping in docs/sna_support.md.
 // The shared filecache spram is owned by this top level; snap_loader
@@ -910,7 +966,9 @@ ddram ddram (
 );
 
 ///////////////////////////////////////////////////
-// ★ PHYSICAL TAPE INPUT: reads a real cassette player plugged into the board's ADC chip; the final mux selects between real tape audio and virtual file playback.
+// ★ SECTION 19 — REAL TAPE INPUT
+// ltc2308_tape reads a real cassette player through the board's ADC chip.
+// The last line picks real tape or the tape file as the Oric's tape input.
 wire tape_adc, tape_adc_act;
 ltc2308_tape ltc2308_tape
 (

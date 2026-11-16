@@ -2,6 +2,8 @@
 
 Survey of digital logic simulation tools relevant to the Picocomputer / rp6502 project, with notes on macOS support and practical fit.
 
+> **Note:** this survey was written on macOS. The dev machine is now Linux (Pop!_OS 24.04). Use `apt` in place of `brew` (e.g. `sudo apt install iverilog gtkwave ghdl`), and check the macOS-only tools for a Linux build before you pick one.
+
 ---
 
 ## Context: what the rp6502 project needs from a simulator

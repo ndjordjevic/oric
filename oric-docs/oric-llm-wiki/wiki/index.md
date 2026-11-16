@@ -30,7 +30,6 @@ created: 2026-05-17
 | [[sodiumlb-ocula-hardware]] | github | standard | 2026-05-17 | OCULA open-hardware ULA replacement — PCB design files |
 | [[sodiumlb-ocula-pivic-firmware]] | github | standard | 2026-05-17 | OCULA/PIVIC firmware (shared OCULA + VIC-20 codebase) |
 | [[sodiumlb-ocula-docs]] | github | standard | 2026-05-17 | OCULA user documentation — install, mux-bridges, modes |
-
 | [[MiSTer-devel-Oric_MiSTer]] | github | standard | 2026-06-21 | |
 | [[oric.org]] | web | standard | 2026-07-10 | community software archive — surfaced ORICMON/ORIC-MON/ORION monitor tools |
 

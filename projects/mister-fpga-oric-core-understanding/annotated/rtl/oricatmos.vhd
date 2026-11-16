@@ -1,7 +1,8 @@
--- ★ SECTION 1 — License & origin
--- Original SEILEBOST 2006 simulation model of Oric Atmos hardware.
--- Heavily extended for MiSTer: snapshot save/restore, ROM patch intercept,
--- $C000 mailbox, Pravetz-8D mode, and tape byte-streamer snoops.
+-- ★ SECTION 1 — WHERE THIS FILE COMES FROM
+-- This file IS the Oric computer. It started as a 2006 simulation model of the
+-- Oric Atmos by SEILEBOST (some comments are in French). It was then extended
+-- for MiSTer: snapshots, fast tape loading, the $C000 mailbox, Pravetz-8D mode.
+-- Oric.sv (SECTION 11) uses this whole file as one block.
 --
 -- A simulation model of ORIC ATMOS hardware
 -- Copyright (c) SEILEBOST - March 2006
@@ -42,16 +43,15 @@
 --
 --
 
--- ★ SECTION 2 — Library imports
--- Standard IEEE packages: std_logic types and numeric/unsigned arithmetic.
+-- ★ SECTION 2 — LIBRARIES
+-- Standard VHDL types for wires and numbers.
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.all;
--- ★ SECTION 3 — Entity: module interface (all ports)
--- Declares every signal crossing the boundary between Oric.sv (the MiSTer
--- glue top) and this machine wrapper: keyboard, tape, audio, video, RAM bus,
--- floppy/SD, CPU halt, snapshot restore inputs, snapshot save outputs, ROM
--- patch intercept, $C000 mailbox, and tape-byte-streamer snoops.
+-- ★ SECTION 3 — THE PINS OF THE WHOLE ORIC
+-- Every signal between Oric.sv and the Oric: keyboard, tape, sound, video,
+-- RAM bus, disk/SD card. About one third of the pins (from cpu_regs_set down)
+-- exist only for MiSTer features: snapshots, savestates, fast tape loading.
 ENTITY oricatmos IS
 	PORT (
 		CLK_IN : IN STD_LOGIC;
@@ -181,11 +181,9 @@ ENTITY oricatmos IS
 	);
 END;
 
--- ★ SECTION 4 — Architecture: internal signal declarations
--- All wires and registers that connect sub-modules to each other inside this
--- wrapper: CPU bus, VIA ports, PSG control, ULA chip-selects, ROM data buses,
--- disk controller signals for both Microdisc and Pravetz-8D, and snapshot
--- save/halt state.
+-- ★ SECTION 4 — INTERNAL WIRES
+-- The wires that connect the chips inside this file: CPU bus, VIA ports,
+-- sound-chip control, ULA chip selects, ROM outputs, disk controller signals.
 ARCHITECTURE RTL OF oricatmos IS
 
 	-- Gestion des resets
@@ -319,10 +317,9 @@ ARCHITECTURE RTL OF oricatmos IS
 	SIGNAL PH2_old : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL PH2_cntr : STD_LOGIC_VECTOR(4 DOWNTO 0);
 
--- ★ SECTION 5 — Component declarations (keyboard, joystick, PSG)
--- VHDL-93 style forward declarations so Verilog sub-modules (keyboard.sv,
--- joystick.sv, psg.v) can be instantiated by component name below. Like a
--- C function prototype — tells VHDL the port signature before the body.
+-- ★ SECTION 5 — VERILOG PARTS
+-- keyboard.sv, joystick.sv and psg.v are written in Verilog. VHDL needs their
+-- pin lists written out here before it can use them.
 	COMPONENT keyboard
 		PORT (
 			clk_sys : IN STD_LOGIC;
@@ -386,12 +383,12 @@ COMPONENT psg
 END COMPONENT;
 
 
--- ★ SECTION 6 — Reset, Pravetz mode decode & controller/expansion-port mux
--- Builds RESETn, detects Pravetz-8D mode from rom="10", decodes the two
--- Pravetz address windows ($0310-$031F FDC softswitches; $0320-$03FF bank ROM),
--- then routes all ULA expansion-port control signals (MAPn, ROMDISn,
--- IOCONTROLn, ECE, IRQ, SD bus) to either the Microdisc or Pravetz FDC
--- depending on which mode is active.
+-- ★ SECTION 6 — RESET, PRAVETZ MODE, DISK CONTROLLER CHOICE
+-- Makes the reset signal (also from the keyboard reset key).
+-- Pravetz-8D mode is on when rom = "10". It then decodes two Pravetz address
+-- areas ($0310-$031F disk switches, $0320-$03FF small ROM).
+-- Then connects the expansion-port signals to either the Microdisc (normal
+-- Oric) or the Pravetz disk controller.
 BEGIN
 
 	RESETn <= (NOT RESET AND KEYB_RESETn);
@@ -433,11 +430,12 @@ BEGIN
 	fdd_busy <= pravetz_fdd_busy WHEN pravetz_mode = '1' ELSE md_fdd_busy;
 	fd_led <= pravetz_fd_led WHEN pravetz_mode = '1' ELSE md_fd_led;
 
--- ★ SECTION 7 — CPU: T65 soft-core 6502 instantiation + snapshot-save halt
--- Wires the T65 6502 core: address/data/RW bus, IRQ from VIA and disk
--- controller, NMI from keyboard. The save_halt process stalls the CPU at the
--- next opcode-fetch boundary (Sync='1') so the snapshot engine can capture a
--- consistent register/PC state without a mid-instruction freeze.
+-- ★ SECTION 7 — THE CPU (6502)
+-- Connects the T65 CPU (rtl/T65/T65.vhd): address, data, read/write,
+-- IRQ from the VIA and disk, NMI from the keyboard break key.
+-- Enable = ENA_1MHZ from the ULA, so the CPU runs at the real 1 MHz.
+-- save_halt (MiSTer only): pauses the CPU between two instructions so a
+-- savestate gets a clean copy of the registers.
 	inst_cpu : ENTITY work.T65
 		PORT MAP(
 			Mode => "00",
@@ -475,11 +473,11 @@ BEGIN
 	END PROCESS;
 	save_halted <= save_halted_i;
 
-	-- ★ SECTION 8 — RAM bus arbitration & SRAM control
-	-- When PHI2=0 (ULA's video-fetch half of the clock) the address bus goes
-	-- to the ULA's video address; when PHI2=1 (CPU half) it goes to the CPU.
-	-- Also drives chip-select, output-enable, and write-enable to the external
-	-- 64KB SRAM, and exports phi2 so Oric.sv can sync the rest of the system.
+	-- ★ SECTION 8 — WHO USES THE RAM: CPU OR VIDEO
+	-- The CPU and the video take turns on the RAM, using PHI2 from the ULA:
+	--   PHI2 = 0 → the ULA reads screen bytes
+	--   PHI2 = 1 → the CPU reads or writes
+	-- This is how the real Oric works too. The RAM itself is in Oric.sv.
 	ram_ad <= ula_AD_SRAM WHEN (ula_PHI2 = '0') ELSE
 		cpu_ad(15 DOWNTO 0);
 	ram_d <= cpu_do;
@@ -492,12 +490,10 @@ BEGIN
 		ula_WE_SRAM;
 	phi2 <= ula_PHI2;
 
-	-- ★ SECTION 9 — ROM instantiations (Atmos, Oric-1, Pravetz-8D, Microdisc)
-	-- All ROMs are VHDL lookup tables — giant case statements compiled into
-	-- block RAM. They all see the CPU address continuously; the CPU data-in
-	-- mux (Section 19) selects which one's output actually reaches the CPU.
-	-- bios_addr taps the CPU address so the altbios SPRAM in Oric.sv can be
-	-- read at the same time.
+	-- ★ SECTION 9 — THE ROMS
+	-- All ROMs (Atmos, Oric-1, Pravetz-8D, Microdisc) run all the time, side by
+	-- side. SECTION 19 picks which one the CPU actually reads.
+	-- See annotated/rtl/rom/README.md. bios_addr lets Oric.sv read the alt BIOS.
 	bios_addr <= cpu_ad(13 DOWNTO 0);
 	
 	inst_rom0 : ENTITY work.BASIC11A -- Oric Atmos ROM
@@ -536,10 +532,13 @@ BEGIN
 			data => ROM_MD_DO
 		);
 
-	-- ★ SECTION 10 — ULA instantiation (chip selects, RAM control, video output)
-	-- The ULA is the heart of the Oric: it generates the 1 MHz CPU clock enable,
-	-- arbitrates RAM between CPU and video, produces chip-select signals for ROM/
-	-- RAM/IO, and renders the video (text + HIRES modes) as R/G/B + sync signals.
+	-- ★ SECTION 10 — THE ULA (the Oric's custom chip)
+	-- The most important part. ula.vhd copies the Oric's custom chip. It:
+	--   - makes the 1 MHz step signal for the CPU, VIA and sound chip
+	--   - shares the RAM between CPU and video (PHI2)
+	--   - decides if an address is RAM, ROM or I/O (chip selects)
+	--   - draws the screen (text and HIRES) as R/G/B + sync
+	-- Most other sections feed the ULA or use its outputs.
 	inst_ula : ENTITY work.ULA
 		PORT MAP(
 			CLK => CLK_IN,
@@ -574,11 +573,12 @@ BEGIN
 			VSYNC => VIDEO_VSYNC
 		);
 
-	-- ★ SECTION 11 — VIA (M6522) instantiation (I/O, tape, IRQ, snapshot)
-	-- The 6522 VIA is the Oric's main I/O chip: Port A carries PSG data and
-	-- the keyboard row mask; Port B drives keyboard column select, tape motor
-	-- (CB1=tape-in, CB2/PB7=tape-out), and the PSG BDIR/BC1 control lines.
-	-- Generates the CPU IRQ. Snapshot ports allow full register restore.
+	-- ★ SECTION 11 — THE VIA (6522, the I/O chip)
+	-- A standard 1980s chip (also in the BBC Micro, C64, Apple II).
+	--   Port A: data for the sound chip; also joystick
+	--   Port B: keyboard column select, sound-chip control, tape out, tape motor
+	--   CB1: tape in
+	-- It has timers and makes the CPU's IRQ interrupt.
 	inst_via : ENTITY work.M6522
 		PORT MAP(
 			I_RS => cpu_ad(3 DOWNTO 0),
@@ -632,12 +632,11 @@ BEGIN
 
 
 
-	-- ★ SECTION 12 — PSG (AY-3-8912) instantiation (sound)
-	-- The AY-3-8912 produces three tone channels (A/B/C) plus noise and
-	-- envelope. Controlled by the VIA: BDIR/BC1 select bus mode (latch
-	-- address / write / read), Port A carries the data byte. The mixed
-	-- mono output and individual channel outputs feed the audio mixer in
-	-- Oric.sv. Snapshot ports allow full register save and restore.
+	-- ★ SECTION 12 — THE SOUND CHIP (AY-3-8912)
+	-- 3 tone channels (A, B, C) + noise + envelope.
+	-- It has no bus of its own: the VIA's Port A carries its data, and two VIA
+	-- lines (BDIR, BC1) say what to do: pick a register, write, or read.
+	-- The real Oric works the same way. Its spare I/O port reads keyboard rows.
   psg_a: psg
   port map (
       clock       => CLK_IN,
@@ -670,10 +669,13 @@ BEGIN
       snap_env_q   => ay_snap_env_q
     );
 
-	-- ★ SECTION 13 — Keyboard & joystick instantiations
-	-- keyboard.sv scans the Oric keyboard matrix: col select comes from VIA PB[2:0],
-	-- row mask from PSG IOA; outputs kbd_int (key pressed), swnmi (F1 NMI key),
-	-- swrst (reset key). joystick.sv maps MiSTer USB gamepad buttons to VIA PA bits.
+	
+	-- ★ SECTION 13 — KEYBOARD AND JOYSTICK
+	-- The keyboard is a grid (matrix). VIA Port B bits 0-2 pick one of 8 lines,
+	-- the sound chip's I/O port (register 14) masks keys on it, and the answer
+	-- comes back on Port B bit 3. The ROM tests the grid to find pressed keys.
+	-- Special keys: F10 = break (NMI), F11 = reset.
+	-- joystick.sv puts the USB gamepad buttons on VIA Port A bits.
 	inst_key : keyboard
 	PORT MAP(
 		clk_sys => CLK_IN,
@@ -705,11 +707,10 @@ BEGIN
 	KEYB_NMIn <= NOT swnmi;
 	KEYB_RESETn <= NOT swrst;
 
-	-- ★ SECTION 14 — Pravetz-8D FDC controller
-	-- The Pravetz-8D is a Bulgarian Apple II clone that used an Oric body.
-	-- Its disk controller is an Apple Disk II-style FDC (soft switches at
-	-- $0310-$031F). Active only when rom="10"; shares the SD card bus with
-	-- drives 0 and 1 (drives 2/3 forced to zero in Section 6 mux).
+	-- ★ SECTION 14 — PRAVETZ-8D DISK CONTROLLER
+	-- The Pravetz-8D is a Bulgarian Oric clone that used Apple II-style disks.
+	-- This is that Apple-style controller. On only in Pravetz mode (rom = "10").
+	-- Uses disk drives 0 and 1.
 	inst_pravetz_fdc : ENTITY work.PRAVETZ8D_FDC_CTRL
 	PORT MAP(
 		clk_sys => CLK_IN,
@@ -736,11 +737,11 @@ BEGIN
 		fd_led => pravetz_fd_led
 	);
 
-	-- ★ SECTION 15 — Microdisc controller
-	-- The Microdisc is the standard Oric floppy interface (WD1793 FDC).
-	-- It plugs into the Oric expansion port and asserts ROMDISn/MAPn to bank
-	-- in its own 8KB ROM ($C000-$DFFF). Controls up to 4 disk images via
-	-- the MiSTer SD card bridge. Active when rom != "10" (Pravetz mode off).
+	-- ★ SECTION 15 — MICRODISC DISK CONTROLLER
+	-- The normal Oric floppy interface (WD1793 chip), on the expansion port.
+	-- Like the real board, it can switch off the Oric ROM (ROMDISn) and put its
+	-- own 8 KB ROM at $E000-$FFFF, and RAM under $C000-$DFFF (MAPn).
+	-- Up to 4 disk images through the SD card. On when not in Pravetz mode.
 	inst_microdisc : work.Microdisc
 	PORT MAP(
 		CLK_SYS => CLK_IN,
@@ -795,11 +796,10 @@ BEGIN
 	);
 
 
-	-- ★ SECTION 16 — VIA port wiring (PA/PB mux, keyboard, PSG, tape, printer)
-	-- Port A mux: when VIA is in read mode (CB2=0, BDIR=0) returns joystick OR
-	-- VIA output; when PSG is driving the bus returns PSG readback. Port B
-	-- feeds the keyboard row back on bit 3 (kbd_int). Also drives tape-out
-	-- (PB7), cassette motor relay (PB6), and printer strobe/data lines.
+	-- ★ SECTION 16 — VIA PORT WIRING
+	-- Decides what drives each VIA port wire. Port A is shared by the joystick,
+	-- the VIA and the sound chip readback. Port B gets the keyboard answer.
+	-- Also: tape out (PB7), tape motor (PB6), printer port.
 	via_pa_in <= (((via_pa_joy_value AND via_pa_joy_mask) OR (via_pa_out_oe AND NOT via_pa_joy_mask) OR (via_pa_out AND NOT via_pa_out_oe AND NOT via_pa_joy_mask))) WHEN (via_cb2_out='0' AND psg_bdir='0') ELSE
 	             (((via_pa_joy_value AND via_pa_joy_mask) OR (via_pa_in_from_psg AND via_pa_out_oe AND NOT via_pa_joy_mask) OR (via_pa_out AND NOT via_pa_out_oe AND NOT via_pa_joy_mask)));
 	via_pb_in(2 DOWNTO 0) <= via_pb_out(2 DOWNTO 0);
@@ -815,11 +815,12 @@ BEGIN
 	PRN_STROBE <= via_pb_out(4);
 	PRN_DATA <= via_pa_out;
 
-	-- ★ SECTION 17 — CPU address snoops ($C000 mailbox, CLOAD name, tape byte streamer)
-	-- Combinational logic that watches the CPU address/data bus every PHI2 cycle
-	-- and pulses signals out to Oric.sv when specific addresses are touched:
-	-- $C000 write → LED mailbox; $027F write → CLOAD filename detect;
-	-- ROM $E735 read → tap_sync_request; ROM $E6CE read → tap_byte_consume.
+	-- ★ SECTION 17 — WATCHING THE CPU (MiSTer only)
+	-- Watches CPU addresses and tells Oric.sv when some are used:
+	--   write to $C000 → LED / fast-load mailbox (ROM reads there are normal)
+	--   write to $027F → a CLOAD file name was typed
+	--   read of ROM $E735 / $E6CE → tape routines running (fast tape loading)
+	-- None of this exists on a real Oric.
 	-- Host LED mailbox: snoop CPU writes to $C000. $C000 is in the
 	-- ROM read-window (read returns the ROM byte $4C, untouched);
 	-- the write side is a side-channel — POKE/STA reaches the bus
@@ -851,11 +852,10 @@ BEGIN
 	                         AND cpu_ad(13 DOWNTO 0) = STD_LOGIC_VECTOR(TO_UNSIGNED(16#26CE#, 14))
 	                    ELSE '0';
 
-	-- ★ SECTION 18 — Pravetz bank/shadow register
-	-- Clocked register updated when CPU writes to $0380-$0383 in Pravetz mode.
-	-- Address bit 1 selects the FDC ROM bank (two 256-byte halves of $0320-$03FF);
-	-- bit 0 enables "shadow" mode — maps Pravetz ROM over the top of $C000-$FFFF,
-	-- hiding the BASIC ROM so the Pravetz OS can run from its own ROM image.
+	-- ★ SECTION 18 — PRAVETZ BANK SWITCH
+	-- A real Pravetz-8D register at $0380-$0383. One bit picks the half of the
+	-- small disk ROM; one bit puts the Pravetz ROM over $C000-$FFFF in place of
+	-- BASIC.
 	PROCESS (CLK_IN)
 	BEGIN
 		IF rising_edge(CLK_IN) THEN
@@ -873,12 +873,13 @@ BEGIN
 	END PROCESS;
 
 
-	-- ★ SECTION 19 — CPU data-in mux (priority ROM/RAM read decoder)
-	-- Every clock cycle, exactly one source wins the CPU's DI (data-in) bus.
-	-- Priority order (highest first): ROM patch intercept → Pravetz FDC soft-
-	-- switches → Pravetz bank ROM → expansion port (Microdisc) → VIA → ROM
-	-- Atmos/Oric1/Pravetz/Loadable → Microdisc ROM → RAM. Gated on PHI2=1
-	-- (CPU half of clock) so video-fetch cycles never corrupt the CPU read.
+	-- ★ SECTION 19 — WHAT THE CPU READS
+	-- On each read, picks ONE source for the CPU's data input, first match wins:
+	--   tape ROM patch → Pravetz disk switches → Pravetz small ROM →
+	--   expansion port (Microdisc) → VIA → main ROM (Atmos / Oric-1 / Pravetz /
+	--   alt BIOS) → Microdisc ROM → RAM
+	-- Only when PHI2 = 1 (the CPU's turn). The patch is first so fast tape
+	-- loading works with any ROM.
 	PROCESS BEGIN
 
 		WAIT UNTIL rising_edge(clk_in);

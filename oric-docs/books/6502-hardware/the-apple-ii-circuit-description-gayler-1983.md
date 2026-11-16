@@ -3,7 +3,7 @@
 **Author:** Winston Gayler
 **Year:** 1983 (Howard W. Sams & Co.)
 **Category:** Detailed circuit/schematic reference for a 6502-based home computer
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Apple II/The Apple II Circuit Description.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Apple II/The Apple II Circuit Description.pdf`
 (duplicate copy: `Apple II/W. Gayler - The Apple II Circuit Description.pdf`)
 
 Not Oric-specific. A detailed circuit description and analysis of the Apple II main board and

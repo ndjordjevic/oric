@@ -3,7 +3,7 @@
 **Author:** Pong P. Chu
 **Year:** 2008
 **Category:** FPGA / HDL reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/FPGA/FPGAPrototypingByVerilogExamples.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/FPGA/FPGAPrototypingByVerilogExamples.pdf`
 
 ## Table of Contents
 

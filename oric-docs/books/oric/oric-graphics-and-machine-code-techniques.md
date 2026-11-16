@@ -3,7 +3,7 @@
 **Author:** Geoff Phillips (originally published by McGraw-Hill, 1984; this on-line/OCR edition prepared by the author in 1998)
 **Year:** 1984 (1998 on-line edition)
 **Category:** Oric machine code / graphics
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/oric-graphics-and-machine-code-techniques.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/oric-graphics-and-machine-code-techniques.pdf`
 
 > Note: This is the clean re-typeset/OCR 1998 freeware edition of the McGraw-Hill book. It may be a re-typeset duplicate of the larger McGraw-Hill scan. Page numbers are largely omitted in this on-line version ("irrelevant to the on-line version"); only the final chapter retained printed page numbers.
 

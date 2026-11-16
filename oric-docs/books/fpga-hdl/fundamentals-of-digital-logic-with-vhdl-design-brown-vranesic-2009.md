@@ -3,7 +3,7 @@
 **Author:** Stephen Brown, Zvonko Vranesic
 **Year:** 2009 (Third Edition; copyright McGraw-Hill 2009)
 **Category:** FPGA / HDL reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/FPGA/Fundamentals of digital logic with VHDL design (3rd edition) - Stephen Brown, Zvonko Vranesic.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/FPGA/Fundamentals of digital logic with VHDL design (3rd edition) - Stephen Brown, Zvonko Vranesic.pdf`
 
 ## Table of Contents
 

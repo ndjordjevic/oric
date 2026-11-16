@@ -3,7 +3,7 @@
 **Author:** MOS Technology, Inc.
 **Year:** 1976 (2nd ed.)
 **Category:** 6502 CPU reference — primary source (chip manufacturer's own manual)
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/C64/MCS6500 Programming Manual Hardback/MCS6500 Programming Manual Interior.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/C64/MCS6500 Programming Manual Hardback/MCS6500 Programming Manual Interior.pdf`
 
 Not Oric-specific. Companion to
 [`mcs6500-hardware-manual-mos-1976.md`](mcs6500-hardware-manual-mos-1976.md) — the manufacturer's
@@ -39,7 +39,7 @@ own instruction-set/programming manual, the primary source behind every secondar
 ---
 
 **Why relevant to the Oric:** Ch. 9 is the primary source behind the reset/NMI/IRQ vector
-mechanics documented in `core/docs/oric_memory_map.md` §7 and `01-oric-hardware-notes.md` — this
+mechanics documented in `core/docs/oric_memory_map.md` §7 and `oric-hardware.md` — this
 is the manufacturer's own explanation of exactly the "fully-vectored interrupt / JMP indirect"
 pattern the Oric ROM uses to make its page-2 vectors patchable.
 

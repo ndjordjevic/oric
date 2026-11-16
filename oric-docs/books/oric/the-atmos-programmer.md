@@ -3,7 +3,7 @@
 **Author:** S. M. Gee and Mike James
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Granada - The Atmos Programmer.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Granada - The Atmos Programmer.pdf`
 
 ## Table of Contents
 

@@ -3,7 +3,7 @@
 **Author:** Samir Palnitkar
 **Year:** 1996
 **Category:** FPGA / HDL reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/FPGA/Verilog HDL - Samir Palnitkar.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/FPGA/Verilog HDL - Samir Palnitkar.pdf`
 
 ## Table of Contents
 

@@ -9,9 +9,11 @@ oric-docs/                 ← reference material, not project output
   oric-llm-wiki/wiki/      ← LLM knowledge base of ingested sources (start at wiki/index.md)
   oric-llm-wiki/raw/       ← immutable source captures backing the wiki
   oric-llm-wiki/inbox.md   ← drop new URLs here for wiki ingestion
-  books/                   ← 35 Oric + FPGA/HDL book TOC indexes
+  books/                   ← 44 book TOC indexes (Oric, 6502/hardware, FPGA/HDL)
   RESOURCES.md             ← curated link catalog (hardware, software, community)
 projects/                  ← hands-on learning projects, one per subdirectory
+  ideas.md                 ← backlog of candidate projects
+  mister-fpga-oric-core-understanding/  ← study of the MiSTer FPGA Oric core (active)
   build-journey/           ← notes and decisions from the Metaphoric clone build
 AGENTS.md                   ← instructions for AI agents working in this repo
 ```
@@ -35,7 +37,7 @@ To refresh a source, add `<!-- refresh -->` to its `## Completed` line in `oric-
 
 Each subdirectory under `projects/` is a focused study. Current:
 
-- [`projects/mister-fpga-oric-core-understanding/`](projects/mister-fpga-oric-core-understanding/) — studying the MiSTer FPGA Oric core. See its [`plan.md`](projects/mister-fpga-oric-core-understanding/plan.md) and the repo-wide [book catalog](oric-docs/books/INDEX.md) (35 FPGA/HDL + Oric book TOCs). Online VHDL/Verilog/SystemVerilog references are in [`RESOURCES.md`](oric-docs/RESOURCES.md) §8.
+- [`projects/mister-fpga-oric-core-understanding/`](projects/mister-fpga-oric-core-understanding/) — studying the MiSTer FPGA Oric core. See its [`plan.md`](projects/mister-fpga-oric-core-understanding/plan.md) and the repo-wide [book catalog](oric-docs/books/INDEX.md) (44 book TOCs: Oric, 6502/hardware, FPGA/HDL). Online VHDL/Verilog/SystemVerilog references are in [`RESOURCES.md`](oric-docs/RESOURCES.md) §8.
 - [`projects/build-journey/`](projects/build-journey/) — notes and decisions from the Metaphoric clone build. Not actively worked, kept for reference.
 
 ## Related repos

@@ -3,7 +3,7 @@
 **Author:** Oric Products International Limited (this version typed and scanned by S. D. Marshall, 2003 — www.48katmos.freeuk.com)
 **Year:** 1984
 **Category:** Oric hardware / service manual
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/servman.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/servman.pdf`
 
 > Note: For the use of Oric authorised dealers and servicing centres. Copyright Oric Products International Limited 1984.
 

@@ -3,7 +3,7 @@
 **Author:** Unknown (Tansoft Limited)
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Oric-1 Forth Programming Manual.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Oric-1 Forth Programming Manual.pdf`
 
 ## Table of Contents
 

@@ -3,7 +3,7 @@
 **Author:** Leycester Whewell (companion to the Adder Publishing "Oric Advanced User Guide")
 **Year:** 1984
 **Category:** Oric ROM disassembly
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/oric_advanced_user_guide_rom_disassembly.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/oric_advanced_user_guide_rom_disassembly.pdf`
 
 ## Table of Contents
 

@@ -3,7 +3,7 @@
 **Author:** Volnei A. Pedroni
 **Year:** 2004
 **Category:** FPGA / HDL reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/FPGA/Circuit Design with VHDL - V.Pedroni (2004) WW.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/FPGA/Circuit Design with VHDL - V.Pedroni (2004) WW.pdf`
 
 ## Table of Contents
 

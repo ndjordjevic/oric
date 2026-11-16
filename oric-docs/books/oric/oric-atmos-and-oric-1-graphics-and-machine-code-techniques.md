@@ -3,7 +3,7 @@
 **Author:** Geoff Phillips
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/McGraw-Hill - Oric Atmos and Oric 1 Graphics and Machine Code Techniques.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/McGraw-Hill - Oric Atmos and Oric 1 Graphics and Machine Code Techniques.pdf`
 
 ## Table of Contents
 

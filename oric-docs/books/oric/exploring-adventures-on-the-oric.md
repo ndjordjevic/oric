@@ -3,7 +3,7 @@
 **Author:** Peter Gerrard
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Duckworth - Exploring Adventures on the Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Duckworth - Exploring Adventures on the Oric.pdf`
 
 ## Table of Contents
 

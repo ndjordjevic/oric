@@ -4,7 +4,7 @@
 **Year:** 3rd edition, 2010 (Synergetics Press); original edition 1976 (Howard W. Sams & Co.)
 **Category:** TTL-logic video/character-display generation — precursor to
 [`cheap-video-cookbook-lancaster-1978.md`](cheap-video-cookbook-lancaster-1978.md)
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Electornics/TV Typewriter Cookbook by Don Lancaster 2010.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Electornics/TV Typewriter Cookbook by Don Lancaster 2010.pdf`
 
 Not Oric-specific. Lancaster's earlier (1976) book on building a "TV Typewriter" (TVT) — a
 low-cost dot-matrix character display driven off an ordinary TV set — this copy is the 2010

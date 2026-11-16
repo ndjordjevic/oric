@@ -2,7 +2,7 @@
 
 One `.md` file per book, each with title, author, year, source path, and extracted table of contents. The PDFs themselves live in the pCloud library (not committed); these files are the searchable index.
 
-Source library: `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/` (`FPGA/`, `Oric/`, and — for `6502-hardware/` — `Apple II/`, `C64/`, `Hardware/`, `Electornics/`).
+Source library: `~/pCloudDrive/iCloud-Migration/Programming/Retro/` (`FPGA/`, `Oric/`, and — for `6502-hardware/` — `Apple II/`, `C64/`, `Hardware/`, `Electornics/`).
 
 **Total: 44 books** — 5 FPGA/HDL + 30 Oric + 9 general 6502/hardware background.
 

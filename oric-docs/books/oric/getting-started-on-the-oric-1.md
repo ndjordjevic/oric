@@ -3,7 +3,7 @@
 **Author:** D. G. J. Cole
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/ELLIS Horwood Ltd- Getting Started on the Oric-1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/ELLIS Horwood Ltd- Getting Started on the Oric-1.pdf`
 
 ## Table of Contents
 

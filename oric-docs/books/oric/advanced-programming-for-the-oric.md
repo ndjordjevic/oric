@@ -3,7 +3,7 @@
 **Author:** Gerard Mason
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Advanced Programming for The Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Advanced Programming for The Oric.pdf`
 
 ## Table of Contents
 

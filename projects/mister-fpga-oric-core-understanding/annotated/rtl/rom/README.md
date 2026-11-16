@@ -1,119 +1,54 @@
-# ★ `rtl/rom/` — the ROM images (Day 1)
+# `rtl/rom/` — the ROM images
 
-**Why there are no annotated copies of the ROM files in here.** Each ROM is ~1,046 lines, of which
-about **20 are code and the rest are raw hex data**. Thirteen of them would add ~13,700 lines of hex
-to this repo to carry two comments. So this page annotates *the pattern* — every ROM file is
-structurally identical — and the hex stays in the gitignored `core/`.
+The ROM files are not copied here. Each one is about 1,000 lines of hex bytes with only ~20 lines of
+code, and all of them have the same shape. This page explains that shape once. Open the real files
+in `core/rtl/rom/`.
 
-Read this once and you can open any file in `core/rtl/rom/` and know exactly what you're looking at.
+## What a ROM file is
 
----
+Each file is the ROM's bytes written as a VHDL table. The FPGA tool builds the table into the
+chip's block RAM. On the real Oric this was a 16 KB ROM chip on the board.
 
-## 1. What a ROM file actually is
+Every file has 3 parts:
 
-A ROM here is not a binary blob loaded at runtime — it is **the ROM contents compiled into the FPGA
-bitstream as a VHDL lookup table**. The whole of `BASIC11A.vhdl` is this, with 1,024 lines of hex
-elided:
+| Part | What it does |
+|---|---|
+| `entity` | The pins: `clk`, `addr` (14 bits = 16 KB), `data` (one byte out) |
+| `rom_data` table | The ROM's bytes — BASIC and the operating system, as 6502 machine code |
+| one `process` | On each clock tick, output the byte at `addr`. There is no write, so it is read-only |
 
-```vhdl
-entity BASIC11A is
-port (
-    clk  : in  std_logic;                          -- ★ same clocked-read shape as spram.v
-    addr : in  std_logic_vector(13 downto 0);      -- ★ 14 bits -> 16384 addresses = 16 KB
-    data : out std_logic_vector(7 downto 0)        -- ★ one byte out
-);
-end entity;
+The CPU sees the ROM at `$C000`–`$FFFF` (16 KB). `oricatmos.vhd` gives each ROM the low 14 bits of
+the CPU address (`cpu_ad(13 DOWNTO 0)`, `oricatmos.vhd:502`).
 
-architecture prom of BASIC11A is
-    type rom is array(0 to 16383) of std_logic_vector(7 downto 0);
-    signal rom_data: rom := (
-        X"4C",X"CC",X"EC",X"4C",X"71",X"C4", ...    -- ★ 16384 bytes of 6502 machine code
-        ... 1024 more lines ...
-        X"8F",X"F8",X"44",X"02");
-begin
+## Which ROMs are in the build
 
--- ★ THE ONLY LOGIC IN THE FILE — a clocked read, no write port.
---   Identical to spram.v's read half (1 cycle of latency: address now, data
---   next cycle), minus `wren` and the write. That missing write is the entire
---   difference between RAM and ROM in FPGA terms — same block-RAM hardware,
---   just initialised at build time and never written.
-process(clk)
-begin
-    if rising_edge(clk) then
-        data <= rom_data(to_integer(unsigned(addr)));
-    end if;
-end process;
-end architecture;
-```
+`core/files.qip` lists the files that go into the core. Only 5 of the 13 ROM files are in it:
 
-**Where it lands physically:** same answer as `spram.v` — the synthesis tool maps this array into
-the FPGA's **block RAM**, pre-loaded with these bytes at configuration time. On the real Oric this
-was a mask-programmed 16 KB ROM chip on the PCB.
+| File | Entity name | Size | What it is | Used at |
+|---|---|---|---|---|
+| `BASIC11A.vhdl` | `BASIC11A` | 16 KB | Oric Atmos BASIC 1.1 (default) | `oricatmos.vhd:499` |
+| `BASIC10.vhd` | `BASIC10` | 16 KB | Oric-1 BASIC 1.0 | `oricatmos.vhd:506` |
+| `PRAVETZ8D.vhd` | `PRAVETZ8D` | 16 KB | Pravetz-8D (Bulgarian clone) | `oricatmos.vhd:513` |
+| `PRAVETZ8D_FDC.vhd` | `PRAVETZ8D_FDC` | 256 B | Small boot ROM for the Pravetz disk | `oricatmos.vhd:520` |
+| `MICRODIS.vhd` | **`ORICDOS06`** | 8 KB | Microdisc disk controller ROM | `oricatmos.vhd:528` |
 
-**The address maths:** 14 address bits → 16,384 bytes → the Oric's ROM window at **`$C000`–`$FFFF`**
-(64 KB address space minus 16 KB = `$C000`). That is why `oricatmos.vhd` feeds these ROMs
-`cpu_ad(13 DOWNTO 0)` — the low 14 bits of the CPU address bus, with the top 2 bits used by the
-decode logic to decide the ROM is being addressed at all.
+**Watch out:** `MICRODIS.vhd` names its entity `ORICDOS06`. A search for "MICRODIS" finds the
+file but not the place where it is used.
 
----
+**Not in the build** (the files exist but are not compiled): `BASIC11.vhd`, `BASIC11B.vhdl`,
+`BASIC22.vhd`, `DIAG10.vhd`, `TEST108J.vhdl`, `ORIC1SDCARD.vhd`, `test109.vhd`, `testsector.vhd`.
+`DIAG10` and `TEST108J` are Mike Brown's test ROM — see [[oric.signal11.org.uk]].
+`MICRODIS.rom` is the raw binary of the Microdisc ROM.
 
-## 2. Which ROMs are real — and which 8 files are dead weight
+## How the core picks a ROM
 
-**`files.qip` is the authority** (see Day 0). Only **5** ROM files are in the build:
+- You pick the ROM in the MiSTer menu. The choice takes effect at reset (`Oric.sv` ★ SECTION 12).
+- `oricatmos.vhd` ★ SECTION 19 chooses, for each CPU read, whether the byte comes from a ROM, RAM,
+  the VIA or a disk controller.
+- `Oric.sv` also has an "alt BIOS": a 16 KB RAM (`spram`) that you can fill from a file on the SD
+  card. It replaces the built-in ROM.
 
-| File | Entity | Size | What it is |
-|---|---|---|---|
-| `BASIC11A.vhdl` | `BASIC11A` | 16 KB | **Atmos** BASIC 1.1 — the default ROM |
-| `BASIC10.vhd` | `BASIC10` | 16 KB | **Oric-1** BASIC 1.0 |
-| `PRAVETZ8D.vhd` | `PRAVETZ8D` | 16 KB | Pravetz-8D (Bulgarian Oric clone) |
-| `PRAVETZ8D_FDC.vhd` | `PRAVETZ8D_FDC` | 256 B | Pravetz FDC bank ROM — tiny boot stub |
-| `MICRODIS.vhd` | **`ORICDOS06`** ⚠ | 8 KB | Microdisc floppy controller ROM |
+## To read the ROM code itself
 
-> ⚠ **Filename ≠ entity name.** `MICRODIS.vhd` declares `entity ORICDOS06`. Grepping the codebase
-> for "MICRODIS" finds the file but *not* its instantiation — `oricatmos.vhd:532` says
-> `ENTITY work.ORICDOS06`. This is the kind of thing that costs twenty confused minutes if nobody
-> warns you.
-
-**Present in the folder but NOT listed in `files.qip`** — so not compiled into the core:
-`BASIC11.vhd`, `BASIC11B.vhdl`, `BASIC22.vhd`, `DIAG10.vhd`, `TEST108J.vhdl`, `ORIC1SDCARD.vhd`,
-`test109.vhd`, `testsector.vhd`. (That they aren't built is verified. *Why* each is still in the
-repo — superseded alternates, work in progress, upstream history — is not something the manifest
-tells you; don't assume.)
-
-Two consequences worth internalising:
-
-1. **Don't study a file before checking it's in `files.qip`.** Eight of thirteen ROM files here are
-   not part of the core. `plan.md`'s "Ground truth" tree lists several of them (BASIC11/22, DIAG10,
-   TEST108J, ORIC1SDCARD) as if they were live — they are present in the repo, but not built.
-2. `DIAG10` / `TEST108J` are **Mike Brown's diagnostic ROM** ([[oric.signal11.org.uk]]) — genuinely
-   interesting for Day 2's ULA work and for hardware testing, just not compiled into this core.
-
----
-
-## 3. Which ROM the machine actually uses
-
-Selection is made **at reset only** (no hot-swap) and comes from the OSD menu, via the 2-bit `rom`
-signal. `Oric.sv`'s `rom_sel` chain remaps menu order onto internal numbering — see SV Lesson 8,
-which uses that exact code as its worked example — and `oricatmos.vhd` ★ SECTION 19 is the priority
-mux that decides, per CPU read, whether the byte comes from a ROM, RAM, the VIA, or a disk
-controller.
-
-There is also a **user-supplied ROM** path that bypasses all of these: `Oric.sv`'s `altbios` is a
-16 KB `spram` (not a ROM table) that the ARM side can fill from an SD-card file at runtime — the
-same 16 KB shape, but writable because it is loaded rather than compiled in.
-
----
-
-## 4. Going further
-
-The ROM *contents* — as opposed to this wrapper — are the Oric's operating system and BASIC
-interpreter, and they are well documented elsewhere in this repo:
-
-- `oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md` — commented `$C000`–`$FFFF` listing
-- `oric-docs/books/oric/oric-advanced-user-guide.md` — hardware + ROM reference
-- `oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md` — Oric-flavoured 6502
-- [[oric.free.fr]] — register-level Hardware Programming How-To
-
-Relevant later: Idea #3/#4's tape speed-loaders work by **patching ROM reads on the fly**
-(`cload_patch_rom.v`), which only makes sense once you know the ROM is a fixed lookup table that
-cannot itself be modified.
+- `oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md` — the full ROM, commented
+- `oric-docs/books/oric/oric-advanced-user-guide.md` — hardware and ROM reference

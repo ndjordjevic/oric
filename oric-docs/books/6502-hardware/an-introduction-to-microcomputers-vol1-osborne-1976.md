@@ -3,7 +3,7 @@
 **Author:** Adam Osborne
 **Year:** 1976 (2nd printing 1977), Adam Osborne and Associates
 **Category:** Foundational microprocessor concepts (general, pre-dates the 6502 specifically)
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Hardware/Osborne-An Introduction To Microcomputers Volume1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Hardware/Osborne-An Introduction To Microcomputers Volume1.pdf`
 
 Not Oric-specific. Scanned copy, TOC reconstructed by OCR (page numbers not legible for most
 entries). One of the earliest general microcomputer textbooks — explains microprocessor concepts

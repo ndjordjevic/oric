@@ -3,7 +3,7 @@
 **Author:** Wynford James
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Micro Press - The Atmos Book of Games.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Micro Press - The Atmos Book of Games.pdf`
 
 ## Table of Contents
 

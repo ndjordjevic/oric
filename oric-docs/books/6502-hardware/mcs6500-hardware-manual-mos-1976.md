@@ -3,7 +3,7 @@
 **Author:** MOS Technology, Inc.
 **Year:** 1976 (2nd ed.)
 **Category:** 6502 CPU reference — primary source (chip manufacturer's own manual)
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/C64/MCS6500 Hardware Manual Hardback/MCS6500 Hardware Manual Interior.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/C64/MCS6500 Hardware Manual Hardback/MCS6500 Hardware Manual Interior.pdf`
 
 Not Oric-specific. The manufacturer's own hardware manual for the MCS6500 family (6501–6505,
 which the 6502 belongs to) — the primary source behind every secondary 6502 textbook, including
@@ -50,7 +50,7 @@ which the 6502 belongs to) — the primary source behind every secondary 6502 te
 
 **Why relevant to the Oric:** §1.3–1.4 (interrupts, NMI/IRQ, RES) is the primary source behind
 the Oric's page-2 patchable `JMP` vectors covered in `core/docs/oric_memory_map.md` §7 and
-`01-oric-hardware-notes.md`. §2.3.1 (address assignment / ROM-RAM address assignment) is the
+`oric-hardware.md`. §2.3.1 (address assignment / ROM-RAM address assignment) is the
 generic pattern the Oric's ULA implements as its chip-select logic (I/O at page 3, ROM at
 `$C000`) — read this alongside `ula.vhd` on Day 2.
 

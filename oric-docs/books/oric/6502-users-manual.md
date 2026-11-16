@@ -3,7 +3,7 @@
 **Author:** Joseph J. Carr
 **Year:** 1984
 **Category:** 6502 CPU reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/6502UsersManual.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/6502UsersManual.pdf`
 
 ## Table of Contents
 

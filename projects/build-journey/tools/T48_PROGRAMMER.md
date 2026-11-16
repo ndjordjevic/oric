@@ -42,7 +42,7 @@ A black ZIF-socket adapter for **PLCC44 / DIP42** package chips — the large EP
 
 **The ADP_D42_EX-A adapter is not needed for this build.** The Oric ROM is a small DIP28 part; the adapter is for DIP42/PLCC44 chips. Keep it for other projects.
 
-See `build-journey/01-decision-bom-order.md` §6–§7 for how this fits the order plan — with the T48 already in hand, the build requires **no tool purchases**.
+See `build-journey/10-decision-bom-order.md` §6–§7 for how this fits the order plan — with the T48 already in hand, the build requires **no tool purchases**.
 
 ---
 

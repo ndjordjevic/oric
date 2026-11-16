@@ -44,7 +44,7 @@ was not underserved; the tools are just obscure and now hard to find, not absent
   working demo used Oricutron's `--serial modem:65020` emulation rather than a confirmed real
   serial cable, and it can't debug code that changes the IRQ vector (which rules out most
   games). Discussed in [forum topic 1896](https://forum.defence-force.org/viewtopic.php?t=1896)
-  (verified by direct fetch) — not yet in the local forum digest.
+  (verified by direct fetch).
 - **Modern tooling:** [Oricutron](https://github.com/pete-gordon/oricutron) (the reference
   emulator) separately ships its own full built-in monitor/debugger (F2) — disassembler,
   memory dump, breakpoints, register display, symbol-file loading. This is *emulator*
@@ -52,7 +52,7 @@ was not underserved; the tools are just obscure and now hard to find, not absent
   6502 monitor's feature set looks like before touching any of the above.
 - The [OSDK](https://osdk.org) toolchain (XA assembler; see `oric-docs/RESOURCES.md` §8 and
   `oric-docs/books/INDEX.md`) is the natural choice for any new 6502 assembly work here.
-- Other forum threads worth reading if this idea gets picked up, not yet in the local digest:
+- Other forum threads worth reading if this idea gets picked up:
   [Assembler / disassembler](https://forum.defence-force.org/viewtopic.php?t=1765),
   ["Towards an onboard Oric Assembler/Editor Development environment"](https://forum.defence-force.org/viewtopic.php?t=2430)
   (brainstorming, mentions a tool called MONASM, no shipped result), and a 2015 thread
@@ -75,8 +75,8 @@ Open questions to resolve before starting:
   studying the period BASIC listings vs. writing something new from scratch.
 - If extending NoICE or building a native on-hardware monitor: what feature set, and what
   triggers a break — the keyboard NMI key (`swnmi`, wired straight to the 6502's `NMI_n` — see
-  [`mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
-  §13) is an obvious real-hardware breakpoint mechanism.
+  [`mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd`](mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd)
+  ★ SECTION 13) is an obvious real-hardware breakpoint mechanism.
 - What interface: keyboard command line (like Oricutron's F2 monitor or the period tools) vs.
   a serial link out via Microdisc/LOCI (like the NoICE port) for a host-side debugger.
 - Whether working `.tap`/`.dsk` images and manuals for ORICMON/ORIC-MON/ORION actually survive
@@ -102,15 +102,15 @@ competing for time.
 
 **Tools already in hand, from work already done in this repo:**
 
-- [`mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
+- [`mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd`](mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd)
   already documents exactly how joystick input reaches the game: `joystick.sv` maps the MiSTer
   USB gamepad to VIA Port A bits via `via_pa_joy_value`/`via_pa_joy_mask`, selected by
-  `joystick_adapter` (see §13). Useful for
+  `joystick_adapter` (see ★ SECTION 13). Useful for
   understanding *how* a game reads the joystick in its input-poll routine, and for confirming
   which joystick "protocol" (there were multiple incompatible Oric joystick interfaces
   historically) a given game expects.
 - The same core exposes full **snapshot save/restore** (`.sna`) and **MiSTer savestates**
-  (F1–F4 save / F5–F8 restore) — see 01b §18. This is a shortcut for RE work: pause the game at
+  (F1–F4 save / F5–F8 restore) — see `annotated/Oric.sv` ★ SECTION 18. This is a shortcut for RE work: pause the game at
   an interesting moment (e.g. right before a specific event) and capture a complete memory/CPU/
   VIA/PSG/ULA snapshot to pick apart offline, rather than single-stepping from cold boot.
 - The core's own `tools/tape-inspect.py` and `tools/sna-inspect.py` (see
@@ -126,7 +126,7 @@ competing for time.
   (register-level VIA/PSG/ULA reference) and the *Oric Advanced User Guide: ROM Disassembly*
   (catalogued at [`../oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md`](../oric-docs/books/oric/oric-advanced-user-guide-rom-disassembly.md))
   for cross-checking ROM routine calls the game makes.
-- One forum thread not yet in the local digest looks relevant: ["Disassemblies"](https://forum.defence-force.org/viewtopic.php?t=584)
+- One forum thread looks relevant: ["Disassemblies"](https://forum.defence-force.org/viewtopic.php?t=584)
   (technical-questions subforum) — worth checking before starting in case the chosen game (or
   a similar one) already has a public partial disassembly to cross-check against.
 
@@ -191,9 +191,9 @@ and adapt, not a raw binary to disassemble from scratch.
   version could sound better than the original ever did.
 - **Input** — Apple II paddle/joystick port vs. the Oric's VIA-based joystick interface — ties
   directly into Idea #2's research on `joystick.sv`/VIA PA mapping
-  ([`reference/understanding-oricatmos-vhd.md`](mister-fpga-oric-core-understanding/reference/understanding-oricatmos-vhd.md)
-  §13).
-- **Timing** — the Oric's CPU/video RAM contention (`PHI2` timesharing, same doc §8) is a
+  ([`annotated/rtl/oricatmos.vhd`](mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd)
+  ★ SECTION 13).
+- **Timing** — the Oric's CPU/video RAM contention (`PHI2` timesharing, same file ★ SECTION 8) is a
   real-time constraint the Apple II doesn't share in the same form; frame-timing assumptions in
   the original source likely won't just carry over.
 - [OSDK](https://osdk.org)'s XA assembler (`oric-docs/RESOURCES.md` §8) is the natural toolchain for the
@@ -455,7 +455,7 @@ Captured 2026-07-16; these are cross-cutting, so they live here rather than bein
   with Fabrice Frances' 6502 code generator, 16- and 32-bit int variants), André Fachat's **XA**
   cross-assembler, peephole optimizer, linker, tape/disk builders. Windows-native (runs under
   Wine). `lcc65` isn't a heavy optimizer, but for control-flow-heavy interpreter logic that barely
-  matters. **`osXdk` is the Unix fork** — relevant since this machine is macOS.
+  matters. **`osXdk` is the Unix fork** — relevant since this machine runs Linux (Pop!_OS 24.04).
 - **cc65** — better-known, better-optimizing, native macOS/Linux/Windows, proper Atmos target
   (~37K available, ROM calls supported). **Critical caveat:** its Atmos library implements **no C
   file I/O** — `fopen`/`fread` don't exist, only stdin/stdout hacks. For a *database* that means

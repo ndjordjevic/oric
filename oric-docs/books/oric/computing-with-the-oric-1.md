@@ -3,7 +3,7 @@
 **Author:** Ian Hickman
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Newnes - Computing with the Oric 1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Newnes - Computing with the Oric 1.pdf`
 
 ## Table of Contents
 

@@ -126,68 +126,34 @@
 -- ----- IMPORTANT NOTES -----
 --
 
--- ★ WHAT THIS FILE IS ────────────────────────────────────────────────────────
+-- ★ WHAT THIS FILE IS
+-- The CPU: a copy of the MOS 6502 chip, written in VHDL. The real Oric has a
+-- 6502 running at 1 MHz. This core is not Oric-specific — many MiSTer cores
+-- use it. All the Oric-specific wiring is in oricatmos.vhd ★ SECTION 7.
 --
--- The CPU. T65 is a soft-core implementation of the MOS 6502 — the actual
--- processor of the Oric-1 and Atmos (a 6502A clocked at 1 MHz). Everything
--- else in the machine exists to feed this chip instructions or respond to the
--- addresses it puts on the bus.
+-- What to read here: only the pins (the `entity` below). The inside is a
+-- normal 6502 and has nothing Oric-specific. Skip it unless you are curious.
 --
--- IT IS NOT ORIC-SPECIFIC. T65 is a widely reused open-source core (it also
--- speaks 65C02 and 65C816 — see the `Mode` port) that appears in many MiSTer
--- cores. Nothing in this file knows what an Oric is. All the Oric-ness lives
--- in how oricatmos.vhd wires it up.
---
--- ★ DAY 1 SCOPE — READ THE INTERFACE, NOT THE INTERNALS.
--- The entity below (the port list) is what matters and is fully annotated.
--- The architecture after it — ~565 lines of instruction decoding, addressing
--- modes and microcode sequencing, plus T65_MCode.vhd's 1,265-line opcode
--- table — is deliberately NOT walked. Reasons: (a) it is generic 6502
--- behaviour, documented far better by any 6502 reference than by reading
--- VHDL; (b) it contains nothing Oric-specific, so it teaches you nothing
--- about *this* machine; (c) it is 2,468 lines across four files, more than
--- the entire rest of the week's reading combined.
---
--- If you later want the 6502 itself, read a 6502 programming manual — not
--- this file.
---
--- HOW IT CONNECTS (oricatmos.vhd:441, ★ SECTION 7 — see also VHDL Lesson 5,
--- which uses this very instantiation as its worked example):
---   Clk    <= CLK_IN     the fast system clock, NOT 1 MHz
---   Enable <= ENA_1MHZ   the clock ENABLE that makes it *behave* as 1 MHz
---   Res_n  <= cont_RESETn
---   Rdy    <= NOT (cpu_halt OR save_halted_i)   tape/save-state CPU freeze
---   DI     <= cpu_di     driven by the big read mux, oricatmos.vhd ★ SECTION 19
---
--- >> THE CLOCK/ENABLE SPLIT IS THE ONE IDEA TO TAKE FROM THIS FILE.
---    The CPU is not given a 1 MHz clock. It runs on the fast system clock and
---    is told "you may advance now" one cycle in N by `Enable`. That is how a
---    modern FPGA hosts a 1980s CPU at authentic speed while still having fast
---    cycles spare for everything else (video fetch, RAM arbitration). Nearly
---    every clocked module in this core uses the same clock-enable trick.
--- ─────────────────────────────────────────────────────────────────────────────
-
+-- One idea to keep: the CPU runs on the fast FPGA clock (`Clk`), but it only
+-- takes a step when `Enable` is '1'. oricatmos.vhd pulses `Enable` at 1 MHz,
+-- so the CPU runs at the real Oric speed. Most chips in this core work the
+-- same way.
 library IEEE;
   use IEEE.std_logic_1164.all;
   use IEEE.numeric_std.all;
   use work.T65_Pack.all;
 
--- ★ SECTION 1 — The CPU's pins. This is the whole Day 1 target.
---
--- Grouped by job (the source lists them in its own order):
---
---   CONFIG      Mode          which CPU to be: "00" 6502 (what the Oric uses)
---   CLOCKING    Clk, Enable   fast clock + 1 MHz advance-enable (see above)
---   CONTROL     Res_n, Rdy    reset, and "stall the CPU" — both active-low-ish
---   INTERRUPTS  IRQ_n, NMI_n, Abort_n, SO_n     all ACTIVE LOW (the `_n`)
---   THE BUS     A, DI, DO, R_W_n                address out, data in/out, R/W
---   STATUS      Sync, VDA, VPA, ML_n, VP_n, EF/MF/XF
---   SAVE-STATE  Regs, Regs_set, Regs_set_we, NMI_ack, DEBUG
---
--- The trailing `_n` convention means ACTIVE LOW: the signal does its job when
--- it is '0', not '1'. So IRQ_n = '0' means "interrupt requested", and unused
--- interrupt inputs are tied to '1' (= not asserted), which is exactly what you
--- see in oricatmos.vhd's port map.
+-- ★ THE CPU PINS
+--   Mode            which CPU to copy. "00" = plain 6502 (the Oric uses this)
+--   Clk, Enable     fast clock + "take one step now" signal (see above)
+--   Res_n           reset
+--   Rdy             '0' = pause the CPU (used for tape loading and savestates)
+--   IRQ_n, NMI_n    interrupt requests. `_n` means "active when '0'"
+--   A, DI, DO       address out, data in, data out
+--   R_W_n           '1' = read, '0' = write
+--   Sync            '1' when the CPU fetches a new instruction
+--   Regs, Regs_set  read out / load all CPU registers (MiSTer savestates)
+--   Others          65C816-only or debug pins, not used by the Oric
 entity T65 is
   port(
     Mode    : in  std_logic_vector(1 downto 0);      -- "00" => 6502, "01" => 65C02, "10" => 65C816
@@ -220,29 +186,9 @@ entity T65 is
   );
 end T65;
 
--- ★ SECTION 2 — INTERNALS: OUT OF SCOPE (one span comment for ~565 lines)
---
--- Everything from here to `end rtl;` is the 6502 itself: register file,
--- instruction register, addressing-mode logic, the ALU (T65_ALU.vhd), and the
--- microcode/opcode decode table (T65_MCode.vhd, 1,265 lines). Per the Day 1
--- scope note in the file header, this is deliberately NOT walked block by
--- block — it is generic 6502 behaviour with nothing Oric-specific in it.
---
--- The signal declarations immediately below are readable as a 6502 register
--- map if you want a taste: ABC (accumulator + B/C for '816 mode), X, Y (index
--- registers), P (processor status flags), PC (program counter), S (stack
--- pointer), IR (current instruction). That mapping — not the sequencing logic
--- — is the useful thing to carry away.
---
--- To actually learn the 6502, use the real references rather than this VHDL:
---   * books/oric/6502-users-manual.md            — Carr, the CPU itself
---   * books/oric/oric-advanced-user-guide-rom-disassembly.md
---                                                — commented $C000-$FFFF ROM
---   * books/oric/machine-code-for-the-atmos-and-oric-1.md   — Oric-flavoured
---
--- Resume real annotation at Day 2 (ula.vhd) — the ULA is where the
--- Oric-specific behaviour actually lives.
-
+-- ★ INSIDE THE CPU — skip unless curious. From here on it is a generic 6502.
+-- These are the internal wires. The 6502 registers are here: ABC (= A),
+-- X, Y, S (stack pointer), P (flags), PC (program counter), IR (current opcode).
 architecture rtl of T65 is
 
   -- Registers
@@ -327,6 +273,8 @@ architecture rtl of T65 is
   signal NMI_entered    : std_logic;
 
 begin
+  -- ★ STATUS OUTPUTS: drive the status pins (Sync, R_W_n, …) and copy the
+  -- registers out to `Regs` and `DEBUG`.
   NMI_ack <= NMIAct;
 
   -- gate Rdy with read/write to make an "OK, it's really OK to stop the processor 
@@ -351,6 +299,8 @@ begin
 
   Regs <= std_logic_vector(PC) & std_logic_vector(S)& P & Y(7 downto 0) & X(7 downto 0) & ABC(7 downto 0);
 
+  -- ★ INSTRUCTION DECODER: T65_MCode.vhd looks up what each opcode must do
+  -- in each step.
   mcode : entity work.T65_MCode
     port map(
 --inputs
@@ -388,6 +338,7 @@ begin
       Write       => Write
       );
 
+  -- ★ ALU: T65_ALU.vhd does the maths (add, subtract, AND, OR, shifts).
   alu : entity work.T65_ALU
     port map(
       Mode => Mode_r,
@@ -399,6 +350,7 @@ begin
       Q => ALU_Q
       );
 
+  -- ★ RESET DELAY: wait 2 clocks after reset, like the real chip.
   -- the 65xx design requires at least two clock cycles before
   -- starting its reset sequence (according to datasheet)
   process (Res_n, Clk)
@@ -412,6 +364,8 @@ begin
     end if;
   end process;
 
+  -- ★ REGISTERS: update PC, S, the opcode register and the other registers
+  -- after each step. Also loads them from a savestate.
   process (Res_n_i, Clk)
   begin
     if Res_n_i = '0' then
@@ -527,6 +481,7 @@ begin
   PCAdder <= resize(PC(7 downto 0),9) + resize(unsigned(DL(7) & DL),9) when PCAdd = '1'
          else "0" & PC(7 downto 0);
 
+  -- ★ FLAGS AND A/X/Y: update the flag register P and the A, X, Y registers.
   process (Res_n_i, Clk)
     variable tmpP:std_logic_vector(7 downto 0);--Lets try to handle loading P at mcycle=0 and set/clk flags at same cycle
   begin
@@ -615,6 +570,7 @@ begin
     end if;
   end process;
 
+-- ★ BUSES: hold data read from memory and build the next address.
 ---------------------------------------------------------------------------
 --
 -- Buses
@@ -757,6 +713,8 @@ begin
       (others=>'-')                       when Write_Data_DONTCARE;--Can probably remove this
 
 
+-- ★ STEP COUNTER: counts the steps (cycles) of each instruction and starts
+-- IRQ / NMI interrupt handling.
 -------------------------------------------------------------------------
 --
 -- Main state machine

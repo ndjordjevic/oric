@@ -3,7 +3,7 @@
 **Author:** Vince Apps
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Phoenix Publishing - The Oric-1 program book [OCR][DFOL].pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Phoenix Publishing - The Oric-1 program book [OCR][DFOL].pdf`
 
 Subtitle: 50 programs for home, educational and business use. Published by Phoenix Publishing Associates, Bushey, Herts. ISBN 0 9465 7601 7.
 

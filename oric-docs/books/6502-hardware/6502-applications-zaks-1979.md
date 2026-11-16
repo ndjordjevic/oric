@@ -3,7 +3,7 @@
 **Author:** Rodney (Rodnay) Zaks
 **Year:** 1979 (Sybex)
 **Category:** 6502 hardware interfacing / applications
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Apple II/Assembly/6502 Applications Rodney Zaks 1979.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Apple II/Assembly/6502 Applications Rodney Zaks 1979.pdf`
 
 Not Oric-specific. Second of Zaks' 6502 series — follows
 [`programming-the-6502-zaks-1983.md`](programming-the-6502-zaks-1983.md); scanned copy, TOC

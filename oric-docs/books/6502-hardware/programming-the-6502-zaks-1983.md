@@ -3,7 +3,7 @@
 **Author:** Rodnay Zaks
 **Year:** 1983 (Sybex)
 **Category:** 6502 CPU reference — widely regarded as the best general 6502 programming text
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Apple II/Assembly/Programming the 6502 Rodnay Zaks 1983.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Apple II/Assembly/Programming the 6502 Rodnay Zaks 1983.pdf`
 
 Not Oric-specific. First of Zaks' three-book 6502 series (followed by
 [`6502-applications-zaks-1979.md`](6502-applications-zaks-1979.md) and *Advanced 6502

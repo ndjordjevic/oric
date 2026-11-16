@@ -3,7 +3,7 @@
 **Author:** Ian Adamson (Pan Books, London and Sydney — in association with Personal Computer News; produced for Oric Products International Ltd)
 **Year:** 1984
 **Category:** Oric reference / manual
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/manual_atmos.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/manual_atmos.pdf`
 
 ## Table of Contents
 

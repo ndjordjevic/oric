@@ -3,7 +3,7 @@
 **Author:** Peter Shaw (series editor: Tim Hartnell)
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Virgin Books - Games for your Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Virgin Books - Games for your Oric.pdf`
 
 ## Table of Contents
 

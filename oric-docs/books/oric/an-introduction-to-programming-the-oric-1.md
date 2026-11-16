@@ -3,7 +3,7 @@
 **Author:** R. A. & J. W. Penfold
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Bernard Babani Publishing - An Introduction to Programming the ORIC-1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Bernard Babani Publishing - An Introduction to Programming the ORIC-1.pdf`
 
 Publisher: Bernard Babani (publishing) Ltd, London.
 

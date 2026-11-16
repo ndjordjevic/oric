@@ -3,7 +3,7 @@
 **Author:** Robert Erskine, Humphrey Walwyn, with Paul Stanley & Michael Bews
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Pan - Sixty Programs for the Oric 1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Pan - Sixty Programs for the Oric 1.pdf`
 
 Published by Pan Books (Pan/Personal Computer News Computer Library). ISBN 0 330 28261 1.
 

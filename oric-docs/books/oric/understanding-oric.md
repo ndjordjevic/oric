@@ -3,7 +3,7 @@
 **Author:** Ian McLean
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Prentice Hall - Understanding Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Prentice Hall - Understanding Oric.pdf`
 
 Published by Prentice-Hall International. ISBN 0-13-477332-2.
 

@@ -3,7 +3,7 @@
 **Author:** Peter Lupton & Frazer Robinson
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Century - The Oric Handbook.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Century - The Oric Handbook.pdf`
 
 ## Table of Contents
 

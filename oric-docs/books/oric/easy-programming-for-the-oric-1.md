@@ -3,7 +3,7 @@
 **Author:** Ian Stewart and Robin Jones
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Shiva - Easy Programming for the Oric-1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Shiva - Easy Programming for the Oric-1.pdf`
 
 ## Table of Contents
 

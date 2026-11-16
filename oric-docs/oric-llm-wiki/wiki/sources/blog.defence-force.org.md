@@ -19,7 +19,7 @@ The blog publishes long-form articles by a single author (Mickaël Pointier / Db
 
 ## Key features
 
-- **Article archive from ~2015 to 2026** covering Oric, Atari ST, Adeline Software, hardware hacking, and personal essays; older OSDK-focused articles cross-post to osdk.org.
+- **Article archive from ~2015 to 2026** covering Oric, Atari ST, Adeline Software, hardware hacking, and personal essays; older OSDK-focused articles cross-post to [[osdk.org]].
 - **Oriclopedia video series** (2019–): vulgarisation videos on Oric publishers (Tansoft, Loriciels, IJK, Ere Informatique, Severn Software), hardware (Oric Family models, MCP40, Microdisc, peripherals), and historical context — aimed at newcomers rather than hobbyist insiders.
 - **Encounter dev-log** (2018–2024): the most thorough public record of writing a commercial Oric game in 2024, including financial post-mortem, pixel-art workflow, 6502/FloppyBuilder engine design, localisation (EN/FR), and distribution via itch.io.
 - **Floppy and storage guides**: practical walkthroughs for GoTek/HxC setup with FlashFloppy firmware, OLED-screen and buzzer installation, drive-selector switch wiring, and HFE disk image conversion.

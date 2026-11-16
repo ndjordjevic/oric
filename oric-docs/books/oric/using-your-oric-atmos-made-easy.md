@@ -3,7 +3,7 @@
 **Author:** Garry Marshall
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Arrow - Made Easy - Using your Oric Atmos.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Arrow - Made Easy - Using your Oric Atmos.pdf`
 
 Publisher: Arrow Books Limited (an imprint of the Hutchinson Publishing Group); copyright Newtech Publishing.
 

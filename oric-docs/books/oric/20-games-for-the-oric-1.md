@@ -3,7 +3,7 @@
 **Author:** Wynford James
 **Year:** 1983
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Granada - 20 games for the Oric 1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Granada - 20 games for the Oric 1.pdf`
 
 ## Table of Contents
 

@@ -68,7 +68,7 @@ A LOCI user-experience thread. Most relevant finding for a clone build: a user r
 
 ### OCULA — a ULA replacement concept — `t=2709`
 
-The canonical OCULA development thread (18 pages, active into 2026). Read in detail for `projects/build-journey/01-decision-bom-order.md` §3: OCULA only became reliable on *genuine* Oric boards around late-2025/early-2026 firmware, and the single attempt on record to run it on an Oric *clone* (an unknown homebrew board) never booted past a garbage screen. No one has tried OCULA in a Metaphoric.
+The canonical OCULA development thread (18 pages, active into 2026). Read in detail for `projects/build-journey/10-decision-bom-order.md` §3: OCULA only became reliable on *genuine* Oric boards around late-2025/early-2026 firmware, and the single attempt on record to run it on an Oric *clone* (an unknown homebrew board) never booted past a garbage screen. No one has tried OCULA in a Metaphoric.
 
 ### Other-forum Metaphoric threads (non-Defence-Force)
 

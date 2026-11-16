@@ -3,7 +3,7 @@
 **Author:** Bruce Smith
 **Year:** 1984
 **Category:** Oric machine code / assembly
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/machine_code_for_the_atmos_and_oric_1.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/machine_code_for_the_atmos_and_oric_1.pdf`
 
 ## Table of Contents
 

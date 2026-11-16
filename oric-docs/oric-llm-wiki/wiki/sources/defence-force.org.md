@@ -60,7 +60,7 @@ The site is actively maintained: its change history runs continuously from 1997 
 
 ## Ecosystem
 
-Defence Force sits alongside the wider Oric community: it bundles the Euphoric and Oricutron emulators (Euphoric also archived at [[oric.free.fr]]), and its Oric Library overlaps the magazine and book preservation effort found there. The site spans associated properties — the `osdk.org` documentation site, the `blog.defence-force.org` blog, a phpBB forum and wiki, itch.io and Steam storefronts for the games, and the "Oriclopedia" / "Upgrade Time" YouTube series. The OSDK is the production toolchain behind essentially all recent Oric homebrew, and the games and demos it produces are precisely the software that runs on the original and recreated Oric hardware documented elsewhere in this wiki.
+Defence Force sits alongside the wider Oric community: it bundles the Euphoric and Oricutron emulators (Euphoric also archived at [[oric.free.fr]]), and its Oric Library overlaps the magazine and book preservation effort found there. The site spans associated properties — the [[osdk.org]] documentation site, the [[blog.defence-force.org]] blog, a phpBB forum and wiki, itch.io and Steam storefronts for the games, and the "Oriclopedia" / "Upgrade Time" YouTube series. The OSDK is the production toolchain behind essentially all recent Oric homebrew, and the games and demos it produces are precisely the software that runs on the original and recreated Oric hardware documented elsewhere in this wiki.
 
 ## Documentation
 

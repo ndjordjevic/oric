@@ -3,7 +3,7 @@
 **Author:** Leycester Whewell (Adder Publishing, Cambridge)
 **Year:** 1984 (First published September 1984)
 **Category:** Oric hardware / ROM reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/oric_advanced_user_guide.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/oric_advanced_user_guide.pdf`
 
 ## Table of Contents
 

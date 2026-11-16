@@ -3,7 +3,7 @@
 **Author:** M. Morris Mano, Michael D. Ciletti
 **Year:** 2013
 **Category:** FPGA / HDL reference
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/FPGA/Digital Design 5th Edition - Morris Mano 2013.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/FPGA/Digital Design 5th Edition - Morris Mano 2013.pdf`
 
 ## Table of Contents
 

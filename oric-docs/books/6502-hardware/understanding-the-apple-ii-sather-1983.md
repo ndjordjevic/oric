@@ -4,7 +4,7 @@
 **Year:** 1983 (Quality Software)
 **Category:** Circuit-level hardware bible for a 6502-based home computer — closest single-machine
 analog to what this project is doing for the Oric
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Apple II/Assembly/Understanding the Apple ii Jim Sather 1983.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Apple II/Assembly/Understanding the Apple ii Jim Sather 1983.pdf`
 
 Not Oric-specific. Scanned copy, TOC reconstructed by OCR. A legendary reverse-engineering-style
 book: explains *how the Apple II hardware actually works*, chip by chip and signal by signal — the

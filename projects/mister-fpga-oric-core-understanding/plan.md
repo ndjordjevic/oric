@@ -1,634 +1,125 @@
-# Understanding the MiSTer FPGA Oric core — study plan
+# Plan — understand the MiSTer Oric core
 
-**Goal:** Be able to read the [MiSTer-devel/Oric_MiSTer](https://github.com/MiSTer-devel/Oric_MiSTer) source and explain, module by module, how the Oric-1 / Atmos is reconstructed in FPGA logic — CPU, ULA video, VIA, PSG sound, storage, and the MiSTer-specific glue (tape/snapshot/savestate). Day 8 adds a hands-on simulation/visualization pass to *concretely confirm* that understanding — no Quartus build, no real hardware needed.
+## Goal
 
-**Definition of done:** you can explain **end-to-end how the Oric Atmos works as a machine**, and open any Oric-relevant core file and say **what each code block does** — without needing to parse every line of HDL syntax. Concretely: `annotated/rtl/` carries block-commented copies of every Oric-proper module, `01-oric-hardware-notes.md` describes the real hardware in your own words, and `07-how-the-oric-works.md` ties the two together in one narrative. Day 8 (below) is a bonus verification pass, not a requirement of this definition — building/deploying to real hardware is explicitly out of scope for this project.
+When you open the core repo, you know:
 
-**Project layout:**
+1. **Where to start** — which files matter, and which to ignore.
+2. **How the files connect** — which file uses which.
+3. **What each code section does** — in plain English, from comments next to the code.
 
-```
-README.md                        ← how the study layers fit together — read first
-plan.md                          ← this file
+You do **not** need to understand every line of VHDL or Verilog. No dates, no time limits.
 
-  ── SPRINT DELIVERABLES — the NN- prefix is the day that produced it ───────
-00-repo-map.md                   ← Day 0 · what every folder/file in core/ is for
-01-oric-hardware-notes.md        ← Day 1 · the real Oric hardware, in your own words
-                                          (created Day 1, then added to through Day 6)
-modules/                         ← Days 2–6 · one note per subsystem, day-prefixed:
-    02-ula.md                          Day 2 · ULA timing & address generation
-    03-video.md                        Day 3 · pixel pipeline & serial attributes
-    04-m6522.md                        Day 4 · VIA
-    05-psg.md, 05-keyboard-joystick.md Day 5 · sound & input
-    06-tape.md                         Day 6 · cassette path
-07-how-the-oric-works.md         ← Day 7 · capstone: the end-to-end narrative
-08-simulation-and-visualization.md ← Day 8 · watch the CPU/ULA actually run
+## How we work
 
-  ── REFERENCE — no day number: not produced by a sprint day ────────────────
-reference/understanding-Oric-sv.md         ← architecture of Oric.sv           (pre-sprint)
-reference/understanding-oricatmos-vhd.md   ← architecture of rtl/oricatmos.vhd (pre-sprint)
-reference/block-diagram.md                 ← data/clock-path diagrams (pre-sprint; refreshed Day 7)
-reference/dev-env.md                       ← toolchain setup (Phase 0; extended Day 8 with SDL2)
-sim/                              ← Day 8 testbenches, waveforms, and captured frames
+For each file:
 
-annotated/                       ← ★-annotated frozen source copies (canonical line numbers)
-core/                            ← cloned Oric_MiSTer source (gitignored, kept pristine)
-archive/                         ← finished tracks kept for reference:
-                                     learn-systemverilog/, learn-vhdl/ + decoder cards
-```
+1. I copy the file from `core/` to `annotated/`.
+2. I add a short plain-English comment above each code section: what it does and why.
+3. You read the file with the comments.
+4. We chat about it. You ask, I answer.
+5. We tick the box below and move on.
 
-> **Naming rule:** a leading `NN-` means **"deliverable of Day NN"** — nothing
-> else. Files with no number aren't sprint output: they're pre-existing walkthroughs, reference,
-> or later-phase material. This replaced the old *phase*-numbered scheme, which broke once the
-> sprint existed (`02-oric-hardware-notes.md` was the Phase 2 deliverable, but Day 2 is the ULA —
-> the number pointed at the wrong thing). Now Day 2's output is `modules/02-ula.md`, and the number
-> always tells you when it was written.
+Code is never changed — only comments are added. `core/` stays clean (the original upstream code).
 
-**Why this repo:** the [wiki](../../oric-docs/oric-llm-wiki/wiki/index.md) already documents the *real* Oric hardware (register-level manual, ULA reverse-engineering, memory map) and the [core itself](../../oric-docs/oric-llm-wiki/wiki/sources/MiSTer-devel-Oric_MiSTer.md). You cannot read `ula.vhd` without knowing what the ULA does — so each code-reading step below is paired with required wiki reading.
+## End of each phase — phase notes
+
+When we finish chatting and you understand the phase, I write a short notes file:
+`notes/phase-N-<name>.md`. It is for future you, coming back after a long break.
+
+Each notes file is one page, plain English:
+
+1. **What this phase covered** — 2–3 sentences.
+2. **Key ideas** — 5–10 bullets: the things worth remembering.
+3. **Your questions** — what you asked in the chat, with the short answer.
+4. **Where to look** — the files and `★ SECTION`s to open again.
+5. **Still open** — anything we left unclear.
+
+It does not repeat the code comments or the other docs. It links to them.
 
 ---
 
+## Phase 1 — The map: find your way around
 
+**Question:** "What is in this repo, and where do I start?"
 
-## ⭐ THIS WEEK — 8-day sprint to "I understand how the Oric works"
+- [x] One-page map `MAP.md`:
+  - The 4 layers, top to bottom:
+    `sys/` (MiSTer framework) → `Oric.sv` (glue) → `rtl/oricatmos.vhd` (the Oric) → chip files
+  - Which files are the Oric, which are MiSTer extras, which to ignore
+  - A "where to look for X" table (video → `ula.vhd`, sound → `psg.v`, …)
+  - One simple diagram of how the files connect
+- [ ] Chat: walk the map together.
+- [ ] Notes: `notes/phase-1-map.md`
 
-**Day 0 → Day 8** (Day 0 and Day 1 are the same day — Day 0 is a ~1 hour
-orientation pass, not a full day; Day 8 is a bonus verification day, added after Day 7 to replace
-the old Phase 5/6 stretch goals — see below). This is the active plan; the phase list further down is the
-long-range map that Days 0–7 execute the heart of (Phase 2 + Phase 4).
+## Phase 2 — The real Oric, in short
 
-**Why now:** every project in `[../ideas.md](../ideas.md)` — reverse-engineer an Oric game, port
-Lode Runner / Choplifter, write the dBASE-class app, write the CP/M-inspired DOS — is gated on this.
-That backlog's own *"goal 1 — understand the hardware to the point of low-level programming"* **is
-this week.** Nothing else starts until it's done.
+**Question:** "What machine is this code copying?"
 
-## Gear change (decided Day 0) — read before Day 1
+- [x] The chips and their jobs: 6502 CPU, ULA (video + memory), VIA 6522 (I/O), AY-3-8912 (sound),
+      RAM, ROM.
+- [x] The memory map: what lives at which address.
+- [ ] Chat.
+- [ ] Notes: `notes/phase-2-real-oric.md`
 
+Doc: [`oric-hardware.md`](oric-hardware.md).
 
-| Until now                                       | This week                                                                             |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------- |
-| Understand every line and token of HDL syntax   | Understand **what each code block does**; syntax only as far as needed to read it     |
-| Lessons + decoder cards = active track          | Lessons are **finished** — a reference to consult, not a track to advance             |
-| Phase 4's per-module decoder-card token check   | **Dropped.** It's line-level work and contradicts the new direction                   |
-| `annotated/` = 2 files with `★` section headers | `annotated/rtl/` grows to cover **every Oric-proper module**, with per-block comments |
+## Phase 3 — The two top files
 
+**Question:** "How is the whole machine wired together?"
 
-`AGENTS.md`'s **full-coverage requirement** (explain every line and token of an excerpt) governs
-**lessons**. It does **not** apply to the new `annotated/rtl/`* block comments — those are
-deliberately block-level.
+Both files already have plain-English `★` section comments.
 
-## Annotation standard — the week's primary artifact
+- [ ] `annotated/Oric.sv` — MiSTer glue: menu, files, RAM, video and sound out.
+- [ ] `annotated/rtl/oricatmos.vhd` — the Oric itself: connects CPU, ULA, VIA, sound, ROM.
+- [ ] Chat.
+- [ ] Notes: `notes/phase-3-top-files.md`
 
-Every module annotated this week gets, in `annotated/rtl/<file>`:
+## Phase 4 — The chips, one at a time
 
-1. **File-header block** — what real chip or function this is, its role in the Oric, its key ports,
-  and what it deliberately does *not* do.
-2. `★ SECTION` **markers** — one line per logical section (same convention as the existing
-  `Oric.sv` / `oricatmos.vhd` snapshots).
-3. **Per-block comments** — a short plain-English comment above **each** `process` / `always` block /
-  state machine / non-obvious mux: *what it does, and why it's there.* No syntax explanation, no
-   token-by-token coverage.
+**Question:** "What does each part of the Oric do?" Suggested order (simple first):
 
-`ula.vhd`'s ~13 named processes (`u_CPT_H`, `u_CPT_V`, `u_isattrib`, `u_shf_reg`, `addr_latch`, …)
-are the model unit of granularity — roughly one comment block per named process.
-
-**Out-of-scope regions get one span comment, not per-block comments.** Where a day deliberately
-scopes something out (e.g. Day 4's shift-register internals in `m6522.vhd`, or `wd1793.sv` if
-reached), write a *single* block comment covering the whole span — *"the next N processes implement
-the shift register; the Oric doesn't meaningfully use it — interface only, internals not walked"* —
-and move on. Without this rule, "a comment above **each** process" and a scope cut contradict each
-other on exactly the biggest file of the week.
-
-- **Workflow:** copy `core/rtl/<file>` → `annotated/rtl/<file>`, then annotate. Never edit `core/`.
-- **Frozen once written** — same rule and provenance as the existing snapshots (upstream `c4cf449`),
-so later notes can cite their line numbers safely.
-- `Oric.sv` **and** `oricatmos.vhd` **stay untouched.** They already carry 19 `★` sections each plus the
-full `understanding-Oric-sv`/`understanding-oricatmos-vhd` walkthroughs, and every lesson/doc line-number citation points into them.
-
-
-
-## Scope — what actually counts as "the Oric"
-
-`rtl/` is ~~7,600 lines, but a large slice is MiSTer emulator convenience rather than the machine.
-**In scope (~~2,900 lines) — this *is* the Oric:**
-
-
-| Day | Focus                                                               | Files (lines)                                          |
-| --- | ------------------------------------------------------------------- | ------------------------------------------------------ |
-| 0   | *Orientation, not code* — what every folder/file in the repo is for | build system, `sys/` triage, `files.qip`               |
-| 1   | Real hardware + memory map + CPU/RAM/ROM                            | `spram.v` (47), `rom/*.vhd`, T65 *interface only*      |
-| 2   | ULA part 1 — timing & address generation                            | `ula.vhd` (569)                                        |
-| 3   | ULA part 2 + video — pixels & serial attributes                     | `ula.vhd` cont., `video.vhd` (215)                     |
-| 4   | VIA 6522 — the I/O hub                                              | `m6522.vhd` (1123)                                     |
-| 5   | Sound & input                                                       | `psg.v` (355), `keyboard.sv` (251), `joystick.sv` (66) |
-| 6   | Tape + buffer + floppy stretch                                      | `cassette.v` (184), `cas_sig_gen.v` (85)               |
-| 7   | Synthesis + proof                                                   | —                                                      |
-| 8   | *Bonus: simulate & visualize* — watch the CPU/ULA run for real      | GHDL/Verilator testbenches (no `sys/`, no Quartus)     |
-
-
-**Explicitly out of scope this week — MiSTer glue, not the Oric:** snapshots/savestates
-(`snap_loader.v`, `snap_ss.v`, `savestate_hotkeys.v` — 1,158 lines), the tape *speed-loader* engine
-(`cload_patch_rom.v`, `tap_byte_streamer.v`, `tap_segment_loader.v`, `tap_autorun_keys.v` — 694),
-`ddram.sv`, and `pll.v` internals (an Intel megafunction black box — the clock-*enable* scheme that
-actually matters is in `oricatmos.vhd`, already covered by `understanding-oricatmos-vhd` §7/§10). `understanding-Oric-sv` already documents
-how all of this hangs off the top level, which is all that's needed.
-
----
-
-
-
-## Day 0 · Map the territory: what every folder and file in the repo is *for*
-
-**Also today, before Day 1.** Pure orientation, no code reading — the goal is that opening the core
-repo never again produces "what even is all this?" You should be able to name any top-level item's
-job and say whether it's something you'll ever need to open.
-
-Everything below is *around* the Oric code, not the Oric code itself (that's Days 1–6).
-
-- [x] **The build system — 5 files that explain how the core is actually compiled**
-  - `Oric.qpf` — Quartus *project* file. Literally 2 lines (Quartus version + revision name). Nothing to learn
-  - `Oric.qsf` — Quartus *settings*: device/pin assignments. **Two lines matter:** `TOP_LEVEL_ENTITY = sys_top` and `source files.qip`
-  - `files.qip` — **the manifest, and the most useful file here.** 33 lines listing every RTL source that goes into the build. *If a file isn't in this list, it isn't in the core* — this is how you tell live code from leftovers
-  - `Oric.srf` — Quartus "suppressed messages": warnings the author chose to silence. Curiosity only, never study material
-  - `build_id.v` — one generated line, ``define BUILD_DATE`, rewritten at build time by` sys/build_id.tcl`
-- [x] **The one structural fact that confuses everyone about MiSTer cores:** the top-level entity is `sys_top` **(in** `sys/sys_top.v`**, 44 KB)** — *not* `Oric.sv`. Quartus builds the framework, and the framework instantiates *your* `emu` module. `Oric.sv` is a plug-in, not the root. (Already stated in "MiSTer core anatomy" below — confirm it against the actual `.qsf` today so it's concrete rather than trivia)
-- [x] **The folders**
-
-
-| Folder              | What it is                                                                                                                                                                           | Will you open it?                                            |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| `rtl/`              | **The actual core.** Sub-dirs: `T65/` (6502 CPU), `rom/` (ROM images as VHDL tables), `pll/` (Intel megafunction), `apple2_disk/` (WD1793 shared with an Apple II impl)              | Yes — Days 1–6 live here                                     |
-| `sys/`              | MiSTer framework, 52 files, **identical across every MiSTer core. Never edit.**                                                                                                      | Only ~5 of the 52 (below)                                    |
-| `tools/`            | Python TAP/SNA utilities (`tape-inspect.py`, `sna-inspect.py`, `ss-convert.py`, `merger.py`, `splitter.py`) + `oric-build` (Docker/Quartus) + `tool.md`                              | Useful later — file-format reference for `ideas.md` projects |
-| `releases/`         | 11 prebuilt `.rbf` bitstreams, one per release date — the file you'd actually copy to a MiSTer SD card                                                                               | No, but good to know it's the *output*                       |
-| `dsk/`              | 6 sample disk images (games + `SEDO40u_DSK.dsk` = SEDORIC DOS)                                                                                                                       | Yes if you reach floppy (Day 6) or Ideas #5/#6               |
-| `img/`              | 4 screenshots for the upstream README                                                                                                                                                | No                                                           |
-| `docs/`             | Maintainer technical notes — **not in official** `MiSTer-devel`; copied locally from [nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer) (Day 0). Index: `core/docs/docs.md` | Yes — Day 1 / Day 6 (see below)                              |
-| `games/`, `_Games/` | Sample TAP/`.sna` + MGL launchers (same fork source)                                                                                                                                 | Optional                                                     |
-
-
-- [x] **Triage** `sys/` **so it stops being a 52-file wall.** Only a handful are ever touched from `Oric.sv`: `emu_ports.vh` (the port list `Oric.sv` includes), `hps_io.sv` (ARM bridge), `video_mixer.sv` + `video_freak.sv` (video output/aspect), `ltc2308.sv` (the ADC behind Day 6's tape input). Everything else — `ascal.vhd`, `sd_card.sv`, `spdif.v`, `yc_out.sv`, the `pll_`* variants, the `.tcl`/`.sdc` build scripts — is framework plumbing you can permanently ignore
-
-- **Deliverable:** `00-repo-map.md` ✅ (Day 0) — lookup table: top-level map, `files.qip` manifest, `sys/` triage, fork-only `docs/`/`games/`/`_Games/` note
-- **Self-check:** point at any top-level file or folder and say what it does — and, for each, whether you'll ever need to open it
-- **Time-box:** this is a ~1 hour task. If it's taking longer you're reading code, which is Day 1's job
-
-
-
-## Day 1 · Foundation: the real machine, memory map, CPU & memory
-
-**The week starts on the hardware side, not the code side.** You cannot read `ula.vhd` without
-knowing what a ULA *is*, or `spram.v` without knowing why the Oric needs RAM arbitration at all.
-Every later day assumes today's model of the machine — this is the one day where reading a *manual*
-beats reading *RTL*.
-
-> **Prepared vs. done.** Three annotated source files already exist from earlier work
-> (`spram.v`, `T65.vhd`, `rom/README.md`) — they're **material to read today**, not boxes already
-> ticked. Likewise `01-oric-hardware-notes.md` exists with the memory-map tables filled in from
-> `core/docs/oric_memory_map.md`; treat it as a reference to check yourself against and then rewrite
-> in your own words. Everything below is unchecked on purpose.
-
-### Goals — what "Day 1 done" actually means
-
-Four things, all verifiable. Nothing else today.
-
-1. **Draw the 64 KB memory map from memory** — every region, both TEXT and HIRES layouts, and
-   *why* each boundary sits where it does.
-2. **Explain how the CPU reaches memory** — address/data bus, R/W, the reset and IRQ/NMI vectors at
-   `$FFFA–$FFFF`, and why the 6502's 16-bit address bus forces ROM, RAM, I/O and screen to *share*
-   one 64 KB space rather than sit side by side.
-3. **Explain what ROM contains and where it starts/ends** — the BASIC/OS split inside `$C000–$FFFF`,
-   and why the core's ROM tables are exactly 16384 bytes.
-4. **Write `01-oric-hardware-notes.md` in your own words** — the tables are already there; what's
-   missing is your explanation of the CPU/memory story, plus closing or sharpening the open
-   questions at the bottom.
-
-**Deliberately NOT today** — each has its own day, and reading ahead just means reading a manual
-you'll re-read later: ULA register/video detail (Days 2–3), VIA registers (Day 4), PSG and keyboard
-(Day 5), tape encoding (Day 6). Today you only need to know these chips *exist*, roughly what each
-is for, and where each sits in the address space. One sentence each is enough.
-
-### Reading — in this order
-
-- [x] **`core/docs/oric_memory_map.md` §1, §7, §8 — start here, ~30 min.** The single best Day 1
-  source and it's local. §1 is the whole-machine map (TEXT *and* HIRES tables). §7 is the ROM layout
-  and CPU hardware vectors. §8 is the one-paragraph-per-chip hardware overview. It's consolidated from
-  the AUG ROM disassembly, the Defence Force wiki, OSDK, cc65's `atmos.inc`, and oric.free.fr.
-  `01-oric-hardware-notes.md`'s tables are transcribed from this §1 — read the original first, then
-  use those tables to check yourself rather than as the thing you learn from.
-  - Optional deeper passes, same file, only if you want them: §2 (zero page), §3 (stack), §4 (page 2
-    — where the IRQ/NMI `JMP`s live), §6 (page 4). **Skip §5 entirely** — that's the page-3 I/O
-    region, i.e. VIA/Microdisc registers = Day 4/Day 6.
-- [x] **[oric.free.fr Hardware Programming How-To](http://oric.free.fr/programming.html) — the
-  *Introduction* and *UAL* chapters only, ~20 min.** Read the UAL chapter for its **memory-management**
-  role (chip selects, I/O at page 3, ROM at `$C000`), *not* its video role — video is Day 2. Skip the
-  VIA, PSG, Keyboard, Screen, Floppy, Tape, Serial, RTC and Telestrat chapters; they belong to later
-  days. This is the cross-check against the local doc, not a replacement for it.
-- [x] **`core/docs/manual_atmos.md` chapter 5, "Down memory lane" — optional, ~10 min.** The Atmos
-  manual's own plain-English tour of the memory map. Useful as a sanity check that you can explain
-  it the way the machine's own documentation does. Ignore the rest of that file today (it's the
-  full BASIC manual).
-- [x] ~~Skim [[oric.signal11.org.uk]]~~ — **moved to Day 2.** It's ULA reverse-engineering; there's
-  nothing in it Day 1 needs, and skimming it today just means reading it twice.
-
-### Books — exact chapters, don't read whole books
-
-All in `oric-docs/books/oric/` (TOC indexes; PDFs in the pCloud library):
-
-| Book | Read exactly | Why |
-|---|---|---|
-| `getting-more-from-your-oric` | Ch. 3 "Inside the ORIC", §3.1–3.6 (pp. 31–35) | The tightest overview that exists: main chips, the 6502, the 6522, the "Late Array" (= ULA), and the memory map — five pages total |
-| `oric-advanced-user-guide` | Ch. 1 §1.3, §1.7 (pp. 8–12, 29–31); Appendix I (p. 272); Appendix C/D (pp. 260, 263) | §1.3 registers + §1.7 "The Hardware" for the CPU; Appendix I is the memory + screen maps; C/D are the page-0 / page-2 allocations |
-| `6502-users-manual` | Ch. 2 (p. 19), Ch. 4 (p. 35), Ch. 10 (p. 121), Ch. 13 (p. 227) | Architecture, timing/control signals (R/W, RDY, IRQ/NMI, clock), interfacing memory, interrupts. **Skip Ch. 5/7/16** — addressing modes and the instruction set are *programming* the 6502, not understanding the machine |
-| `oric-advanced-user-guide-rom-disassembly` | Look up the reset vector only | Answers open question #1: what the reset routine does about RAM |
-
-**Optional — general 6502 background, not Oric-specific.** Read only if the CPU/vector material
-above doesn't click, or out of curiosity. Catalog: `oric-docs/books/6502-hardware/` (TOC indexes)
-and `oric-docs/RESOURCES.md` §14 (build-from-scratch links — reading/watching only, no building;
-see [../ideas.md](../ideas.md) discussion). Two worth calling out: `mcs6500-programming-manual-mos-1976`
-Ch. 9 ("Reset and Interrupt Considerations") is the chip manufacturer's own explanation of the
-fully-vectored-interrupt pattern behind the page-2 `JMP` vectors this project covers today; Ben
-Eater's ["Build a 6502 computer"](https://eater.net/6502) series (already tabled below) is the
-hands-on version of the same idea.
-
-### Videos — optional, only if a topic won't click from text
-
-Channel, duration and upload date verified via `yt-dlp`; **spoken content not verified** (these have
-no caption tracks), so titles are the only guide to content. Nothing here is required and none of it
-replaces the reading above. If the reading lands fine, skip this section entirely.
-
-**[Ben Eater — "Build a 6502 computer"](https://eater.net/6502)**
-([playlist](https://www.youtube.com/playlist?list=PLowKtXNTBypFbtuVMUVXNR0z1mu7dp7eH), 29 episodes) —
-the best match for Day 1's *goal 2*. He physically wires a 6502 to ROM, RAM and an address decoder,
-which is exactly the "why does the memory map look like this" question, made concrete. Only five
-episodes are Day 1 material:
-
-| # | Episode | Length | Day 1 goal it serves |
+| ✓ | File | What it is | Lines |
 |---|---|---|---|
-| 1 | [“Hello, world” from scratch on a 6502](https://www.youtube.com/watch?v=LnzuMJLZRdU) | 27 min | CPU wired to ROM; the address bus |
-| 2 | [How do CPUs read machine code?](https://www.youtube.com/watch?v=yl8vPW5hydQ) | 49 min | Fetch/execute over the address + data buses (goal 2) |
-| 5 | [What is a stack and how does it work?](https://www.youtube.com/watch?v=xBjQVxVxOxc) | 24 min | Why `$0100–$01FF` is the stack (goal 1) |
-| 6 | [RAM and bus timing](https://www.youtube.com/watch?v=i_wrxBdXTgM) | 38 min | Adding RAM alongside ROM — address decoding (goal 2) |
-| — | [Hardware interrupts](https://www.youtube.com/watch?v=DlEa8kd7n3Q) | 28 min | IRQ/NMI — pairs with the `$FFFA–$FFFF` vectors (goal 2) |
+| [ ] | `rtl/spram.v` | RAM block (already annotated) | 47 |
+| [ ] | `rtl/rom/` | ROM images (already annotated, `rom/README.md`) | — |
+| [ ] | `rtl/T65/T65.vhd` | 6502 CPU — the outside pins only (already annotated) | — |
+| [ ] | `rtl/ula.vhd` | ULA — clocks, memory sharing, and the whole screen (pixels, colours). **The most important file** | 569 |
+| [ ] | `rtl/m6522.vhd` | VIA — keyboard, sound control, tape, printer, timers | 1123 |
+| [ ] | `rtl/psg.v` | AY-3-8912 sound chip | 355 |
+| [ ] | `rtl/keyboard.sv` | Keyboard matrix | 251 |
+| [ ] | `rtl/joystick.sv` | Joystick | 66 |
+| [ ] | `rtl/cassette.v` + `rtl/cas_sig_gen.v` | Tape in/out | 184 + 85 |
 
-Episodes 3–4 and 8–29 are assembly programming and peripherals — **not** Day 1, and mostly not this
-project at all. **Fastest useful subset if time is tight: #6 alone**, then #2 if the bus still feels
-abstract.
+For big files (`m6522.vhd`), parts the Oric does not really use get one short comment, not detail.
 
-- **Shorter alternative:** [6502 Assembly Programming #4 — Memory And Memory Mapping](https://www.youtube.com/watch?v=YVukPfJY1l0)
-  (Programmer Dan, 17 min) — one focused video instead of the series.
-- **Oric context, not detail:** [Teardown of Oric 1 and Oric Atmos](https://www.youtube.com/watch?v=VITjzm-3xpo)
-  (NatureAndTech, 10 min — see the real chips on the real board) ·
-  [THE ORIC-1 COMPUTER](https://www.youtube.com/watch?v=JJ2q0qMC97Y) (Olipix Retrotech, 53 min — history + hardware tour).
-- **Save for Day 2 — do not watch today:** [Oriclopedia: The Oric video chips — ULA HCS10017](https://www.youtube.com/watch?v=dnxDiXZD2nM)
-  (Dbug's stuff, 46 min). By Dbug of Defence Force, so it's authoritative and exactly on-topic — for
-  the *ULA*, which is Day 2's subject, not Day 1's.
+- [ ] Notes: `notes/phase-4-chips.md` (one section per chip, added as each chip is done)
 
-### Code — read these *after* the reading above, ~45 min total
+## Phase 5 — Optional extras
 
-The annotation is already written; the work today is **reading it and connecting it to the hardware
-model you just built.** Three small files, deliberately the three simplest in the core.
+Only if you want them. Not needed to understand the Oric.
 
-- [ ] `annotated/rtl/spram.v` (47 lines) — the block-RAM template used for main RAM, the file cache,
-  and the alt-BIOS. The point to take away: **one address port ⇒ one party per cycle**, which is
-  *why* `Oric.sv` needs a RAM arbiter and why CPU and video must take turns.
-- [ ] `annotated/rtl/rom/README.md` — annotates the ROM *pattern* rather than copying 13 × ~1,046-line
-  hex dumps. Two things to notice: the tables are `array(0 to 16383)`, i.e. exactly the 16 KB of
-  `$C000`–`$FFFF`; and **only 5 of the 13 ROM files are in `files.qip`** (BASIC11A = Atmos,
-  BASIC10 = Oric-1, PRAVETZ8D, PRAVETZ8D_FDC, MICRODIS) — the other 8, incl. BASIC11/22, DIAG10,
-  TEST108J, ORIC1SDCARD, are *not built*. Also `MICRODIS.vhd` declares `entity ORICDOS06`, so its
-  filename never appears at the instantiation site.
-- [ ] `annotated/rtl/T65/T65.vhd` — **the entity/port list only.** Do not read the 6502 internals:
-  2,468 lines with nothing Oric-specific in them (the annotation covers them with one out-of-scope
-  span comment). The ports that matter are `address` / `data` / `R_W_n` / `IRQ_n` / `NMI_n` / `Rdy` /
-  `Enable`. Takeaway to carry all week: the **clock/enable split** — the CPU runs on the fast system
-  clock and `Enable` pulses at 1 MHz to make it *behave* period-correct, an idiom reused by nearly
-  every clocked module in the core.
+- [ ] Disk drive: `microdisc.vhd`, `wd1793.sv`, `pravetz8d_fdc.vhd`
+- [ ] MiSTer-only features: fast tape loading (`tap_*.v`, `cload_patch_rom.v`),
+      snapshots and savestates (`snap_*.v`, `savestate_hotkeys.v`)
+- [ ] Notes: `notes/phase-5-extras.md` (only for the parts we do)
 
-**Make the connection explicit — this is what makes the reading stick:**
+## Phase 6 — Put it together
 
-| You read this morning | You see it here |
+- [ ] `how-the-oric-works.md`: one short story from power-on to a key press showing on screen,
+      with links to the files.
+- [ ] Optional: run one module in a simulator (GHDL / Verilator are installed — see
+      `dev-env.md`) and watch it work.
+- [ ] Notes: `notes/phase-6-put-together.md`
+
+---
+
+## Where things are
+
+| Path | What |
 |---|---|
-| ROM is `$C000`–`$FFFF`, 16 KB | ROM tables are `array(0 to 16383)` |
-| The ULA clocks the CPU at 1 MHz | T65's `Enable` pin, pulsed — not a 1 MHz clock |
-| The ULA and CPU share one DRAM | `spram`'s single address port ⇒ an arbiter is unavoidable |
-| Reset vector `$FFFC` → `$F88F` | T65's `Res_n`, and the reset routine in the BASIC ROM image |
-
-### Wrap-up
-
-- [ ] **Deliverable — rewrite `01-oric-hardware-notes.md` in your own words.** The memory-map and
-  vector tables are already filled in from `core/docs/oric_memory_map.md`; what's missing is *your*
-  explanation. Write the "machine in one paragraph" and the CPU/memory section yourself, then close
-  or sharpen the open questions at the bottom.
-- [ ] **Self-check — no notes open.** Draw the memory map from memory: what's at `$0000`, `$0200`,
-  `$0300`, `$0400`, `$A000`, `$B400`, `$BB80`, `$C000`? Why does TEXT mode free the `$9800`–`$B3FF`
-  region? What are the three vectors at `$FFFA`–`$FFFF`, and why do two of them bounce through page 2
-  RAM instead of going straight into ROM?
-- **Scope reminder — this doc accretes all week.** Don't write the per-chip paragraphs today: the
-  ULA's belongs to Days 2–3, the VIA's to Day 4, the PSG's to Day 5, tape's to Day 6 — each written
-  *after* reading that chip's RTL. Today is memory map + CPU + RAM/ROM only.
-
-
-
-## Day 2 · ULA part 1: timing & address generation (the heart)
-
-The single highest-payoff module in the core, and the most Oric-specific silicon there is.
-
-- [ ] `ula.vhd` (569) — clock division from `CLK_24`, horizontal/vertical counters (`u_CPT_H`, `u_CPT_V`), sync generation, the per-line address-recomputation formula, and CPU↔video RAM contention (`PHI2` timesharing)
-- [ ] Pair with [[oric.signal11.org.uk]] in full — the decapped-ULA reverse-engineering is what makes this readable (deferred here from Day 1: nothing in it Day 1 needed)
-- [ ] Read the [oric.free.fr](http://oric.free.fr/programming.html) **UAL chapter's video half** + the **Screen** chapter — deliberately skipped on Day 1
-- [ ] *Optional video:* [Oriclopedia: The Oric video chips — ULA HCS10017](https://www.youtube.com/watch?v=dnxDiXZD2nM) (Dbug's stuff, 46 min) — by a Defence Force dev, on exactly this chip
-- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/understanding-the-apple-ii-sather-1983` Ch. 3
-  ("Timing Generation and the Video Scanner") and `the-apple-ii-circuit-description-gayler-1983` Ch. 3–4
-  (clock generator + video timing) — the Apple II solves the *same* problem (clock division, per-line
-  video-address generation) with discrete TTL instead of one custom gate array; useful as a worked
-  example before or alongside `u_CPT_H`/`u_CPT_V`
-
-- **Deliverables:** `annotated/rtl/ula.vhd` (part-1 sections) · start `modules/02-ula.md`
-- **Self-check:** explain *why* the Oric physically cannot hardware-scroll — i.e. what the ULA recomputes every line. (This is the constraint behind Idea #3's difficulty in `ideas.md`.)
-
-
-
-## Day 3 · ULA part 2 + video: pixels & serial attributes
-
-- [ ] Rest of `ula.vhd` — attribute detection (`u_isattrib`), pixel shift register (`u_shf_reg`), hold/latch registers, `u_ld_reg`
-- [ ] `video.vhd` (215) — the output pipeline
-- [ ] **The serial-attribute model, in full.** The single most consequential Oric quirk: an attribute byte occupies a 6-pixel cell in screen data and holds until the next one; one byte sets ink *or* paper *or* charset, never two. Every game project in `ideas.md` lives or dies on this
-- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/cheap-video-cookbook-lancaster-1978`
-  and `tv-typewriter-cookbook-lancaster` — TTL-only character/graphics video generation from a
-  microcomputer; the same bandwidth/sync/RAM-contention constraints `video.vhd` and the
-  serial-attribute model exist to solve, worked from first principles with discrete chips instead
-  of an FPGA
-
-- **Deliverables:** finish `annotated/rtl/ula.vhd` · `annotated/rtl/video.vhd` · `modules/02-ula.md`, `modules/03-video.md`
-- **Buffer:** this day deliberately has slack to absorb Day 2 overflow — ULA is allowed to take 1.5 days
-- **Self-check:** explain TEXT vs HIRES layout, and exactly what one attribute byte costs you on screen
-
-
-
-## Day 4 · VIA 6522: the I/O hub
-
-**The week's biggest file — 1,123 lines and 52 processes, ~4× the ULA's process count. Scoped
-deliberately rather than read exhaustively:**
-
-- [ ] **In scope:** the CPU register interface (full register map), PA/PB port I/O, the four jobs the Oric actually gives it — keyboard-matrix column select, PSG bus control (`BDIR`/`BC1`), tape in/out, printer — plus T1/T2 timers at block level and the IFR/IER interrupt logic
-- [ ] **Out of scope (state it in the module doc):** shift-register (SR) internals and timer edge-case corner behaviour. Read the interface, skip the guts — the Oric barely exercises them
-- [ ] *Optional background, not Oric-specific:* `oric-docs/books/6502-hardware/6502-applications-zaks-1979`
-  Ch. I/II and `programming-the-6502-zaks-1983` Ch. VII — hands-on 6522 (VIA) programming from a
-  generic 6502-system angle, before reading the Oric-specific register map in `m6522.vhd`
-
-- **Deliverables:** `annotated/rtl/m6522.vhd` · `modules/04-m6522.md`
-- **Self-check:** trace a single keypress end-to-end — matrix row/column → VIA port → IRQ → CPU
-
-
-
-## Day 5 · Sound & input
-
-- [ ] `psg.v` (355) — AY-3-8912: register file, tone/noise/envelope generators, the three channels
-- [ ] `keyboard.sv` (251) — the Oric keyboard matrix (and the Pravetz layout switch)
-- [ ] `joystick.sv` (66) — trivial; ties into `understanding-oricatmos-vhd` §13's VIA PA mapping
-
-- **Deliverables:** three annotated files · `modules/05-psg.md`, `modules/05-keyboard-joystick.md`
-- **Self-check:** how does the CPU write one AY register? (the VIA→PSG `BDIR`/`BC1` handshake — the thing Day 4 and Day 5 meet on)
-
-
-
-## Day 6 · Tape, buffer, and the floppy stretch
-
-- [ ] `cassette.v` (184) + `cas_sig_gen.v` (85) — the real tape path (as opposed to the MiSTer speed-loaders, out of scope)
-- [ ] Read `core/docs/tape_loading.md` — ops view of Tape Load Fast/Ultra/Off (context for the real path vs speed-loaders)
-- [ ] **Absorb slippage** from Days 2–5 — this is the designated catch-up day
-- [ ] **Stretch, below the line:** the floppy stack — `microdisc.vhd` (515), `wd1793.sv` (910), `pravetz8d_fdc.vhd` (216). A peripheral *add-on*, not the Oric proper, and the first thing to sacrifice if earlier days ran long. Even a file-header-only pass has value here. Pair with `core/docs/pravetz_8d_fdc.md` if you reach Pravetz FDC
-- [ ] **Let the *next* project decide whether floppy is optional.** Under "what is the Oric," it's cuttable — but the week is also a prerequisite for all of `ideas.md`, and Ideas **#5 (dBASE)** and **#6 (CP/M-like DOS)** both hinge on Microdisc random-access storage, which is *their* single biggest design fork. So: if #5/#6 is next, the Microdisc path is a genuine prerequisite, not a stretch. If #2/#3/#4 (game RE / ports) is next, Days 2–3's ULA and serial-attribute work already covered what those need, and floppy can go
-
-- **Deliverables:** annotated tape files · `modules/06-tape.md` (· floppy equivalents if reached)
-- **Self-check:** how does a byte on tape become a bit the CPU can read?
-
-
-
-## Day 7 · Synthesis + proof
-
-- [ ] Write `07-how-the-oric-works.md` — the capstone. One end-to-end narrative: power-on → reset → CPU fetches from ROM → ULA generates video while contending with the CPU for RAM → VIA scans the keyboard and drives the PSG → tape/disk I/O. Real hardware *and* how the core implements it, in a single story. (The `03-` slot is free — Phase 3's cheatsheet was fulfilled by the lesson series.)
-- [ ] Refresh `reference/block-diagram.md` with everything learned this week
-- [ ] **Cold-read self-test — this is the actual success criterion.** Pick 3 code blocks you haven't specifically discussed **from** `core/rtl/` **— the pristine, uncommented copies** — say what each does, *then* diff your answer against your own `annotated/` comment. (Reading them out of `annotated/` would just be reading your own notes back; `core/` is the same code with the answer removed.) If that works, the week succeeded — the count of annotated files is not the measure
-- [ ] Close the loop: confirm `ideas.md` "goal 1" is satisfied, and write down what's still thin
-
-- **Deliverables:** `07-how-the-oric-works.md` · updated `reference/block-diagram.md`
-
-
-
-## Day 8 · Bonus: simulate & visualize — watch the CPU/ULA actually run
-
-**Replaces the old Phase 5/6 stretch goals.** Same underlying goal as the rest of the week —
-*understand how the Oric works* — but confirmed by watching real signals move instead of reading
-a narrative about them. **No Quartus, no** `.rbf`**, no real hardware:** everything below runs with the
-open-source stack from Day 0 (GHDL, Icarus/Verilator, GTKWave), plus SDL2 for the visual pieces.
-
-Researched three tiers, ordered by how realistically each fits in a day. Do Tier 1 always; Tier 2
-if Tier 1 goes well; treat Tier 3 as a possible future project, not today's target.
-
-**Tier 1 — watch the CPU run, no new toolchain (do this first)**
-
-- [ ] Load a small 6502 test program (reuse one of Day 1's memory-map self-checks, or a short
-  routine from `oric-docs/books/oric/machine-code-for-the-atmos-and-oric-1.md`) into
-  [visual6502.org](http://visual6502.org/JSSim/) and step it cycle-by-cycle. This is the
-  **transistor-level simulation of the real 6502 die** — not `T65.vhd`, but the chip `T65`
-  stands in for. Watching an actual fetch/decode/execute cycle here is the cheapest way to make
-  Day 1's "clock/enable split" takeaway concrete.
-- [ ] Optional pairing: write a small GHDL testbench around `annotated/rtl/T65/T65.vhd` that loads
-  the same program into a mock ROM, dump a VCD, and compare `address`/`data`/`R_W_n` per cycle in
-  GTKWave against visual6502's trace for the same program — ties the real chip to the soft core
-  that emulates it.
-
-**Tier 2 — watch the ULA draw, scoped to** `ula.vhd` **+** `video.vhd` **only**
-
-- [ ] Set up Verilator + SDL2 natively (Homebrew: `brew install sdl2`; Verilator already installed
-  from Phase 0). Since `ula.vhd`/`video.vhd` are VHDL, GHDL is the simulator, not Verilator — GHDL
-  has no built-in SDL binding, so the realistic path for a single day is the **frame-dump**
-  pattern, not a live window: a GHDL testbench samples R/G/B + HSync/VSync every cycle and writes
-  completed frames out as PPM images (viewable directly, or stitched into a GIF with `ffmpeg`).
-  See [ktln2.org's VGA-simulation-with-Verilator writeup](https://ktln2.org/2020/05/24/vga-controller-simulation/)
-  for the exact buffering/vsync-detection pattern (Verilog there, same idea in VHDL/GHDL).
-  If a live window is wanted instead, [Project F's Verilator+SDL tutorial](https://projectf.io/posts/verilog-sim-verilator-sdl/)
-  is the reference (built for Verilog/Verilator, so only usable directly if `ula.vhd` is
-  cross-compiled or reimplemented — the frame-dump route avoids that problem entirely).
-- [ ] Feed the testbench a tiny synthetic "screen RAM" — a handful of known attribute + character
-  bytes, not a real boot — enough to render one line and *see* the serial-attribute model from
-  Day 3: one byte sets ink/paper/charset and holds until the next.
-
-**Tier 3 — the whole machine, boot and watch (stretch — likely its own future project, not Day 8)**
-
-- The actual "load a program and watch the whole Oric work" goal — CPU + RAM/ROM + ULA + VIA + PSG
-together, booting a real `.tap`/`.dsk`, rendering a live screen — is exactly what
-[JimmyStones'](https://github.com/JimmyStones/Verilator_Template) `Verilator_Template` is built
-for: ROM/tape upload simulating the HPS `ioctl` path, live VGA output with zoom, continuous /
-single-step / multi-step execution, `$display` routed to a debug console.
-[alanswx/Colecovision-Verilator_MiSTer](https://github.com/alanswx/Colecovision-Verilator_MiSTer)
-is a real example of this pattern applied to a similarly-scoped 8-bit system (6502-family CPU +
-custom video chip) — the closest existing structural analogy to `Oric_MiSTer`.
-- **Caveat found during research:** `Verilator_Template` is **Windows/WSL + Visual Studio only** —
-no native macOS support. Given this project's dev environment is macOS-native (Phase 0), this
-tier needs either the same Windows/Linux VM route already flagged as optional for Quartus, or a
-ground-up SDL2 port of the template's C++ harness — real, multi-day infrastructure work either way.
-- The "Intel PLL is a black box" caveat from the old Phase 5 write-up isn't actually a blocker here:
-the standard practice in these templates is to **swap out** `sys/` **and** `pll.v` **for a
-testbench-provided clock/reset**, keeping only `rtl/` (the actual Oric machine) instantiated —
-the same MiSTer-glue-vs-Oric-proper scope cut Days 1–6 already use.
-- If pursued later, this is arguably its own `ideas.md`-shaped project ("build an interactive
-Oric core debugger/visualizer"), not a one-day sprint task.
-- **Deliverables:** `08-simulation-and-visualization.md` — what was tried, what worked, captured
-frames/waveforms (screenshots or the PPM/GTKWave output), and an honest note on whether Tier 3 is
-worth a future project.
-- **Self-check:** pick one specific memory write, predict what changes on screen (or what T65 pins
-do) *before* running the testbench, then verify against the actual simulation output.
-
-
-
-## Sources per day — use the shelf you already have
-
-Three local collections make this week much easier than reading RTL cold. **Check these before
-searching online** — the answer is usually already here.
-
-- `[../../oric-docs/books/INDEX.md](../../oric-docs/books/INDEX.md)` — 30 Oric titles, 9 of them hardware/CPU/ROM
-- `[../../oric-docs/oric-llm-wiki/wiki/](../../oric-docs/oric-llm-wiki/wiki/index.md)` — 20 ingested sources; start at `wiki/index.md`, follow `[[wikilinks]]`
-- `core/docs/` — maintainer notes (from [nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer), not official upstream). Index: `[docs.md](core/docs/docs.md)`
-
-
-| Day             | Books (`oric-docs/books/oric/…`)                                                                                                                                                                       | Wiki                                                                                                                                                                                                                                                                       | `core/docs/`                                     |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| 1 · memory/CPU  | **See Day 1's own "Books" table for exact chapters** — `getting-more-from-your-oric` ch. 3 · `6502-users-manual` ch. 2/4/10/13 · `oric-advanced-user-guide` ch. 1 + apps. C/D/I | [[oric.free.fr]] How-To — **Introduction + UAL chapters only** (its VIA/PSG/Screen/Tape chapters are Days 2–6) | **`oric_memory_map.md` §1/§7/§8 — read this first** · `manual_atmos.md` ch. 5 optional |
-| 2–3 · ULA/video | `oric-atmos-and-oric-1-graphics-and-machine-code-techniques` (Phillips — the serial-attribute bible) · `oric-service-manual` (schematics)                                                              | [[oric.signal11.org.uk]] (Mike Brown / Lance Ewing ULA reverse-engineering, decapped die) · [[sodiumlb-ocula-hardware]] + [[sodiumlb-ocula-pivic-firmware]] — a *modern open-hardware ULA reimplementation*, i.e. someone else's answer to "what does the ULA actually do" | —                                                |
-| 4 · VIA         | `getting-more-from-your-oric` (6522 chapter) · `oric-advanced-user-guide`                                                                                                                              | [[oric.free.fr]] (VIA register detail + 6522 datasheet appendix)                                                                                                                                                                                                           | — (memory map already covers page-3 VIA)         |
-| 5 · PSG/input   | `advanced-programming-for-the-oric`                                                                                                                                                                    | [[oric.free.fr]] (PSG + keyboard matrix; AY-3-8912 datasheet appendix)                                                                                                                                                                                                     | —                                                |
-| 6 · tape/disk   | `oric-service-manual`                                                                                                                                                                                  | [[oric.free.fr]] (tape encoding, WD1793 appendix) · [[forum.defence-force.org]] for storage threads                                                                                                                                                                        | `tape_loading.md` · stretch: `pravetz_8d_fdc.md` |
-| 7 · synthesis   | `oric-advanced-user-guide`                                                                                                                                                                             | [[MiSTer-devel-Oric_MiSTer]] · [[OldWer-Metaphoric]] (clone hardware cross-check)                                                                                                                                                                                          | —                                                |
-
-
-**After the sprint / out of scope this week** (same `core/docs/`): `oric_to_core_comm.md`, `live_rom_patching.md`, `sna_support.md`, `oricutron_snapshot_internals.md`, `build.md`, `sys_update.md`, `Oric Rom.md`/`.html`, `timing.md` — MiSTer glue, snapshots, build; not Days 1–7.
-
-**Key facts already in the wiki, worth having before Day 2** (from [[oric.free.fr]]): the ULA is a
-*Universal Array Logic*, part number **HSC 10017** — it clocks the CPU, acts as a crude MMU (I/O at
-page 3, ROM at `$C000–$FFFF`) *and* generates video; the display is **240×224 in 8 colours**; the
-keyboard is a **passive matrix the CPU must poll**; tape is a **square wave on VIA port B bit 7**.
-
-> Per `AGENTS.md`: for hardware/troubleshooting/community questions also search
-> `forum.defence-force.org` live (`WebSearch` + `WebFetch`) and cite thread URLs — never scrape it.
-
-
-
-## Success criteria for the week
-
-1. Open the core repo and name what any folder or file is for — and whether it's worth opening.
-2. Explain the Oric's memory map and each chip's job from memory.
-3. Open any Oric-proper module in `annotated/rtl/` and say what any given block does.
-4. Explain the serial-attribute colour model and the no-hardware-scroll constraint — the two facts every `ideas.md` game project depends on.
-5. Trace one full input→output path end-to-end (keypress → VIA → CPU → RAM → ULA → screen).
-6. `07-how-the-oric-works.md` exists and reads as a coherent story, not a pile of notes.
-7. *(Bonus, Day 8)* Watched real signals confirm the model above — a CPU trace or a rendered ULA frame, not just a narrative about them.
-
----
-
-
-
-## Ground truth: what the core actually contains
-
-Mixed-language core. **VHDL** for the machine internals, **Verilog/SystemVerilog** for the MiSTer glue. Verified against the repo tree (master).
-
-> This section is the `rtl/` **inventory** — which modules exist and what hardware each models.
-> Day 0's `00-repo-map.md` covers the complementary half: the build system, the non-`rtl/`
-> folders, and which of `sys/`'s 52 files ever matter. Don't duplicate one into the other.
-
-```
-Oric.sv                 ← emu top module (MiSTer dev top level; wires sys/ ↔ core)
-rtl/
-  oricatmos.vhd         ← top-level Oric machine wrapper
-  ula.vhd  video.vhd    ← ULA + video pipeline (the heart of the Oric)
-  m6522.vhd             ← 6522 VIA (I/O, keyboard, tape, timers)
-  psg.v                 ← AY-3-8912 PSG (sound)
-  keyboard.sv joystick.sv
-  microdisc.vhd wd1793.sv pravetz8d_fdc.vhd   ← floppy controllers
-  apple2_disk/          ← WD1793 shared with an Apple II disk impl (reuse)
-  cassette.v cas_sig_gen.v                     ← original cassette path
-  cload_patch_rom.v tap_byte_streamer.v tap_segment_loader.v tap_autorun_keys.v  ← Smart CLOAD tape engine
-  snap_loader.v snap_ss.v savestate_hotkeys.v  ← snapshots + MiSTer savestates
-  spram.v ddram.sv      ← RAM / SDRAM interface
-  pll.v pll.qip pll/    ← clocking (Intel PLL megafunction — NOT simulable open-source)
-  T65/                  ← 6502 soft CPU core
-  rom/                  ← ROM images AS VHDL lookup tables. 13 files present but only 5 BUILT
-                          (per files.qip): BASIC11A=Atmos, BASIC10=Oric-1, PRAVETZ8D,
-                          PRAVETZ8D_FDC, MICRODIS (whose entity is named ORICDOS06!).
-                          NOT built: BASIC11/11B/22, DIAG10 + TEST108J (Mike Brown diag ROM),
-                          ORIC1SDCARD, test109, testsector. See annotated/rtl/rom/README.md
-sys/                    ← MiSTer framework — DO NOT EDIT; real top is sys/sys_top.v, calls emu
-tools/                  ← Python tape/snapshot tools (stdlib only) + oric-build (Docker/Quartus)
-```
-
-> `docs/` **status (updated Day 0):** README references `docs/`, `games/`, `_Games/` — they are **not** in official `MiSTer-devel/Oric_MiSTer`, but live on the maintainer fork ([nikiiv/Oric_MiSTer](https://github.com/nikiiv/Oric_MiSTer)). Copied into local `core/` on Day 0. Use them per the Sources table above; primary study material remains annotated RTL + wiki + books.
-
----
-
-
-
-## MiSTer core anatomy (read once, applies to every core)
-
-- The real top level is `sys/sys_top.v` — it instantiates a module called `emu` that the core provides (here, in `Oric.sv`). When Quartus builds, it builds `sys_top`, not your module.
-- Everything under `sys/` is identical across all cores: OSD, input handling, video scaling, HDMI/VGA output, and `hps_io` (the bridge to the ARM/Linux side that loads ROMs, reads the OSD config string, etc.). Treat it as a black box with a known interface — do not try to read it all.
-- The `rtl/` folder is the actual core. Free-form except `pll`.
-- Mental model: `hps_io` hands files/config in → `emu` wires them to the `rtl/` machine → machine produces video/audio/SDRAM traffic → `sys/` formats output. **Your study target is** `rtl/` **+ the** `emu` **wiring in** `Oric.sv`**.**
-
-Reading: [emu — Top Level of a MiSTer core (wiki)](https://github.com/MiSTer-devel/Wiki_MiSTer/wiki/emu---Top-Level-of-a-MiSTer-core) · [overview of emu module (docs)](https://mister-devel.github.io/MkDocs_MiSTer/developer/emu/) · [Template_MiSTer](https://github.com/MiSTer-devel/Template_MiSTer)
-
----
-
-
-
-## Phases 0–4 — superseded by the sprint
-
-These were the plan's original long-range framing before the Day 0–7 sprint existed. All five are
-now either done pre-sprint or fully absorbed into the sprint above — nothing here is still open work.
-Kept as a record of what fed into the sprint and where each deliverable lives.
-
-
-| Phase                                   | What it was                                                                                                                                                                                                | Status                                                                                                                                                                                                                                       |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **0 — Dev environment**                 | Install the open-source HDL stack (GHDL, Icarus, Verilator, GTKWave), clone `core/` as a gitignored sibling, smoke-test the toolchain. Quartus (0b) deferred — Linux/Windows-only, not needed for reading. | ✅ Done pre-sprint → `reference/dev-env.md`                                                                                                                                                                                                   |
-| **1 — Orient in the codebase**          | Read `Oric.sv` and `rtl/oricatmos.vhd` top-to-bottom; sketch how the sub-modules connect.                                                                                                                  | ✅ Done pre-sprint → `reference/understanding-Oric-sv.md`, `reference/understanding-oricatmos-vhd.md`, `reference/block-diagram.md` (refreshed sprint Day 7), plus the `archive/learn-systemverilog/` and `archive/learn-vhdl/` lesson series |
-| **2 — Learn the real Oric hardware**    | Memory map, 6502/VIA/ULA/PSG architecture, paired with the wiki.                                                                                                                                           | → **Executed by the sprint**, Day 1 (+ ULA half on Day 2). Deliverable: `01-oric-hardware-notes.md`                                                                                                                                          |
-| **3 — Enough HDL to read fluently**     | VHDL/Verilog reading fluency, not authoring mastery.                                                                                                                                                       | ✅ Done pre-sprint → the lesson series + decoder cards (`archive/learn-*/reference/*-decoder.html`); no separate cheatsheet needed                                                                                                            |
-| **4 — Walk the core, module by module** | Read each module, annotate, write a short note — clocking → CPU → memory → ULA/video → VIA → sound → input → storage → MiSTer glue.                                                                        | → **Executed by the sprint**, Days 1–6, at block level (per the Day 0 gear change) rather than the line-level decoder-card check this phase originally specified                                                                             |
-
-
----
-
-
-
-## Phases 5–6 — replaced by Day 8
-
-The old "simulate a module" (5) and "optional build & run" (6) phases are **retired.** Simulation
-is now **Day 8** of the sprint (above) — same open-source-only, no-Quartus, no-hardware scope, just
-folded into the week instead of left as an untimed stretch goal. Building/deploying a `.rbf` to real
-hardware is dropped entirely — out of scope for this project, whose goal is understanding the
-machine, not building it.
-
----
-
-
-
-## Required-reading map (wiki ↔ module)
-
-
-| Studying                 | Read first                                                                    |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| Anything                 | [[MiSTer-devel-Oric_MiSTer]] (core summary)                                   |
-| Memory, CPU, VIA, PSG    | [[oric.free.fr]] (hardware manual)                                            |
-| `ula.vhd`, `video.vhd`   | [[oric.signal11.org.uk]] (ULA reverse-engineering)                            |
-| `rom/DIAG10`, `TEST108J` | [[oric.signal11.org.uk]] (diagnostic ROM)                                     |
-| Storage / Microdisc      | Defence Force forum digest (storage threads)                                  |
-| Whole-core context       | misterfpga.org t=4599; `[[OldWer-Metaphoric]]` for a hardware cross-reference |
-
-
-
-
-## Open items / decisions
-
-- [ ] Decide whether module notes from Days 1–6 get promoted into the wiki as a derived overview once mature.
-- [ ] If/when `docs/` lands in official `MiSTer-devel/Oric_MiSTer`, drop the local fork copy and track upstream.
+| `core/` | Original upstream code (not in git). Never edit. |
+| `annotated/` | Copies with our comments (`★ SECTION n`) |
+| `notes/` | One short notes file per finished phase — read these first when you come back |
+| `MAP.md` | Where to start, how files connect |
+| `dev-env.md` | Tools and commands |

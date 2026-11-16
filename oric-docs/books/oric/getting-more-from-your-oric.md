@@ -3,7 +3,7 @@
 **Author:** Henry Hicks (H. E. Hicks)
 **Year:** 1984
 **Category:** Oric reference / programming
-**Source:** `/Users/nenaddjordjevic/pCloud Drive/iCloud-Migration/Programming/Retro/Oric/Sigma Technical Press - Getting More from your Oric.pdf`
+**Source:** `~/pCloudDrive/iCloud-Migration/Programming/Retro/Oric/Sigma Technical Press - Getting More from your Oric.pdf`
 
 ## Table of Contents
 
