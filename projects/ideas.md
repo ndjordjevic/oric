@@ -518,28 +518,52 @@ got any Spy vs Spy game. (Checked MobyGames, oric.org and the Defence Force foru
   `hitchhikr/spyvsspy3` — full disassemblies, BSD-2-Clause. Useful only for the II/III rules.
 - **No RE found** for Apple II, Atari 8-bit, BBC/Electron, Plus/4, Spectrum or CPC.
 
-**Which version to reverse-engineer: Apple II.**
-- Top-tier quality (with C64, Atari 8-bit and Plus/4), per the Finnish Retro Game Comparison Blog.
-- Same author as the C64 version (Mike Riedel), so the logic should match the C64 disassembly.
-- Same hardware situation as the Oric: 1 MHz 6502, software-drawn bitmap, **no hardware sprites**.
-  The C64 and Atari versions use hardware sprites, which the Oric does not have. So the Apple II
-  sprite and split-screen drawing code is the code to learn from.
-- Nobody has disassembled it. Use a clean crack (for example from the 4am archives) — the
-  original disk has copy protection.
+**Plan: port from the C64 disassembly directly (decided 2026-11-16).**
+The C64 disassembly is complete, so an Apple II reverse-engineering step is not needed. The
+Apple II version stays an *optional* reference: same author (Mike Riedel), same no-sprites
+situation as the Oric. Disassemble it only if the Oric sprite code gets stuck. (Use a clean crack,
+for example from the 4am archives — the original disk has copy protection.)
+
+**Difficulty: medium** — a bit harder than Lode Runner (Idea #4), much easier than Choplifter
+(Idea #3). Rough guess, not sized from the listing: playable monochrome in ~1–2 months of
+evenings; polished colour + AY music in ~3–4 months.
+
+| Part | C64 | Oric | Effort |
+|---|---|---|---|
+| CPU | 6510 ~1 MHz | 6502 1 MHz | Low — same instructions; drop the 6510 `$00`/`$01` banking port |
+| Game logic (traps, AI route search, rules, timer) | 6502 code | Relocate | Low — the annotated listing makes this the easy part |
+| Memory | Code/data ~`$6600–$AB75` (~17.5 KB), RAM under ROM | 48 KB, HIRES at `$A000–$BFDF` | Low–medium — fits, but relocate |
+| Spies | Hardware sprites + hardware collision | No sprites: draw, mask, erase in software | **High — the main work** |
+| Room graphics | VIC-II multicolour cells | 240×200, 2 colours per 6-px cell, attributes use a cell | Medium–high — redraw all art |
+| Split screen | Probably a raster interrupt | Two regions of screen RAM | Easier on the Oric |
+| Sound | SID | AY-3-8912 | Medium — new music driver, convert the theme |
+| Input | 2 joystick ports | No standard joystick port | Medium — IJK/PASE-style interface or keyboard for one player |
+| Frame timing | Raster interrupt | No vertical-blank interrupt; use VIA timer | Medium — some flicker/tearing risk |
+
+Check the C64 listing for the real video mode, raster-interrupt use and sprite-collision use before
+planning in detail — the table is from general knowledge of the two machines.
+
+**Why it is easier than it looks:**
+- The spies are **black and white** — a good fit for 2 colours per cell (draw with ink or the
+  inverse bit).
+- The Oric sets attributes **per scanline**, so each room line can have its own colours. Design
+  the room art so colour changes fall on 6-px cell edges (Idea #3's "Oric-native" rule).
+- No scrolling — fixed flip-screen rooms, like Lode Runner.
+- Only 2 moving objects — a light software-sprite load for a 1 MHz CPU.
+
+**Main risks:**
+1. The software sprite routine: save background → mask → draw → restore, at 6 px/byte. If the
+   C64 code uses VIC sprite-collision registers, write collision checks in code.
+2. Art conversion: every room, furniture item and spy frame to the Oric colour model.
+3. Two-player input hardware — the real Oric has no joystick port. See the appendix note
+   "Input: joysticks on the Oric" for the facts and the to-do list.
 
 **Workflow:**
-1. Use the C64 disassembly as a map of the game logic.
-2. Disassemble the Apple II binary and match its routines to the C64 ones.
-3. Annotate the drawing and input code yourself — that is the part the Oric port replaces.
-4. Write the Oric renderer, input and sound. Keep the logic, trap rules and AI.
-
-**Oric fit:**
-- Flip-screen rooms, no scrolling — like Lode Runner (Idea #4), not Choplifter (Idea #3).
-- The split screen (one half per spy) is the main test for serial attributes. Plan colour per
-  attribute cell from day one, as in Idea #3's "Oric-native" decision.
-- Sound: the AY-3-8912 can do the theme music well. The C64 SID version is the reference.
-- Two players: the Oric needs two joysticks or a shared keyboard. Ties into Idea #2's joystick
-  research.
+1. Get the C64 listing to reassemble (or at least map it fully with `symbols.json`).
+2. Mark each routine as *logic* (keep) or *hardware* (VIC-II, SID, CIA, KERNAL — replace).
+3. Write the Oric layer: HIRES renderer + software sprites, AY driver, input, VIA-timer frame tick.
+4. Relocate the logic onto the Oric memory map and link it to the new layer.
+5. Monochrome first, then colour, then music.
 
 Open questions:
 - Licensing: derivative of a commercial game (First Star / Mad Magazine's Spy vs Spy characters).
@@ -602,6 +626,37 @@ world, and never returns to the `Ready` prompt, while still calling the ROM's I/
   text-mode app that takes over the machine reclaims **both** BASIC's workspace *and* the unused
   graphics RAM, ending up with meaningfully more than the ~37K a well-behaved BASIC-resident
   program gets.
+
+### Input: joysticks on the Oric (apply to every game idea: #3, #4, #8)
+
+Captured 2026-11-16 while sizing Idea #8 (two-player Spy vs Spy). Resolve when a game build starts.
+
+**Facts:**
+- The Oric-1 and Atmos have **no joystick port**. Rear connectors: tape, printer, expansion bus,
+  video. Most period games used the **keyboard** (usually cursor keys + space).
+- Joysticks came from **third-party add-on interfaces**, mostly on the **printer port**. The game
+  reads them through the 6522 VIA.
+  - **IJK interface** — the most common standard. Many games list "IJK joystick" support.
+  - **PASE and others** — different wiring, so each needs its own support code in the game.
+- **Metaphoric clone** ([[OldWer-Metaphoric]] in the wiki): 2 Atari-style DB9 ports on the
+  keyboard PCB — one IJK-compatible ("Stingy") port, one that sends cursor keys + space for
+  keyboard-only games. Jumpers JP2/JP3 add extra fire buttons.
+- **MiSTer core:** `rtl/joystick.sv` maps a USB gamepad onto VIA Port A
+  ([`annotated/rtl/oricatmos.vhd`](mister-fpga-oric-core-understanding/annotated/rtl/oricatmos.vhd)
+  ★ SECTION 13; see also `MAP.md`). Behaves much like an IJK-style interface — confirm when
+  `joystick.sv` is annotated.
+
+**Design rule for our games:** support **both** inputs.
+- Keyboard: always works. For 2 players, use 2 key sets on the one keyboard; check keyboard
+  matrix limits (which key pairs the Oric can read at the same time).
+- Joystick: IJK. This covers real IJK interfaces, Metaphoric and (probably) MiSTer.
+
+**To-do before building input code:**
+- [ ] Search the Defence Force forum (live, per AGENTS.md) for: the list of period joystick
+      interfaces, their exact wiring/bit mapping, and how games **detect** an IJK interface.
+- [ ] Find the IJK read routine in an existing open-source Oric game or OSDK example.
+- [ ] Annotate `joystick.sv` (core project plan) and confirm its bit mapping matches IJK.
+- [ ] Test 2-player keyboard: which key combinations ghost or block each other.
 
 ### Reference: reverse-engineered Apple II software (port-candidate pool)
 
