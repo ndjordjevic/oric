@@ -3,6 +3,18 @@
 Read this first. It tells you which files matter, how they connect, and where to look for each
 part of the machine. The comments in `annotated/` tell you what the code inside does.
 
+**What "★ SECTION n" means.** Each file in `annotated/` is cut into numbered parts. Each part
+starts with a comment line like this:
+
+```
+// ★ SECTION 11 — THE ORIC ITSELF
+// This one block IS the Oric computer: rtl/oricatmos.vhd. ...
+```
+
+So "`Oric.sv` ★ SECTION 11" means: open `annotated/Oric.sv`, search for `★ SECTION 11`, and read
+the code below that comment, up to the next `★`. The numbers count only inside one file —
+`Oric.sv` and `oricatmos.vhd` each have their own SECTION 1 to 19.
+
 ## The 4 layers
 
 Each layer uses the one below it.

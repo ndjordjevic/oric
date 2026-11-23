@@ -49,8 +49,8 @@ It does not repeat the code comments or the other docs. It links to them.
   - Which files are the Oric, which are MiSTer extras, which to ignore
   - A "where to look for X" table (video → `ula.vhd`, sound → `psg.v`, …)
   - One simple diagram of how the files connect
-- [ ] Chat: walk the map together.
-- [ ] Notes: `notes/phase-1-map.md`
+- [x] Chat: walk the map together.
+- [x] Notes: `notes/phase-1-map.md`
 
 ## Phase 2 — The real Oric, in short
 
