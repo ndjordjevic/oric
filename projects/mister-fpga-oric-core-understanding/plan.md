@@ -59,8 +59,8 @@ It does not repeat the code comments or the other docs. It links to them.
 - [x] The chips and their jobs: 6502 CPU, ULA (video + memory), VIA 6522 (I/O), AY-3-8912 (sound),
       RAM, ROM.
 - [x] The memory map: what lives at which address.
-- [ ] Chat.
-- [ ] Notes: `notes/phase-2-real-oric.md`
+- [x] Chat.
+- [x] Notes: `notes/phase-2-real-oric.md`
 
 Doc: [`oric-hardware.md`](oric-hardware.md).
 

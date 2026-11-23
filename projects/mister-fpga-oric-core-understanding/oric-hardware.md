@@ -105,14 +105,16 @@ From `core/docs/oric_memory_map.md` §1.
 | `$0500`–`$97FF` | ~37 KB | Free RAM |
 | `$9800`–`$9BFF` | 1 KB | Standard character set (moved down from `$B400`) |
 | `$9C00`–`$9FFF` | 896 B | Alternate character set (plus a 128-byte gap) |
-| `$A000`–`$BF67` | 8000 B | **HIRES picture**: 200 lines × 40 bytes, 6 pixels per byte |
+| `$A000`–`$BF3F` | 8000 B | **HIRES picture**: 200 lines × 40 bytes, 6 pixels per byte |
+| `$BF40`–`$BF67` | 40 B | Unused (one line's worth) |
 | `$BF68`–`$BFDF` | 120 B | 3 text lines at the bottom of the screen |
 | `$BFE0`–`$BFFF` | 32 B | Spare |
 | `$C000`–`$FFFF` | 16 KB | ROM |
 
 Two facts behind the odd numbers:
-- The HIRES picture stops at `$BF67` because, after line 200, the ULA always reads the bottom 3
-  text lines from `$BF68`, in both modes.
+- After line 200, the ULA always reads the bottom 3 text lines from `$BF68`, in both modes. The
+  picture ends at `$BF3F` (200 × 40 = 8000 bytes), so `$BF40`–`$BF67` is a 40-byte gap. (`core/docs/oric_memory_map.md`
+  says the picture runs to `$BF67`; that is 8040 bytes, so it is off by one line.)
 - "6 pixels per byte" and "one attribute takes a 6-pixel cell" are the same fact.
 
 In TEXT mode the ULA does not read `$9800`–`$B3FF`, so a machine-code program can use it as extra
