@@ -363,10 +363,57 @@ semantics from. Unlike the games, you're implementing to a spec. The interpreter
 (tokenizer → expression evaluator → statement executor) is the reusable heart; get it right and
 adding commands is incremental.
 
+### Variant: "Oric FoxPro" in ROM — boot straight into the database
+
+Captured 2026-11-25 from a Google AI Mode chat. Start this after the MiSTer core study.
+
+**The idea:** make a custom 16 KB ROM for `$C000–$FFFF`. Keep the OS part of the Atmos ROM
+(keyboard, screen, IRQ, tape). Remove BASIC. Put the database engine in the free space. Power on →
+the database prompt appears at once, like an appliance.
+
+**Why do it this way:**
+- The main goal is to **learn the Oric at bare-metal level**. A ROM forces you to own reset,
+  vectors (`$FFFA–$FFFF`), IRQ, keyboard and screen. A RAM app that calls BASIC's ROM does not.
+- The code lives in ROM, so almost all 48 KB of RAM is free for tables, buffers and memvars. This
+  helps the RAM limit above.
+- This goes against the appendix's "Purist option — skip it". That advice is for an app that
+  only wants to work. Here the hard part *is* the point.
+
+**What the chat got right:**
+- The `.DBF` format fits a 6502 well: 32-byte header, fixed-length records
+  (record N is at `HeaderLen + N × RecLen`), plain ASCII fields.
+- Text UI fits the Oric: 40×28 screen at `$BB80`. One serial attribute at the start of a row
+  colours the whole row — a cheap `BROWSE` highlight bar.
+- Keyboard: AY port A selects the column; the VIA reads the row.
+- Test loop: Oricutron (has a monitor/debugger) for quick debug, then MiSTer for real timing.
+
+**Check these chat claims — they look wrong or unverified:**
+- *"BASIC is `$C000–$E400`, OS is `$E500–$FFFF`."* Too clean. In the Atmos ROM, BASIC and OS
+  code are mixed. Removing BASIC needs a commented ROM disassembly and real work.
+- *"MiSTer OSD has Load ROM for the Oric core."* Not confirmed. Check it in the core study
+  (`mister-fpga-oric-core-understanding/`).
+- *"Euphoric BASIC."* Euphoric is an emulator. The Atmos has a Microsoft-derived BASIC.
+- *"Kansas City" tape format.* Not an accurate name for the Oric tape format.
+- *"W27C512 instead of 27128."* That chip is 64 KB, so it is not a drop-in swap.
+
+**Suggested steps:**
+1. ROM skeleton: reset vector, IRQ, clear the screen, print a banner at `$BB80`.
+2. Own keyboard scan (VIA + AY) and a dot-prompt line editor.
+3. A sample `.DBF` built into the ROM + a `BROWSE` screen.
+4. Tape or Microdisc I/O, so `.DBF` files load and save.
+5. Then the MVP commands above.
+
+**Later, maybe:** the same idea on the Amiga 1200 — a Workbench table designer (gadtools, C),
+a remake of a 1990s Aztec C school project. It could write `.DBF` files that the Oric version
+reads.
+
 Open questions:
 - Check whether **any database software already exists for the Oric**, to know what this would sit
   next to (not yet researched).
 - Decide the storage target early — it shapes the assembly layer more than any language choice.
+- ROM variant: which Atmos ROM disassembly to start from (search the wiki/books and the forum).
+- ROM variant: are 16 KB enough for OS routines + interpreter? If not, put the engine in ROM and
+  load commands as overlays from disk.
 
 ## 6. Write a small CP/M-like OS for the Oric — the capstone
 
@@ -620,6 +667,7 @@ world, and never returns to the `Ready` prompt, while still calling the ROM's I/
   Microdisc and some expansions) and map RAM over `$C000–$FFFF` for a full 64K RAM machine — but
   you lose the ROM's keyboard/screen/tape routines and must write all of that yourself. Rarely
   worth it, and definitely not for a text-mode app that wants exactly those routines.
+  (Exception: Idea #5's ROM variant does this on purpose, to learn the bare metal.)
 - **Useful bonus for text-mode apps (e.g. Idea #5):** the 8K HIRES screen RAM around `$A000` is
   only being displayed by the ULA when in HIRES mode. Run in TEXT mode (screen sits up near
   `$BB80`) and that region isn't feeding the display — it becomes usable general RAM. So a

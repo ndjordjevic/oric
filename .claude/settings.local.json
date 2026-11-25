@@ -19,5 +19,6 @@
       "Bash(python3 -c \"import sys,re; t=sys.stdin.read\\(\\); print\\(re.sub\\('<[^>]+>',' ',t\\)\\)\")",
       "Bash(rtk find *)"
     ]
-  }
+  },
+  "outputStyle": "Concise"
 }
