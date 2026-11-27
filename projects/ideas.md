@@ -388,10 +388,15 @@ the database prompt appears at once, like an appliance.
 - Test loop: Oricutron (has a monitor/debugger) for quick debug, then MiSTer for real timing.
 
 **Check these chat claims — they look wrong or unverified:**
-- *"BASIC is `$C000–$E400`, OS is `$E500–$FFFF`."* Too clean. In the Atmos ROM, BASIC and OS
-  code are mixed. Removing BASIC needs a commented ROM disassembly and real work.
-- *"MiSTer OSD has Load ROM for the Oric core."* Not confirmed. Check it in the core study
-  (`mister-fpga-oric-core-understanding/`).
+- *"BASIC is `$C000–$E400`, OS is `$E500–$FFFF`."* Partly true. Checked in `core/docs/Oric Rom.md`
+  (2026-11-27): the low-level code starts at `$E4AC` (`TAPESYNC`). But the upper part also holds
+  BASIC command handlers (`CLOAD`, `CSAVE`, `HIRES`, `DRAW`, `CIRCLE`, `PLAY`…) next to the real
+  OS routines (`IRQ` `$EE22`, `READKBD` `$F495`, `PRINTCHAR` `$F5C1`, `RESET` `$F88F`). The
+  charset is `$FC78–$FF77`, then `KEYCODETAB` at `$FF78`. So you keep a part of the top 6.7 KB,
+  not all of it. See Idea #10.
+- *"MiSTer OSD has Load ROM for the Oric core."* **Confirmed** (2026-11-27). `Oric.sv` has a ROM
+  choice "Loadable Bios" and an OSD item "Load Alternative Bios" (`.ROM` file).
+  `core/docs/live_rom_patching.md` explains how the core patches ROM bytes at run time.
 - *"Euphoric BASIC."* Euphoric is an emulator. The Atmos has a Microsoft-derived BASIC.
 - *"Kansas City" tape format.* Not an accurate name for the Oric tape format.
 - *"W27C512 instead of 27128."* That chip is 64 KB, so it is not a drop-in swap.
@@ -411,7 +416,12 @@ Open questions:
 - Check whether **any database software already exists for the Oric**, to know what this would sit
   next to (not yet researched).
 - Decide the storage target early — it shapes the assembly layer more than any language choice.
-- ROM variant: which Atmos ROM disassembly to start from (search the wiki/books and the forum).
+- ROM variant: which Atmos ROM disassembly to start from. Best first pick: `core/docs/Oric Rom.md`
+  in the core clone (ROM 1.1b, named sections). Others the chat named: the 8D/Oric web
+  disassembly of ROM 1.1b, and the books *L'Oric à Nu* and the *Oric Atmos Advanced User Guide*
+  (check `oric-docs/books/INDEX.md`).
+- Alternative host (from the 2026-11-25 chat): run the database as `FOXPRO.COM` on top of the
+  Idea #6 OS instead of as a ROM. Then it uses that OS's file system and needs no own drivers.
 - ROM variant: are 16 KB enough for OS routines + interpreter? If not, put the engine in ROM and
   load commands as overlays from disk.
 
@@ -489,6 +499,23 @@ Open questions:
   little without a CP/M software library to run).
 - Interaction with SEDORIC — coexist on separate disks, or read SEDORIC-format media?
 - Same storage-target fork as Idea #5 (tape / Microdisc / modern SD) — decide once, share the layer.
+
+**Notes from the 2026-11-25 Google AI Mode chat** (the goal is the same: learn how an OS works,
+not run Z80 programs):
+- **Blueprint: DOS/65** by Richard Leary — a 6502 clone of CP/M 2.2 (KIM-1, OSI, Atari). Two ways
+  to use it: write CCP/BDOS/BIOS from zero (most learning), or keep DOS/65 and write only an Oric
+  BIOS. Read it next to Digital Research's *CP/M 2.2 Alteration Guide*.
+- **What you learn:** a BIOS jump table (`CONIN`, `CONOUT`, `SETTRK`, `SETSEC`, `READ`, `WRITE`…),
+  the 36-byte FCB (file control block), directory extents, the free-block bitmap, and the `A>`
+  shell that loads `.COM` files into the TPA (free program RAM).
+- **Classic problem — deblocking:** CP/M uses 128-byte records, the Microdisc uses 256-byte
+  sectors. You need a sector buffer with a "dirty" flag. This is how a real disk cache works.
+- **Memory idea:** the OS lives in the 16 KB overlay RAM at `$C000–$FFFF` (the RAM under the ROM,
+  switched in through `$0314` on a Microdisc). The TPA is `$0400–$B7FF`, about 45 KB. The chat
+  gave a CCP/BDOS/BIOS split (2 KB / 3.5 KB / 3.5 KB); treat these sizes as rough guesses.
+- **Chat's order is the opposite of ours:** OS first, then the database as `FOXPRO.COM` on top.
+  This file keeps app-first (see "Sequencing decision" above). Both orders work.
+- A Z80 emulator in 6502 could boot real CP/M, but at about 1/15 of real speed. Not the goal.
 
 ## 7. Study 1337 (fan Elite for the Oric) — then polish it, or do an own Elite port
 
@@ -655,9 +682,65 @@ Open questions:
 - Can the MiSTer also **save** to a real tape (`CSAVE`)? The core has a `tape_out` signal; check
   whether it reaches an audio output.
 
+## 10. Study the Atmos ROM's OS part — then optimize it with AI tools
+
+Goal: read and understand the low-level half of the Atmos ROM (not BASIC), line by line. Then make
+it faster or smaller with help from AI tools, and prove that it still behaves the same.
+Captured 2026-11-27 from the Google AI Mode chat.
+
+**Why it fits here:**
+- It is the software twin of the core study. The core shows the hardware; this shows the code
+  that drives it (VIA, AY, ULA screen, tape).
+- It is step 1 of Idea #5's ROM variant and gives the "BIOS" layer for Idea #6. The OS routines
+  you understand here are the ones you keep or rewrite there.
+- The source is already local: `mister-fpga-oric-core-understanding/core/docs/Oric Rom.md`
+  (ROM 1.1b disassembly, one section per routine). The core can boot a changed ROM through
+  "Load Alternative Bios", so you can test on MiSTer too.
+
+**What to study** (addresses from `Oric Rom.md`):
+
+| Area | Routines | Start |
+|---|---|---|
+| Tape | `TAPESYNC`, `PUTTAPEBYTE`, `GETTAPEBYTE`, `CLOAD`, `CSAVE` | `$E4AC` |
+| Timer + IRQ | `SETUPTIMER`, `IRQ`, `DELAY` | `$EDE0` |
+| Keyboard | `READKBD`, `KEY2ASCII`, `READKBDCOL`, `WRITETOAY` | `$F495` |
+| Text screen | `PRINTCHAR`, `CONTROLCHR`, `CLEARLINE`, `CHAR2SCR`, `PRINTSTATUS` | `$F5C1` |
+| Reset + init | `RESET`, `RESETVIA`, `SETUPTEXT`, `RAMTEST` | `$F88F` |
+| Sound | `PING`, `EXPLODE`, `ZAP`, `SOUND`, `PLAY`, `MUSIC` | `$FA9F` |
+| Font | `CHARSET` | `$FC78` |
+
+The area also holds BASIC command handlers (`HIRES`, `DRAW`, `CIRCLE`, `STORE`/`RECALL`…). Mark
+each routine "OS" or "BASIC" first.
+
+**Where the chat says AI can help:**
+- Make a zero-page and page-2 map: which bytes the OS uses and which only BASIC uses.
+- Find slow spots: screen row address recalculated each time (use a 28-entry table), byte-by-byte
+  scroll loops, `JSR`+`RTS` tails (use `JMP`), extra `PHA`/`PLA` pairs.
+- Write tests: run the old and the new routine on the same input (Python 6502 emulator, or
+  Oricutron), and compare screen RAM `$BB80–$BFDF` and the flags.
+
+**Be careful:**
+- Do not speed up code with timing loops: tape bit timing, AY register writes through the VIA
+  (CA2/CB2 lines), keyboard settle delays. Faster code can break them. The core study shows the
+  real timing.
+- The chat's speed-up numbers ("3× to 5× faster scroll") are guesses. Measure them.
+- Keep the entry addresses the same if old programs must still call the ROM.
+
+**Suggested steps:**
+1. Turn `Oric Rom.md` into a source file that re-assembles to the exact same 16 KB (byte-identical
+   check against the original ROM).
+2. Label every routine OS or BASIC. Build the zero-page map.
+3. Pick one routine (start with `PRINTCHAR` or the scroll) and optimize it. Test old vs new.
+4. Boot the changed ROM in Oricutron, then on MiSTer with "Load Alternative Bios".
+
+Open questions:
+- Which assembler to use for step 1 (`xa`, `ca65`)? Is there already a re-assemblable source?
+- Which ROM version does MiSTer's built-in Atmos ROM (`rtl/rom/BASIC11A.vhdl`) hold — 1.1a or
+  1.1b? `Oric Rom.md` is for 1.1b.
+
 ---
 
-## Appendix — shared platform notes (apply to Ideas #3, #4, #5, #6, #8)
+## Appendix — shared platform notes (apply to Ideas #3, #4, #5, #6, #8, #10)
 
 Captured 2026-07-16; these are cross-cutting, so they live here rather than being repeated per idea.
 
@@ -712,6 +795,41 @@ world, and never returns to the `Ready` prompt, while still calling the ROM's I/
   text-mode app that takes over the machine reclaims **both** BASIC's workspace *and* the unused
   graphics RAM, ending up with meaningfully more than the ~37K a well-behaved BASIC-resident
   program gets.
+
+### Storage: Microdisc and other options (apply to Ideas #5, #6, #10)
+
+Captured 2026-11-27 from the Google AI Mode chat. Not yet checked against the wiki or the forum.
+
+**Microdisc — how it works:**
+- Official 3" floppy unit from Oric (late 1984). It has a WD1793 floppy controller and an 8 KB boot
+  EPROM. It powers the Oric too. Up to 3 more drives can be chained.
+- Registers in page 3: `$0310–$0313` = WD1793 (command/status, track, sector, data). `$0314`
+  and up = control (drive, side, IRQ, and the ROM/RAM switch).
+- **The memory trick:** the Oric has 64 KB of RAM, but the ROM covers the top 16 KB
+  (`$C000–$FFFF`). The Microdisc uses the `ROMDIS` and `MAP` lines to switch that range between
+  the Oric ROM, its own boot EPROM, and the hidden RAM.
+- **Boot:** the EPROM is switched in → it reads track 0 → it copies the DOS (Sedoric or OricDOS)
+  into the hidden RAM → it switches itself off. After that, BASIC runs from ROM. A disk command
+  switches the DOS RAM in, runs, and switches BASIC back.
+- **Disk size:** 40 tracks × 16 sectors × 256 bytes = 160 KB per side; double-sided = 320 KB.
+  Disk images can use more tracks.
+- **DOS commands:** `DIR`, `LOAD`, `SAVE`, `DEL`, `REN`, `COPY`, `BACKUP`, `INIT`/`FORMAT`, plus
+  data-file commands `OPEN`, `CLOSE`, `PUT`, `GET`. Sedoric adds `JUMP`/`APPEND` (seek in a file),
+  `RENUM`, `MERGE`, windows (`WINDOW`) and more.
+- **The MiSTer core** emulates the Microdisc (`.DSK` images) and the full 64 KB of RAM. You can
+  read the `ROMDIS`/`MAP` logic in the core study.
+- **Your own code can skip the DOS:** read and write 256-byte sectors through the WD1793
+  registers directly.
+
+**Hard drive:** none existed in the 1980s. Other disk units of the time (Jasmin, Cumana) were
+floppy-only too. Modern options:
+- **Cumulus**, **Cumana Reborn** — they act like a Microdisc and load `.DSK` images from SD or USB.
+- **Erebus** — SD cartridge that loads `.TAP` files fast (the chat says it uses `ROMDIS`; check).
+- **Twilighte board + Orix** — SD card, 512 KB banked RAM/ROM, USB, and a Unix-like shell with
+  FAT32 files. This is the nearest thing to a hard drive.
+
+**Takeaway:** target `.DSK` (Microdisc) images. They work the same in Oricutron, on MiSTer, and on
+a real Oric with a Microdisc, Cumulus or Cumana Reborn.
 
 ### Input: joysticks on the Oric (apply to every game idea: #3, #4, #8)
 
