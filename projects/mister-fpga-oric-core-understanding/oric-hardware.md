@@ -136,6 +136,3 @@ Sedoric hook the machine this way, by changing the `JMP` at `$0244` or `$0247`.
 - [ ] Why does the core fill RAM with `0x01` at reset, not `0x00`? (`annotated/Oric.sv` ★ SECTION
       5.) Does the real Oric's RAM test at `$F88F` need it? Check
       `oric-advanced-user-guide-rom-disassembly`.
-- [ ] Oric-1 vs Atmos: is there any difference in the core besides the ROM (`BASIC10` vs
-      `BASIC11A`)?
-- [ ] The core always has 64 KB of RAM. Does it ever copy the 16 KB Oric-1?

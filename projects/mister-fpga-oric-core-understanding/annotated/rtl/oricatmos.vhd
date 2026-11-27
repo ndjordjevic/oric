@@ -576,7 +576,9 @@ BEGIN
 	-- ★ SECTION 11 — THE VIA (6522, the I/O chip)
 	-- A standard 1980s chip (also in the BBC Micro, C64, Apple II).
 	--   Port A: data for the sound chip; also joystick
-	--   Port B: keyboard column select, sound-chip control, tape out, tape motor
+	--   Port B: keyboard line select + key answer, tape out, tape motor, printer strobe
+	--   CA2, CB2: sound-chip control (BC1, BDIR). Note: the signal named
+	--   psg_bdir comes from CA2 and goes to the sound chip's BC1 pin (SECTION 12).
 	--   CB1: tape in
 	-- It has timers and makes the CPU's IRQ interrupt.
 	inst_via : ENTITY work.M6522
@@ -636,7 +638,9 @@ BEGIN
 	-- 3 tone channels (A, B, C) + noise + envelope.
 	-- It has no bus of its own: the VIA's Port A carries its data, and two VIA
 	-- lines (BDIR, BC1) say what to do: pick a register, write, or read.
-	-- The real Oric works the same way. Its spare I/O port reads keyboard rows.
+	-- The real Oric works the same way. Its spare I/O port (ioaq) is an output:
+	-- it picks which keys of the chosen keyboard line to test. SECTION 13
+	-- calls it row_mask (books differ on which side is "row" and which "column").
   psg_a: psg
   port map (
       clock       => CLK_IN,
@@ -853,9 +857,12 @@ BEGIN
 	                    ELSE '0';
 
 	-- ★ SECTION 18 — PRAVETZ BANK SWITCH
-	-- A real Pravetz-8D register at $0380-$0383. One bit picks the half of the
-	-- small disk ROM; one bit puts the Pravetz ROM over $C000-$FFFF in place of
-	-- BASIC.
+	-- A real Pravetz-8D switch at $0380-$0383. A write there (the data byte is
+	-- ignored; the address bits matter) sets two latches:
+	--   A1 → pravetz_bank:   which bank of the small disk ROM ($0320-$03FF)
+	--   A0 → pravetz_shadow: 1 = RAM replaces the ROM at $C000-$FFFF ("shadow
+	--                        RAM", for the disk system), 0 = BASIC ROM
+	-- See core/docs/pravetz_8d_fdc.md.
 	PROCESS (CLK_IN)
 	BEGIN
 		IF rising_edge(CLK_IN) THEN

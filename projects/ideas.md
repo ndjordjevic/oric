@@ -617,6 +617,44 @@ Open questions:
   Personal study only; credit Mike Riedel, First Star and the RE authors.
 - Order vs Idea #4: Lode Runner first as the confidence builder, or Spy vs Spy first?
 
+## 9. Load real cassettes on the MiSTer Oric
+
+Goal: plug a real cassette recorder into the MiSTer and load Oric software from real tapes. This
+gives the 1983 feel: the tape noise, the wait, the "Loading…" message.
+
+**How the core supports it:** set the menu option Tape Input = **ADC** and Tape Load = **Off**.
+The board's ADC chip turns the tape sound into the Oric's tape signal, and the original ROM
+decodes it through the VIA. See `mister-fpga-oric-core-understanding/annotated/Oric.sv`
+★ SECTION 19 (ADC input) and ★ SECTION 16 (tape path).
+
+**Shopping list:**
+
+| Item | What to get |
+|---|---|
+| Recorder | A mono cassette recorder with an **EAR** (headphone) output. A **MIC** input is needed only to record tapes. Example: HamiltonBuhl HA-802 (mic in, 2.5 mm remote, headphone out). An 80s "data recorder" also works. |
+| Cable | 3.5 mm audio cable from the recorder's EAR to the MiSTer's ADC audio input. |
+| Blank tapes | New production exists again: Revox Grandmaster C60/C90, Recording The Masters (Fox C60). Short tapes (C15–C30) are best. Many "new" tapes on eBay are old stock. |
+| Software | Original Oric cassettes (eBay), or record `.TAP` files onto blanks from a PC or phone (e.g. TapOric for Android). |
+
+**Steps:**
+1. Find the MiSTer's ADC input. Check which I/O board or socket the `ltc2308` ADC uses.
+2. Load a known-good `.TAP`: record it to a blank tape, then play it back into the MiSTer.
+3. Tune the volume. Start low and turn it up until the Oric shows "Loading…". This is the most
+   common problem on real Orics too.
+4. Try original 1980s cassettes.
+
+**Later (optional):** a real Oric needs a 7-pin DIN cable (tape in, tape out, motor relay), so the
+same recorder and tapes also work if you get a physical Oric.
+
+Sources: forum threads [PC to Oric connection](https://forum.defence-force.org/viewtopic.php?t=610),
+[TapOric](https://forum.defence-force.org/viewtopic.php?t=1758),
+[tap2cd volume tips](https://forum.defence-force.org/viewtopic.php?t=901).
+
+Open questions:
+- Where exactly is the ADC input on this MiSTer setup, and what signal level does it need?
+- Can the MiSTer also **save** to a real tape (`CSAVE`)? The core has a `tape_out` signal; check
+  whether it reaches an audio output.
+
 ---
 
 ## Appendix — shared platform notes (apply to Ideas #3, #4, #5, #6, #8)

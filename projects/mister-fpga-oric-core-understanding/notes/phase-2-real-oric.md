@@ -44,5 +44,5 @@ code was read. The source for all of this is [`../oric-hardware.md`](../oric-har
 
 ## Still open
 
-The 3 open questions in `oric-hardware.md` (RAM cleared to `0x01`, Oric-1 vs Atmos in the core,
-16 KB Oric-1). We answer them in Phase 3.
+The open questions in `oric-hardware.md`. Oric-1 vs Atmos and the 16 KB Oric-1 were answered in
+Phase 3 (see `phase-3-top-files.md`).

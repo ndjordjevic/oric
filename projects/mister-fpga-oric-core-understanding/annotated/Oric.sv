@@ -161,6 +161,7 @@ pll pll
 // During reset a counter (clr_addr) walks through RAM and fills it with 0x01,
 // not 0 (see `spram_d <= 1` in SECTION 10). It is 17 bits, so it walks the
 // 64 KB twice. Then reset is released.
+// tape_clk (below) is left over: nothing in the core uses it.
 reg        reset = 0;
 reg [16:0] clr_addr = 0;
 wire       tap_autorun_reset_req;

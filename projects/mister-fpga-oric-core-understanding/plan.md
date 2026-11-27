@@ -70,10 +70,10 @@ Doc: [`oric-hardware.md`](oric-hardware.md).
 
 Both files already have plain-English `★` section comments.
 
-- [ ] `annotated/Oric.sv` — MiSTer glue: menu, files, RAM, video and sound out.
-- [ ] `annotated/rtl/oricatmos.vhd` — the Oric itself: connects CPU, ULA, VIA, sound, ROM.
-- [ ] Chat.
-- [ ] Notes: `notes/phase-3-top-files.md`
+- [x] `annotated/Oric.sv` — MiSTer glue: menu, files, RAM, video and sound out.
+- [x] `annotated/rtl/oricatmos.vhd` — the Oric itself: connects CPU, ULA, VIA, sound, ROM.
+- [x] Chat.
+- [x] Notes: `notes/phase-3-top-files.md`
 
 ## Phase 4 — The chips, one at a time
 
